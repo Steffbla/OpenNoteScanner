@@ -6,7 +6,6 @@ import android.graphics.Paint;
 import android.graphics.drawable.shapes.Shape;
 import android.util.AttributeSet;
 import android.view.View;
-
 import java.util.ArrayList;
 
 /**
@@ -36,20 +35,20 @@ public class HUDCanvasView extends View {
         private final Paint mPaint;
         private final Paint mBorder;
 
-        public HUDShape( Shape shape , Paint paint ) {
+        HUDShape(Shape shape, Paint paint) {
             mShape = shape;
             mPaint = paint;
             mBorder = null;
         }
 
-        public HUDShape( Shape shape , Paint paint , Paint border ) {
+        HUDShape(Shape shape, Paint paint, Paint border) {
             mShape = shape;
             mPaint = paint;
             mBorder = border;
             mBorder.setStyle(Paint.Style.STROKE);
         }
 
-        public void draw ( Canvas canvas ) {
+        void draw(Canvas canvas) {
             mShape.draw(canvas,mPaint);
 
             if (mBorder != null) {
@@ -57,7 +56,7 @@ public class HUDCanvasView extends View {
             }
         }
 
-        public Shape getShape() {
+        Shape getShape() {
             return mShape;
         }
     }
@@ -89,10 +88,9 @@ public class HUDCanvasView extends View {
         return hudShape;
     }
 
-    public HUDShape addShape(Shape shape , Paint paint , Paint border ) {
+    public void addShape(Shape shape, Paint paint, Paint border) {
         HUDShape hudShape = new HUDShape(shape, paint , border );
         shapes.add(hudShape);
-        return hudShape;
     }
 
     public void removeShape(HUDShape shape) {

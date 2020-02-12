@@ -17,14 +17,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.afollestad.dragselectrecyclerview.DragSelectRecyclerView;
 import com.afollestad.dragselectrecyclerview.DragSelectRecyclerViewAdapter;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -32,7 +30,6 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageSize;
 import com.todobom.opennotescanner.helpers.AboutFragment;
 import com.todobom.opennotescanner.helpers.Utils;
-
 import java.io.File;
 import java.util.ArrayList;
 
@@ -42,14 +39,13 @@ public class GalleryGridActivity extends AppCompatActivity
 
     private static final String TAG = "GalleryGridActivity";
     private MenuItem mShare;
-    private MenuItem mTag;
+
     private MenuItem mDelete;
     private DragSelectRecyclerView recyclerView;
     private AlertDialog.Builder deleteConfirmBuilder;
     private boolean selectionMode = false;
     private ImageLoader mImageLoader;
     private ImageSize mTargetSize;
-    private SharedPreferences mSharedPref;
 
     @Override
     public void onClick(int index) {
@@ -93,17 +89,38 @@ public class GalleryGridActivity extends AppCompatActivity
 
         ArrayList<String> itemList = new ArrayList<>();
 
-        // Constructor takes click listener callback
-        protected ThumbAdapter(GalleryGridActivity activity, ArrayList<String> files) {
-            super();
-            mCallback = activity;
+        public class ThumbViewHolder extends RecyclerView.ViewHolder
+                implements View.OnClickListener, View.OnLongClickListener {
 
-            for (String file : files){
-                add(file);
+            public final ImageView image;
+
+            String filename;
+
+            ThumbViewHolder(View itemView) {
+                super(itemView);
+                this.image = itemView.findViewById(R.id.gallery_image);
+                this.image.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                // this.image.setPadding(8, 8, 8, 8);
+                this.itemView.setOnClickListener(this);
+                this.itemView.setOnLongClickListener(this);
             }
 
-            setSelectionListener(activity);
+            @Override
+            public void onClick(View v) {
+                // Forwards to the adapter's constructor callback
+                if (mCallback != null) {
+                    mCallback.onClick(getAdapterPosition());
+                }
+            }
 
+            @Override
+            public boolean onLongClick(View v) {
+                // Forwards to the adapter's constructor callback
+                if (mCallback != null) {
+                    mCallback.onLongClick(getAdapterPosition());
+                }
+                return true;
+            }
         }
 
         void add(String path){
@@ -147,7 +164,20 @@ public class GalleryGridActivity extends AppCompatActivity
             return itemList.size();
         }
 
-        public ArrayList<String> getSelectedFiles() {
+        // Constructor takes click listener callback
+        ThumbAdapter(GalleryGridActivity activity, ArrayList<String> files) {
+            super();
+            mCallback = activity;
+
+            for (String file : files) {
+                add(file);
+            }
+
+            setSelectionListener(activity);
+
+        }
+
+        ArrayList<String> getSelectedFiles() {
 
             ArrayList<String> selection = new ArrayList<>();
 
@@ -156,36 +186,6 @@ public class GalleryGridActivity extends AppCompatActivity
             }
 
             return selection;
-        }
-
-
-        public class ThumbViewHolder extends RecyclerView.ViewHolder
-                implements View.OnClickListener, View.OnLongClickListener{
-
-            public final ImageView image;
-            public String filename;
-
-            public ThumbViewHolder(View itemView) {
-                super(itemView);
-                this.image = (ImageView) itemView.findViewById(R.id.gallery_image);
-                this.image.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                // this.image.setPadding(8, 8, 8, 8);
-                this.itemView.setOnClickListener(this);
-                this.itemView.setOnLongClickListener(this);
-            }
-
-            @Override
-            public void onClick(View v) {
-                // Forwards to the adapter's constructor callback
-                if (mCallback != null) mCallback.onClick(getAdapterPosition());
-            }
-
-            @Override
-            public boolean onLongClick(View v) {
-                // Forwards to the adapter's constructor callback
-                if (mCallback != null) mCallback.onLongClick(getAdapterPosition());
-                return true;
-            }
         }
 
     }
@@ -197,7 +197,7 @@ public class GalleryGridActivity extends AppCompatActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
         ((OpenNoteScannerApplication) getApplication()).getTracker()
                 .trackScreenView("/GalleryGridActivity", "Gallery");
@@ -223,7 +223,7 @@ public class GalleryGridActivity extends AppCompatActivity
         myThumbAdapter = new ThumbAdapter(this, ab );
         // new Utils(getApplicationContext()).getFilePaths(););
 
-        recyclerView = (DragSelectRecyclerView) findViewById(R.id.recyclerview);
+        recyclerView = findViewById(R.id.recyclerview);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
         recyclerView.setAdapter(myThumbAdapter);
 
@@ -292,7 +292,7 @@ public class GalleryGridActivity extends AppCompatActivity
         mShare = menu.findItem(R.id.action_share);
         mShare.setVisible(false);
 
-        mTag = menu.findItem(R.id.action_tag);
+        final MenuItem tag = menu.findItem(R.id.action_tag);
         // mTag.setVisible(false);
 
         mDelete = menu.findItem(R.id.action_delete);

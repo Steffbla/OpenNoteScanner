@@ -12,7 +12,6 @@ import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.view.Display;
 import android.view.WindowManager;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,7 +19,6 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLContext;
@@ -35,6 +33,19 @@ public class Utils {
     public Utils(Context context) {
         this._context = context;
         mSharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+    }
+
+    public static boolean isPackageInstalled(Context context, String packagename) {
+        PackageManager pm = context.getPackageManager();
+        boolean app_installed;
+        try {
+            PackageInfo info = pm.getPackageInfo(packagename, PackageManager.GET_ACTIVITIES);
+            String label = (String) info.applicationInfo.loadLabel(pm);
+            app_installed = (label != null);
+        } catch (PackageManager.NameNotFoundException e) {
+            app_installed = false;
+        }
+        return app_installed;
     }
 
     /*
@@ -62,10 +73,10 @@ public class Utils {
             if (listFiles.length > 0) {
 
                 // loop through all files
-                for (int i = 0; i < listFiles.length; i++) {
+                for (final File listFile : listFiles) {
 
                     // get file path
-                    String filePath = listFiles[i].getAbsolutePath();
+                    String filePath = listFile.getAbsolutePath();
 
                     // check for supported file extension
                     if (IsSupportedFile(filePath)) {
@@ -77,23 +88,6 @@ public class Utils {
         }
 
         return filePaths;
-    }
-
-    /*
-     * Check supported file extensions
-     *
-     * @returns boolean
-     */
-    private boolean IsSupportedFile(String filePath) {
-        String ext = filePath.substring((filePath.lastIndexOf(".") + 1),
-                filePath.length());
-
-        if (AppConstant.FILE_EXTN
-                .contains(ext.toLowerCase(Locale.getDefault())))
-            return true;
-        else
-            return false;
-
     }
 
     /*
@@ -185,23 +179,17 @@ public class Utils {
         return bm;
     }
 
-    public static int calculateInSampleSize(
-            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+    /*
+     * Check supported file extensions
+     *
+     * @returns boolean
+     */
+    private boolean IsSupportedFile(String filePath) {
+        String ext = filePath.substring((filePath.lastIndexOf(".") + 1),
+                filePath.length());
 
-        // Raw height and width of image
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
-
-        if (height > reqHeight || width > reqWidth) {
-            if (width > height) {
-                inSampleSize = Math.round((float)height / (float)reqHeight);
-            } else {
-                inSampleSize = Math.round((float)width / (float)reqWidth);
-            }
-        }
-
-        return inSampleSize;
+        return AppConstant.FILE_EXTN
+                .contains(ext.toLowerCase(Locale.getDefault()));
     }
 
     public static void addImageToGallery(final String filePath, final Context context) {
@@ -223,19 +211,22 @@ public class Utils {
                         + "'", null);
     }
 
-    public static boolean isPackageInstalled(Context context , String packagename) {
-        PackageManager pm = context.getPackageManager();
-        boolean app_installed = false;
-        try
-        {
-            PackageInfo info = pm.getPackageInfo(packagename, PackageManager.GET_ACTIVITIES);
-            String label = (String) info.applicationInfo.loadLabel(pm);
-            app_installed = (label != null);
+    private static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+            if (width > height) {
+                inSampleSize = Math.round((float) height / (float) reqHeight);
+            } else {
+                inSampleSize = Math.round((float) width / (float) reqWidth);
+            }
         }
-        catch (PackageManager.NameNotFoundException e)
-        {
-            app_installed = false;
-        }
-        return app_installed;
+
+        return inSampleSize;
     }
 }

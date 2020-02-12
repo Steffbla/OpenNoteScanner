@@ -11,7 +11,6 @@ import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
-
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.ChecksumException;
 import com.google.zxing.FormatException;
@@ -19,7 +18,6 @@ import com.google.zxing.LuminanceSource;
 import com.google.zxing.NotFoundException;
 import com.google.zxing.RGBLuminanceSource;
 import com.google.zxing.Result;
-import com.google.zxing.ResultPoint;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.multi.qrcode.QRCodeMultiReader;
 import com.todobom.opennotescanner.helpers.OpenNoteMessage;
@@ -28,7 +26,12 @@ import com.todobom.opennotescanner.helpers.Quadrilateral;
 import com.todobom.opennotescanner.helpers.ScannedDocument;
 import com.todobom.opennotescanner.helpers.Utils;
 import com.todobom.opennotescanner.views.HUDCanvasView;
-
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -40,20 +43,13 @@ import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-
 /**
  * Created by allgood on 05/03/16.
  */
 public class ImageProcessor extends Handler {
 
     private static final String TAG = "ImageProcessor";
-    private final Handler mUiHandler;
+
     private final OpenNoteScannerActivity mMainActivity;
     private boolean mBugRotate;
     private boolean colorMode=false;
@@ -63,12 +59,10 @@ public class ImageProcessor extends Handler {
     private int colorThresh = 110;        // threshold
     private Size mPreviewSize;
     private Point[] mPreviewPoints;
-    private ResultPoint[] qrResultPoints;
 
 
-    public ImageProcessor ( Looper looper , Handler uiHandler , OpenNoteScannerActivity mainActivity ) {
+    ImageProcessor(Looper looper, Handler uiHandler, OpenNoteScannerActivity mainActivity) {
         super(looper);
-        mUiHandler = uiHandler;
         mMainActivity = mainActivity;
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mainActivity);
@@ -85,14 +79,19 @@ public class ImageProcessor extends Handler {
 
             Log.d(TAG, "Message Received: " + command + " - " + obj.getObj().toString() );
 
-            if ( command.equals("previewFrame")) {
-                processPreviewFrame((PreviewFrame) obj.getObj());
-            } else if ( command.equals("pictureTaken")) {
-                processPicture((Mat) obj.getObj());
-            } else if ( command.equals("colorMode")) {
-                colorMode=(Boolean) obj.getObj();
-            } else if ( command.equals("filterMode")) {
-                filterMode=(Boolean) obj.getObj();
+            switch (command) {
+                case "previewFrame":
+                    processPreviewFrame((PreviewFrame) obj.getObj());
+                    break;
+                case "pictureTaken":
+                    processPicture((Mat) obj.getObj());
+                    break;
+                case "colorMode":
+                    colorMode = (Boolean) obj.getObj();
+                    break;
+                case "filterMode":
+                    filterMode = (Boolean) obj.getObj();
+                    break;
             }
         }
     }
@@ -119,7 +118,6 @@ public class ImageProcessor extends Handler {
                 Log.d(TAG, "QR Code valid: " + result.getText());
                 qrOk = true;
                 currentQR = qrText;
-                qrResultPoints = result.getResultPoints();
                 break;
             } else {
                 Log.d(TAG, "QR Code ignored: " + result.getText());
@@ -146,27 +144,8 @@ public class ImageProcessor extends Handler {
 
     }
 
-    public void processPicture( Mat picture ) {
-
-        Mat img = Imgcodecs.imdecode(picture, Imgcodecs.CV_LOAD_IMAGE_UNCHANGED);
-        picture.release();
-
-        Log.d(TAG, "processPicture - imported image " + img.size().width + "x" + img.size().height);
-
-        if (mBugRotate) {
-            Core.flip(img, img, 1 );
-            Core.flip(img, img, 0 );
-        }
-
-        ScannedDocument doc = detectDocument(img);
-        mMainActivity.saveDocument(doc);
-
-        doc.release();
-        picture.release();
-
-        mMainActivity.setImageProcessorBusy(false);
-        mMainActivity.setAttemptToFocus(false);
-        mMainActivity.waitSpinnerInvisible();
+    void setBugRotate(boolean bugRotate) {
+        mBugRotate = bugRotate;
     }
 
 
@@ -311,40 +290,46 @@ public class ImageProcessor extends Handler {
         return null;
     }
 
-    private Point[] sortPoints( Point[] src ) {
+    private ArrayList<MatOfPoint> findContours(Mat src) {
 
-        ArrayList<Point> srcPoints = new ArrayList<>(Arrays.asList(src));
+        Mat grayImage = null;
+        Mat cannedImage = null;
+        Mat resizedImage = null;
 
-        Point[] result = { null , null , null , null };
+        double ratio = src.size().height / 500;
+        int height = Double.valueOf(src.size().height / ratio).intValue();
+        int width = Double.valueOf(src.size().width / ratio).intValue();
+        Size size = new Size(width, height);
 
-        Comparator<Point> sumComparator = new Comparator<Point>() {
+        resizedImage = new Mat(size, CvType.CV_8UC4);
+        grayImage = new Mat(size, CvType.CV_8UC4);
+        cannedImage = new Mat(size, CvType.CV_8UC1);
+
+        Imgproc.resize(src, resizedImage, size);
+        Imgproc.cvtColor(resizedImage, grayImage, Imgproc.COLOR_RGBA2GRAY, 4);
+        Imgproc.GaussianBlur(grayImage, grayImage, new Size(5, 5), 0);
+        Imgproc.Canny(grayImage, cannedImage, 75, 200);
+
+        ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+        Mat hierarchy = new Mat();
+
+        Imgproc.findContours(cannedImage, contours, hierarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+
+        hierarchy.release();
+
+        Collections.sort(contours, new Comparator<MatOfPoint>() {
+
             @Override
-            public int compare(Point lhs, Point rhs) {
-                return Double.valueOf(lhs.y + lhs.x).compareTo(rhs.y + rhs.x);
+            public int compare(MatOfPoint lhs, MatOfPoint rhs) {
+                return Double.compare(Imgproc.contourArea(rhs), Imgproc.contourArea(lhs));
             }
-        };
+        });
 
-        Comparator<Point> diffComparator = new Comparator<Point>() {
+        resizedImage.release();
+        grayImage.release();
+        cannedImage.release();
 
-            @Override
-            public int compare(Point lhs, Point rhs) {
-                return Double.valueOf(lhs.y - lhs.x).compareTo(rhs.y - rhs.x);
-            }
-        };
-
-        // top-left corner = minimal sum
-        result[0] = Collections.min(srcPoints, sumComparator);
-
-        // bottom-right corner = maximal sum
-        result[2] = Collections.max(srcPoints, sumComparator);
-
-        // top-right corner = minimal diference
-        result[1] = Collections.min(srcPoints, diffComparator);
-
-        // bottom-left corner = maximal diference
-        result[3] = Collections.max(srcPoints, diffComparator);
-
-        return result;
+        return contours;
     }
 
     private boolean insideArea(Point[] rp, Size size) {
@@ -476,53 +461,68 @@ public class ImageProcessor extends Handler {
         return doc;
     }
 
-    private ArrayList<MatOfPoint> findContours(Mat src) {
+    private void processPicture(Mat picture) {
 
-        Mat grayImage = null;
-        Mat cannedImage = null;
-        Mat resizedImage = null;
+        Mat img = Imgcodecs.imdecode(picture, Imgcodecs.CV_LOAD_IMAGE_UNCHANGED);
+        picture.release();
 
-        double ratio = src.size().height / 500;
-        int height = Double.valueOf(src.size().height / ratio).intValue();
-        int width = Double.valueOf(src.size().width / ratio).intValue();
-        Size size = new Size(width,height);
+        Log.d(TAG, "processPicture - imported image " + img.size().width + "x" + img.size().height);
 
-        resizedImage = new Mat(size, CvType.CV_8UC4);
-        grayImage = new Mat(size, CvType.CV_8UC4);
-        cannedImage = new Mat(size, CvType.CV_8UC1);
+        if (mBugRotate) {
+            Core.flip(img, img, 1);
+            Core.flip(img, img, 0);
+        }
 
-        Imgproc.resize(src,resizedImage,size);
-        Imgproc.cvtColor(resizedImage, grayImage, Imgproc.COLOR_RGBA2GRAY, 4);
-        Imgproc.GaussianBlur(grayImage, grayImage, new Size(5, 5), 0);
-        Imgproc.Canny(grayImage, cannedImage, 75, 200);
+        ScannedDocument doc = detectDocument(img);
+        mMainActivity.saveDocument(doc);
 
-        ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-        Mat hierarchy = new Mat();
+        doc.release();
+        picture.release();
 
-        Imgproc.findContours(cannedImage, contours, hierarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
-
-        hierarchy.release();
-
-        Collections.sort(contours, new Comparator<MatOfPoint>() {
-
-            @Override
-            public int compare(MatOfPoint lhs, MatOfPoint rhs) {
-                return Double.valueOf(Imgproc.contourArea(rhs)).compareTo(Imgproc.contourArea(lhs));
-            }
-        });
-
-        resizedImage.release();
-        grayImage.release();
-        cannedImage.release();
-
-        return contours;
+        mMainActivity.setImageProcessorBusy(false);
+        mMainActivity.setAttemptToFocus(false);
+        mMainActivity.waitSpinnerInvisible();
     }
 
     private QRCodeMultiReader qrCodeMultiReader = new QRCodeMultiReader();
 
+    private Point[] sortPoints(Point[] src) {
 
+        ArrayList<Point> srcPoints = new ArrayList<>(Arrays.asList(src));
 
-    public Result[] zxing( Mat inputImage ) throws ChecksumException, FormatException {
+        Point[] result = {null, null, null, null};
+
+        Comparator<Point> sumComparator = new Comparator<Point>() {
+            @Override
+            public int compare(Point lhs, Point rhs) {
+                return Double.compare(lhs.y + lhs.x, rhs.y + rhs.x);
+            }
+        };
+
+        Comparator<Point> diffComparator = new Comparator<Point>() {
+
+            @Override
+            public int compare(Point lhs, Point rhs) {
+                return Double.compare(lhs.y - lhs.x, rhs.y - rhs.x);
+            }
+        };
+
+        // top-left corner = minimal sum
+        result[0] = Collections.min(srcPoints, sumComparator);
+
+        // bottom-right corner = maximal sum
+        result[2] = Collections.max(srcPoints, sumComparator);
+
+        // top-right corner = minimal diference
+        result[1] = Collections.min(srcPoints, diffComparator);
+
+        // bottom-left corner = maximal diference
+        result[3] = Collections.max(srcPoints, diffComparator);
+
+        return result;
+    }
+
+    private Result[] zxing(Mat inputImage) throws ChecksumException, FormatException {
 
         int w = inputImage.width();
         int h = inputImage.height();
@@ -555,9 +555,5 @@ public class ImageProcessor extends Handler {
 
         return results;
 
-    }
-
-    public void setBugRotate(boolean bugRotate) {
-        mBugRotate = bugRotate;
     }
 }

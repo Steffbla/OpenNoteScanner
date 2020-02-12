@@ -10,13 +10,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
-
 import androidx.viewpager.widget.PagerAdapter;
-
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.ImageSize;
 import com.ortiz.touchview.TouchImageView;
-
 import java.util.ArrayList;
 
 public class FullScreenImageAdapter extends PagerAdapter {
@@ -24,13 +21,13 @@ public class FullScreenImageAdapter extends PagerAdapter {
     private static final String TAG = "FullScreenImageAdapter";
     private Activity _activity;
     private ArrayList<String> _imagePaths;
-    private int maxTexture;
+
     private ImageLoader mImageLoader;
     private ImageSize mTargetSize;
 
     // constructor
-    public FullScreenImageAdapter(Activity activity,
-                                  ArrayList<String> imagePaths) {
+    FullScreenImageAdapter(Activity activity,
+            ArrayList<String> imagePaths) {
         this._activity = activity;
         this._imagePaths = imagePaths;
     }
@@ -93,7 +90,7 @@ public class FullScreenImageAdapter extends PagerAdapter {
         return Math.log(n) / Math.log(base);
     }
 
-    public String getPath(int position) {
+    String getPath(int position) {
         return _imagePaths.get(position);
     }
 
@@ -102,12 +99,11 @@ public class FullScreenImageAdapter extends PagerAdapter {
         container.removeView((RelativeLayout) object);
     }
 
-    public void setMaxTexture(int maxTexture, ImageSize targetSize) {
-        this.maxTexture = maxTexture;
-        mTargetSize = targetSize;
+    void setImageLoader(ImageLoader imageLoader) {
+        mImageLoader = imageLoader;
     }
 
-    public void setImageLoader(ImageLoader imageLoader) {
-        mImageLoader = imageLoader;
+    void setMaxTexture(int maxTexture, ImageSize targetSize) {
+        mTargetSize = targetSize;
     }
 }

@@ -6,11 +6,9 @@ import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.Size;
 import android.util.AttributeSet;
 import android.util.Log;
-
-import org.opencv.android.JavaCameraView;
-
 import java.io.FileOutputStream;
 import java.util.List;
+import org.opencv.android.JavaCameraView;
 
 public class OpenNoteCameraView extends JavaCameraView implements PictureCallback {
 
@@ -73,8 +71,6 @@ public class OpenNoteCameraView extends JavaCameraView implements PictureCallbac
             mCamera.setParameters(parameters);
             Log.d(TAG, "selected picture resolution: " + curRes.width + "x" + curRes.height);
         }
-
-        return;
     }
 
 

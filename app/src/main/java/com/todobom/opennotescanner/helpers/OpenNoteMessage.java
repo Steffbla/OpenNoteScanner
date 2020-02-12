@@ -18,7 +18,7 @@ public class OpenNoteMessage  {
         return command;
     }
 
-    public void setCommand(String command) {
+    private void setCommand(String command) {
         this.command = command;
     }
 
@@ -26,7 +26,7 @@ public class OpenNoteMessage  {
         return obj;
     }
 
-    public void setObj(Object obj) {
+    private void setObj(Object obj) {
         this.obj = obj;
     }
 }

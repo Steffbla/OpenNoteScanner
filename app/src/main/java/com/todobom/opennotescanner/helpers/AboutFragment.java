@@ -1,6 +1,5 @@
 package com.todobom.opennotescanner.helpers;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Display;
@@ -9,13 +8,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
-
 import com.todobom.opennotescanner.OpenNoteScannerApplication;
 import com.todobom.opennotescanner.R;
-
 import us.feras.mdv.MarkdownView;
 
 /**
@@ -79,15 +75,6 @@ public class AboutFragment extends DialogFragment {
         if (mRunOnDetach != null) {
             mRunOnDetach.run();
         }
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
-        ((OpenNoteScannerApplication) activity.getApplication()).getTracker()
-                .trackScreenView("/about", "About Dialog");
-
     }
 
 

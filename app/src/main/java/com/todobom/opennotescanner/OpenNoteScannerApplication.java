@@ -2,7 +2,6 @@ package com.todobom.opennotescanner;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-
 import org.piwik.sdk.PiwikApplication;
 import org.piwik.sdk.Tracker;
 
@@ -10,7 +9,7 @@ import org.piwik.sdk.Tracker;
  * Created by allgood on 23/04/16.
  */
 public class OpenNoteScannerApplication extends PiwikApplication {
-    private SharedPreferences mSharedPref;
+
     private boolean mOptOut;
 
     SharedPreferences.OnSharedPreferenceChangeListener mPreferenceChangeListener =
@@ -47,19 +46,19 @@ public class OpenNoteScannerApplication extends PiwikApplication {
 
 
     private void initPiwik() {
-        mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
         // enable usage stats on google play
-        if (BuildConfig.FLAVOR.equals("gplay") && mSharedPref.getBoolean("isFirstRun",true)) {
-            mSharedPref.edit().putBoolean("usage_stats", true).commit();
-            mSharedPref.edit().putBoolean("isFirstRun", false).commit();
+        if (BuildConfig.FLAVOR.equals("gplay") && sharedPref.getBoolean("isFirstRun", true)) {
+            sharedPref.edit().putBoolean("usage_stats", true).apply();
+            sharedPref.edit().putBoolean("isFirstRun", false).apply();
         }
 
         // usage stats is optional and only when not debugging
-        mOptOut = !mSharedPref.getBoolean("usage_stats", false);
+        mOptOut = !sharedPref.getBoolean("usage_stats", false);
         getPiwik().setOptOut(mOptOut);
 
-        mSharedPref.registerOnSharedPreferenceChangeListener( mPreferenceChangeListener );
+        sharedPref.registerOnSharedPreferenceChangeListener(mPreferenceChangeListener);
 
         // Print debug output when working on an app.
         getPiwik().setDebug(BuildConfig.DEBUG);

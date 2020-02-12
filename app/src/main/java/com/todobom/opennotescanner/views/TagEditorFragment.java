@@ -10,12 +10,9 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
-
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
-
 import com.todobom.opennotescanner.R;
-
 import java.io.IOException;
 
 /**
@@ -26,9 +23,11 @@ public class TagEditorFragment extends DialogFragment {
     private Runnable mRunOnDetach;
     private String filePath;
 
-    boolean[] stdTagsState = new boolean[7];
-    String[] stdTags = { "rocket" , "gift" , "tv" , "bell" , "game" , "star" , "magnet" };
-    ImageView[] stdTagsButtons = new ImageView[7];
+    private String[] stdTags = {"rocket", "gift", "tv", "bell", "game", "star", "magnet"};
+
+    private ImageView[] stdTagsButtons = new ImageView[7];
+
+    private boolean[] stdTagsState = new boolean[7];
 
     public TagEditorFragment() {
         setRetainInstance(true);
@@ -40,13 +39,13 @@ public class TagEditorFragment extends DialogFragment {
         View tagEditorView = inflater.inflate(R.layout.tageditor_view, container);
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
-        stdTagsButtons[0] = (ImageView) tagEditorView.findViewById(R.id.buttonRocket);
-        stdTagsButtons[1] = (ImageView) tagEditorView.findViewById(R.id.buttonGift);
-        stdTagsButtons[2] = (ImageView) tagEditorView.findViewById(R.id.buttonTv);
-        stdTagsButtons[3] = (ImageView) tagEditorView.findViewById(R.id.buttonBell);
-        stdTagsButtons[4] = (ImageView) tagEditorView.findViewById(R.id.buttonGame);
-        stdTagsButtons[5] = (ImageView) tagEditorView.findViewById(R.id.buttonStar);
-        stdTagsButtons[6] = (ImageView) tagEditorView.findViewById(R.id.buttonMagnet);
+        stdTagsButtons[0] = tagEditorView.findViewById(R.id.buttonRocket);
+        stdTagsButtons[1] = tagEditorView.findViewById(R.id.buttonGift);
+        stdTagsButtons[2] = tagEditorView.findViewById(R.id.buttonTv);
+        stdTagsButtons[3] = tagEditorView.findViewById(R.id.buttonBell);
+        stdTagsButtons[4] = tagEditorView.findViewById(R.id.buttonGame);
+        stdTagsButtons[5] = tagEditorView.findViewById(R.id.buttonStar);
+        stdTagsButtons[6] = tagEditorView.findViewById(R.id.buttonMagnet);
 
         for ( int i=0 ; i<7 ; i++ ) {
 
@@ -62,7 +61,7 @@ public class TagEditorFragment extends DialogFragment {
             });
         }
 
-        Button tagDoneButton = (Button) tagEditorView.findViewById(R.id.tag_done);
+        Button tagDoneButton = tagEditorView.findViewById(R.id.tag_done);
         tagDoneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -103,15 +102,15 @@ public class TagEditorFragment extends DialogFragment {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        String userComment = exif.getAttribute("UserComment");
+        StringBuilder userComment = new StringBuilder(exif.getAttribute("UserComment"));
         for (int i=0; i<7 ; i++) {
-            if (stdTagsState[i] && !userComment.contains("<" + stdTags[i] + ">")) {
-                userComment += "<"+stdTags[i]+ ">";
-            } else if (!stdTagsState[i] && userComment.contains("<" + stdTags[i] + ">")) {
-                userComment.replaceAll("<"+stdTags[i]+">" , "");
+            if (stdTagsState[i] && !userComment.toString().contains("<" + stdTags[i] + ">")) {
+                userComment.append("<").append(stdTags[i]).append(">");
+            } else if (!stdTagsState[i] && userComment.toString().contains("<" + stdTags[i] + ">")) {
+                userComment.toString().replaceAll("<" + stdTags[i] + ">", "");
             }
         }
-        exif.setAttribute("UserComment" , userComment);
+        exif.setAttribute("UserComment", userComment.toString());
         try {
             exif.saveAttributes();
         } catch (IOException e) {
