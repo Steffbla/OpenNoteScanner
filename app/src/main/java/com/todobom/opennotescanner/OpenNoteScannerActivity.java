@@ -1068,10 +1068,10 @@ public class OpenNoteScannerActivity extends AppCompatActivity
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) imageView.getLayoutParams();
 
             if (previewPoints != null) {
-                double documentLeftHeight = hipotenuse(previewPoints[0], previewPoints[1]);
-                double documentBottomWidth = hipotenuse(previewPoints[1], previewPoints[2]);
-                double documentRightHeight = hipotenuse(previewPoints[2], previewPoints[3]);
-                double documentTopWidth = hipotenuse(previewPoints[3], previewPoints[0]);
+                double documentLeftHeight = hypotenuse(previewPoints[0], previewPoints[1]);
+                double documentBottomWidth = hypotenuse(previewPoints[1], previewPoints[2]);
+                double documentRightHeight = hypotenuse(previewPoints[2], previewPoints[3]);
+                double documentTopWidth = hypotenuse(previewPoints[3], previewPoints[0]);
 
                 double documentWidth = Math.max(documentTopWidth, documentBottomWidth);
                 double documentHeight = Math.max(documentLeftHeight, documentRightHeight);
@@ -1140,10 +1140,9 @@ public class OpenNoteScannerActivity extends AppCompatActivity
             });
 
             imageView.startAnimation(animationSet);
-
         }
 
-        double hipotenuse(Point a, Point b) {
+        double hypotenuse(Point a, Point b) {
             return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
         }
     }
@@ -1154,5 +1153,4 @@ public class OpenNoteScannerActivity extends AppCompatActivity
             scanDocButton.setBackgroundTintList(null);
         }
     }
-
 }
