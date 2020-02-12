@@ -3,12 +3,12 @@ package com.todobom.opennotescanner.helpers;
 /**
  * Created by allgood on 05/03/16.
  */
-public class OpenNoteMessage  {
+public class OpenNoteMessage {
 
     private String command;
     private Object obj;
 
-    public OpenNoteMessage( String command , Object obj ) {
+    public OpenNoteMessage(String command, Object obj) {
         setObj(obj);
         setCommand(command);
     }

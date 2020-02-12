@@ -138,7 +138,7 @@ public class FullScreenViewActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        switch(id) {
+        switch (id) {
             case android.R.id.home:
                 finish();
                 break;
@@ -203,10 +203,10 @@ public class FullScreenViewActivity extends AppCompatActivity {
         final File photoFile = new File(filePath);
 
         photoFile.delete();
-        Utils.removeImageFromGallery(filePath,this);
+        Utils.removeImageFromGallery(filePath, this);
 
         loadAdapter();
-        
+
         if (0 == mAdapter.getCount())
             finish();
         mViewPager.setCurrentItem(item);
@@ -219,9 +219,9 @@ public class FullScreenViewActivity extends AppCompatActivity {
 
         final Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType("image/jpg");
-        Uri uri = FileProvider.getUriForFile(getApplicationContext(), getPackageName()+".fileprovider", new File(mAdapter.getPath(item)));
+        Uri uri = FileProvider.getUriForFile(getApplicationContext(), getPackageName() + ".fileprovider", new File(mAdapter.getPath(item)));
         shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
-        Log.d("Fullscreen","uri "+uri);
+        Log.d("Fullscreen", "uri " + uri);
 
         startActivity(Intent.createChooser(shareIntent, getString(R.string.share_snackbar)));
     }

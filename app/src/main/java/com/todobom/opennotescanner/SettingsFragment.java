@@ -54,10 +54,12 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
             ListPreference listPreference = (ListPreference) preference;
             listPreference.setSummary(listPreference.getEntry());
             return;
-        } if (preference instanceof EditTextPreference) {
+        }
+        if (preference instanceof EditTextPreference) {
             SharedPreferences sharedPrefs = getPreferenceManager().getSharedPreferences();
             preference.setSummary(sharedPrefs.getString(key, "Default"));
-        } if (preference instanceof PreferenceScreen) {
+        }
+        if (preference instanceof PreferenceScreen) {
             updatePreferenceScreen((PreferenceScreen) preference);
         }
     }

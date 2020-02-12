@@ -8,10 +8,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+
 import com.todobom.opennotescanner.OpenNoteScannerApplication;
 import com.todobom.opennotescanner.R;
+
 import us.feras.mdv.MarkdownView;
 
 /**
@@ -48,7 +51,7 @@ public class AboutFragment extends DialogFragment {
         display.getRealSize(size);
 
         Window window = getDialog().getWindow();
-        window.setLayout( (int) (size.x*0.9) , (int) (size.y*0.9) );
+        window.setLayout((int) (size.x * 0.9), (int) (size.y * 0.9));
         window.setGravity(Gravity.CENTER);
 
         View about_shareapp = view.findViewById(R.id.about_shareapp);
@@ -78,7 +81,7 @@ public class AboutFragment extends DialogFragment {
     }
 
 
-    public void setRunOnDetach( Runnable runOnDetach ) {
+    public void setRunOnDetach(Runnable runOnDetach) {
         mRunOnDetach = runOnDetach;
     }
 }

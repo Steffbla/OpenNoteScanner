@@ -12,6 +12,7 @@ import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.view.Display;
 import android.view.WindowManager;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,6 +20,7 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLContext;
@@ -47,69 +49,6 @@ public class Utils {
         }
         return app_installed;
     }
-
-    /*
-     * Reading file paths from SDCard
-     */
-    public ArrayList<String> getFilePaths() {
-        ArrayList<String> filePaths = new ArrayList<String>();
-
-        File directory = new File(
-                android.os.Environment.getExternalStorageDirectory()
-                        + File.separator + mSharedPref.getString("storage_folder","OpenNoteScanner"));
-
-        // check for directory
-        if (directory.isDirectory()) {
-            // getting list of file paths
-            File[] listFiles = directory.listFiles();
-
-            Arrays.sort(listFiles, new Comparator<File>() {
-                public int compare(File f1, File f2) {
-                    return f2.getName().compareTo(f1.getName());
-                }
-            });
-
-            // Check for count
-            if (listFiles.length > 0) {
-
-                // loop through all files
-                for (final File listFile : listFiles) {
-
-                    // get file path
-                    String filePath = listFile.getAbsolutePath();
-
-                    // check for supported file extension
-                    if (IsSupportedFile(filePath)) {
-                        // Add image path to array list
-                        filePaths.add(filePath);
-                    }
-                }
-            }
-        }
-
-        return filePaths;
-    }
-
-    /*
-     * getting screen width
-     */
-    public int getScreenWidth() {
-        int columnWidth;
-        WindowManager wm = (WindowManager) _context
-                .getSystemService(Context.WINDOW_SERVICE);
-        Display display = wm.getDefaultDisplay();
-
-        final Point point = new Point();
-        try {
-            display.getSize(point);
-        } catch (java.lang.NoSuchMethodError ignore) { // Older device
-            point.x = display.getWidth();
-            point.y = display.getHeight();
-        }
-        columnWidth = point.x;
-        return columnWidth;
-    }
-
 
     public static int getMaxTextureSize() {
         // Safe minimum default size
@@ -179,19 +118,6 @@ public class Utils {
         return bm;
     }
 
-    /*
-     * Check supported file extensions
-     *
-     * @returns boolean
-     */
-    private boolean IsSupportedFile(String filePath) {
-        String ext = filePath.substring((filePath.lastIndexOf(".") + 1),
-                filePath.length());
-
-        return AppConstant.FILE_EXTN
-                .contains(ext.toLowerCase(Locale.getDefault()));
-    }
-
     public static void addImageToGallery(final String filePath, final Context context) {
 
         ContentValues values = new ContentValues();
@@ -228,5 +154,80 @@ public class Utils {
         }
 
         return inSampleSize;
+    }
+
+    /*
+     * Reading file paths from SDCard
+     */
+    public ArrayList<String> getFilePaths() {
+        ArrayList<String> filePaths = new ArrayList<String>();
+
+        File directory = new File(
+                android.os.Environment.getExternalStorageDirectory()
+                        + File.separator + mSharedPref.getString("storage_folder", "OpenNoteScanner"));
+
+        // check for directory
+        if (directory.isDirectory()) {
+            // getting list of file paths
+            File[] listFiles = directory.listFiles();
+
+            Arrays.sort(listFiles, new Comparator<File>() {
+                public int compare(File f1, File f2) {
+                    return f2.getName().compareTo(f1.getName());
+                }
+            });
+
+            // Check for count
+            if (listFiles.length > 0) {
+
+                // loop through all files
+                for (final File listFile : listFiles) {
+
+                    // get file path
+                    String filePath = listFile.getAbsolutePath();
+
+                    // check for supported file extension
+                    if (IsSupportedFile(filePath)) {
+                        // Add image path to array list
+                        filePaths.add(filePath);
+                    }
+                }
+            }
+        }
+
+        return filePaths;
+    }
+
+    /*
+     * getting screen width
+     */
+    public int getScreenWidth() {
+        int columnWidth;
+        WindowManager wm = (WindowManager) _context
+                .getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+
+        final Point point = new Point();
+        try {
+            display.getSize(point);
+        } catch (java.lang.NoSuchMethodError ignore) { // Older device
+            point.x = display.getWidth();
+            point.y = display.getHeight();
+        }
+        columnWidth = point.x;
+        return columnWidth;
+    }
+
+    /*
+     * Check supported file extensions
+     *
+     * @returns boolean
+     */
+    private boolean IsSupportedFile(String filePath) {
+        String ext = filePath.substring((filePath.lastIndexOf(".") + 1),
+                filePath.length());
+
+        return AppConstant.FILE_EXTN
+                .contains(ext.toLowerCase(Locale.getDefault()));
     }
 }

@@ -10,9 +10,12 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
+
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+
 import com.todobom.opennotescanner.R;
+
 import java.io.IOException;
 
 /**
@@ -47,16 +50,16 @@ public class TagEditorFragment extends DialogFragment {
         stdTagsButtons[5] = tagEditorView.findViewById(R.id.buttonStar);
         stdTagsButtons[6] = tagEditorView.findViewById(R.id.buttonMagnet);
 
-        for ( int i=0 ; i<7 ; i++ ) {
+        for (int i = 0; i < 7; i++) {
 
-            stdTagsButtons[i].setBackgroundTintList(ColorStateList.valueOf( stdTagsState[i] ? 0xFF00E676 : 0xFFa0a0a0 ));
+            stdTagsButtons[i].setBackgroundTintList(ColorStateList.valueOf(stdTagsState[i] ? 0xFF00E676 : 0xFFa0a0a0));
 
             stdTagsButtons[i].setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     int index = getTagIndex(v);
                     stdTagsState[index] = !stdTagsState[index];
-                    v.setBackgroundTintList(ColorStateList.valueOf( stdTagsState[index] ? 0xFF00E676 : 0xFFa0a0a0 ));
+                    v.setBackgroundTintList(ColorStateList.valueOf(stdTagsState[index] ? 0xFF00E676 : 0xFFa0a0a0));
                 }
             });
         }
@@ -73,8 +76,8 @@ public class TagEditorFragment extends DialogFragment {
         return tagEditorView;
     }
 
-    private int getTagIndex( View v ) {
-        for ( int i=0 ; i<7 ; i++ ) {
+    private int getTagIndex(View v) {
+        for (int i = 0; i < 7; i++) {
             if (stdTagsButtons[i] == v) {
                 return i;
             }
@@ -90,7 +93,7 @@ public class TagEditorFragment extends DialogFragment {
             e.printStackTrace();
         }
         String userComment = exif.getAttribute("UserComment");
-        for (int i=0; i<7 ; i++) {
+        for (int i = 0; i < 7; i++) {
             stdTagsState[i] = userComment.contains("<" + stdTags[i] + ">");
         }
     }
@@ -103,7 +106,7 @@ public class TagEditorFragment extends DialogFragment {
             e.printStackTrace();
         }
         StringBuilder userComment = new StringBuilder(exif.getAttribute("UserComment"));
-        for (int i=0; i<7 ; i++) {
+        for (int i = 0; i < 7; i++) {
             if (stdTagsState[i] && !userComment.toString().contains("<" + stdTags[i] + ">")) {
                 userComment.append("<").append(stdTags[i]).append(">");
             } else if (!stdTagsState[i] && userComment.toString().contains("<" + stdTags[i] + ">")) {
@@ -138,7 +141,7 @@ public class TagEditorFragment extends DialogFragment {
     }
 
 
-    public void setRunOnDetach( Runnable runOnDetach ) {
+    public void setRunOnDetach(Runnable runOnDetach) {
         mRunOnDetach = runOnDetach;
     }
 

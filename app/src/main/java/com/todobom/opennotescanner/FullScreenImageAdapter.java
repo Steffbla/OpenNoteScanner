@@ -10,10 +10,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
+
 import androidx.viewpager.widget.PagerAdapter;
+
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.ImageSize;
 import com.ortiz.touchview.TouchImageView;
+
 import java.util.ArrayList;
 
 public class FullScreenImageAdapter extends PagerAdapter {
@@ -27,9 +30,13 @@ public class FullScreenImageAdapter extends PagerAdapter {
 
     // constructor
     FullScreenImageAdapter(Activity activity,
-            ArrayList<String> imagePaths) {
+                           ArrayList<String> imagePaths) {
         this._activity = activity;
         this._imagePaths = imagePaths;
+    }
+
+    private static double Log(double n, double base) {
+        return Math.log(n) / Math.log(base);
     }
 
     @Override
@@ -78,16 +85,12 @@ public class FullScreenImageAdapter extends PagerAdapter {
         */
 
         // imgDisplay.setImageBitmap(bitmap);
-        mImageLoader.displayImage("file:///"+imagePath, imgDisplay, mTargetSize);
+        mImageLoader.displayImage("file:///" + imagePath, imgDisplay, mTargetSize);
 
 
         container.addView(viewLayout);
 
         return viewLayout;
-    }
-
-    private static double Log( double n , double base ) {
-        return Math.log(n) / Math.log(base);
     }
 
     String getPath(int position) {

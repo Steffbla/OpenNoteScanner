@@ -8,6 +8,7 @@ import android.widget.FrameLayout;
 
 /**
  * Based on RectangleView from
+ *
  * @author Aidan Follestad (afollestad)
  */
 public class SquareFrameLayout extends FrameLayout {

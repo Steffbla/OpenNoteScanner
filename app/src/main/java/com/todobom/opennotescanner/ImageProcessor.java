@@ -11,6 +11,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
+
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.ChecksumException;
 import com.google.zxing.FormatException;
@@ -26,12 +27,7 @@ import com.todobom.opennotescanner.helpers.Quadrilateral;
 import com.todobom.opennotescanner.helpers.ScannedDocument;
 import com.todobom.opennotescanner.helpers.Utils;
 import com.todobom.opennotescanner.views.HUDCanvasView;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
+
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -43,6 +39,13 @@ import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+
 /**
  * Created by allgood on 05/03/16.
  */
@@ -52,24 +55,25 @@ public class ImageProcessor extends Handler {
 
     private final OpenNoteScannerActivity mMainActivity;
     private boolean mBugRotate;
-    private boolean colorMode=false;
-    private boolean filterMode=true;
+    private boolean colorMode = false;
+    private boolean filterMode = true;
     private double colorGain = 1.5;       // contrast
     private double colorBias = 0;         // bright
     private int colorThresh = 110;        // threshold
     private Size mPreviewSize;
     private Point[] mPreviewPoints;
-
+    private HashMap<String, Long> pageHistory = new HashMap<>();
+    private QRCodeMultiReader qrCodeMultiReader = new QRCodeMultiReader();
 
     ImageProcessor(Looper looper, Handler uiHandler, OpenNoteScannerActivity mainActivity) {
         super(looper);
         mMainActivity = mainActivity;
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mainActivity);
-        mBugRotate = sharedPref.getBoolean("bug_rotate",false);
+        mBugRotate = sharedPref.getBoolean("bug_rotate", false);
     }
 
-    public void handleMessage ( Message msg ) {
+    public void handleMessage(Message msg) {
 
         if (msg.obj.getClass() == OpenNoteMessage.class) {
 
@@ -77,7 +81,7 @@ public class ImageProcessor extends Handler {
 
             String command = obj.getCommand();
 
-            Log.d(TAG, "Message Received: " + command + " - " + obj.getObj().toString() );
+            Log.d(TAG, "Message Received: " + command + " - " + obj.getObj().toString());
 
             switch (command) {
                 case "previewFrame":
@@ -96,7 +100,7 @@ public class ImageProcessor extends Handler {
         }
     }
 
-    private void processPreviewFrame( PreviewFrame previewFrame ) {
+    private void processPreviewFrame(PreviewFrame previewFrame) {
 
         Result[] results = {};
 
@@ -110,11 +114,11 @@ public class ImageProcessor extends Handler {
         }
 
         boolean qrOk = false;
-        String currentQR=null;
+        String currentQR = null;
 
-        for (Result result: results) {
+        for (Result result : results) {
             String qrText = result.getText();
-            if ( Utils.isMatch(qrText, "^P.. V.. S[0-9]+") && checkQR(qrText)) {
+            if (Utils.isMatch(qrText, "^P.. V.. S[0-9]+") && checkQR(qrText)) {
                 Log.d(TAG, "QR Code valid: " + result.getText());
                 qrOk = true;
                 currentQR = qrText;
@@ -127,7 +131,7 @@ public class ImageProcessor extends Handler {
         boolean autoMode = previewFrame.isAutoMode();
         boolean previewOnly = previewFrame.isPreviewOnly();
 
-        if ( detectPreviewDocument(frame) && ( (!autoMode && !previewOnly ) || ( autoMode && qrOk ) ) ) {
+        if (detectPreviewDocument(frame) && ((!autoMode && !previewOnly) || (autoMode && qrOk))) {
 
             mMainActivity.waitSpinnerVisible();
 
@@ -147,7 +151,6 @@ public class ImageProcessor extends Handler {
     void setBugRotate(boolean bugRotate) {
         mBugRotate = bugRotate;
     }
-
 
     private ScannedDocument detectDocument(Mat inputRgba) {
         ArrayList<MatOfPoint> contours = findContours(inputRgba);
@@ -169,7 +172,7 @@ public class ImageProcessor extends Handler {
             doc = fourPointTransform(inputRgba, quad.points);
 
         } else {
-            doc = new Mat( inputRgba.size() , CvType.CV_8UC4 );
+            doc = new Mat(inputRgba.size(), CvType.CV_8UC4);
             inputRgba.copyTo(doc);
         }
 
@@ -177,13 +180,10 @@ public class ImageProcessor extends Handler {
         return sd.setProcessed(doc);
     }
 
-
-    private HashMap<String,Long> pageHistory = new HashMap<>();
-
     private boolean checkQR(String qrCode) {
 
-        return ! ( pageHistory.containsKey(qrCode) &&
-                pageHistory.get(qrCode) > new Date().getTime()/1000-15) ;
+        return !(pageHistory.containsKey(qrCode) &&
+                pageHistory.get(qrCode) > new Date().getTime() / 1000 - 15);
 
     }
 
@@ -202,11 +202,11 @@ public class ImageProcessor extends Handler {
 
             double ratio = inputRgba.size().height / 500;
 
-            for ( int i=0; i<4 ; i++ ) {
-                int x = Double.valueOf(quad.points[i].x*ratio).intValue();
-                int y = Double.valueOf(quad.points[i].y*ratio).intValue();
+            for (int i = 0; i < 4; i++) {
+                int x = Double.valueOf(quad.points[i].x * ratio).intValue();
+                int y = Double.valueOf(quad.points[i].y * ratio).intValue();
                 if (mBugRotate) {
-                    rescaledPoints[(i+2)%4] = new Point( Math.abs(x- mPreviewSize.width), Math.abs(y- mPreviewSize.height));
+                    rescaledPoints[(i + 2) % 4] = new Point(Math.abs(x - mPreviewSize.width), Math.abs(y - mPreviewSize.height));
                 } else {
                     rescaledPoints[i] = new Point(x, y);
                 }
@@ -240,13 +240,13 @@ public class ImageProcessor extends Handler {
         float previewWidth = (float) stdSize.height;
         float previewHeight = (float) stdSize.width;
 
-        path.moveTo( previewWidth - (float) points[0].y, (float) points[0].x );
-        path.lineTo( previewWidth - (float) points[1].y, (float) points[1].x );
-        path.lineTo( previewWidth - (float) points[2].y, (float) points[2].x );
-        path.lineTo( previewWidth - (float) points[3].y, (float) points[3].x );
+        path.moveTo(previewWidth - (float) points[0].y, (float) points[0].x);
+        path.lineTo(previewWidth - (float) points[1].y, (float) points[1].x);
+        path.lineTo(previewWidth - (float) points[2].y, (float) points[2].x);
+        path.lineTo(previewWidth - (float) points[3].y, (float) points[3].x);
         path.close();
 
-        PathShape newBox = new PathShape(path , previewWidth , previewHeight);
+        PathShape newBox = new PathShape(path, previewWidth, previewHeight);
 
         Paint paint = new Paint();
         paint.setColor(Color.argb(64, 0, 255, 0));
@@ -262,14 +262,14 @@ public class ImageProcessor extends Handler {
 
     }
 
-    private Quadrilateral getQuadrilateral( ArrayList<MatOfPoint> contours , Size srcSize ) {
+    private Quadrilateral getQuadrilateral(ArrayList<MatOfPoint> contours, Size srcSize) {
 
         double ratio = srcSize.height / 500;
         int height = Double.valueOf(srcSize.height / ratio).intValue();
         int width = Double.valueOf(srcSize.width / ratio).intValue();
-        Size size = new Size(width,height);
+        Size size = new Size(width, height);
 
-        for ( MatOfPoint c: contours ) {
+        for (MatOfPoint c : contours) {
             MatOfPoint2f c2f = new MatOfPoint2f(c.toArray());
             double peri = Imgproc.arcLength(c2f, true);
             MatOfPoint2f approx = new MatOfPoint2f();
@@ -282,7 +282,7 @@ public class ImageProcessor extends Handler {
                 Point[] foundPoints = sortPoints(points);
 
                 if (insideArea(foundPoints, size)) {
-                    return new Quadrilateral( c , foundPoints );
+                    return new Quadrilateral(c, foundPoints);
                 }
             }
         }
@@ -336,12 +336,12 @@ public class ImageProcessor extends Handler {
 
         int width = Double.valueOf(size.width).intValue();
         int height = Double.valueOf(size.height).intValue();
-        int baseMeasure = height/4;
+        int baseMeasure = height / 4;
 
-        int bottomPos = height-baseMeasure;
+        int bottomPos = height - baseMeasure;
         int topPos = baseMeasure;
-        int leftPos = width/2-baseMeasure;
-        int rightPos = width/2+baseMeasure;
+        int leftPos = width / 2 - baseMeasure;
+        int rightPos = width / 2 + baseMeasure;
 
         return (
                 rp[0].x <= leftPos && rp[0].y <= topPos
@@ -352,27 +352,27 @@ public class ImageProcessor extends Handler {
         );
     }
 
-    private void enhanceDocument( Mat src ) {
+    private void enhanceDocument(Mat src) {
         if (colorMode && filterMode) {
-            src.convertTo(src,-1, colorGain , colorBias);
+            src.convertTo(src, -1, colorGain, colorBias);
             Mat mask = new Mat(src.size(), CvType.CV_8UC1);
-            Imgproc.cvtColor(src,mask,Imgproc.COLOR_RGBA2GRAY);
+            Imgproc.cvtColor(src, mask, Imgproc.COLOR_RGBA2GRAY);
 
             Mat copy = new Mat(src.size(), CvType.CV_8UC3);
             src.copyTo(copy);
 
-            Imgproc.adaptiveThreshold(mask,mask,255,Imgproc.ADAPTIVE_THRESH_MEAN_C,Imgproc.THRESH_BINARY_INV,15,15);
+            Imgproc.adaptiveThreshold(mask, mask, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY_INV, 15, 15);
 
-            src.setTo(new Scalar(255,255,255));
-            copy.copyTo(src,mask);
+            src.setTo(new Scalar(255, 255, 255));
+            copy.copyTo(src, mask);
 
             copy.release();
             mask.release();
 
             // special color threshold algorithm
-            colorThresh(src,colorThresh);
+            colorThresh(src, colorThresh);
         } else if (!colorMode) {
-            Imgproc.cvtColor(src,src,Imgproc.COLOR_RGBA2GRAY);
+            Imgproc.cvtColor(src, src, Imgproc.COLOR_RGBA2GRAY);
             if (filterMode) {
                 Imgproc.adaptiveThreshold(src, src, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 15, 15);
             }
@@ -385,7 +385,7 @@ public class ImageProcessor extends Handler {
      * higher one, brings all three values to the max possible keeping
      * the relation between them, any absolute white keeps the value, all
      * others go to absolute black.
-     *
+     * <p>
      * src must be a 3 channel image with 8 bits per channel
      *
      * @param src
@@ -393,16 +393,16 @@ public class ImageProcessor extends Handler {
      */
     private void colorThresh(Mat src, int threshold) {
         Size srcSize = src.size();
-        int size = (int) (srcSize.height * srcSize.width)*3;
+        int size = (int) (srcSize.height * srcSize.width) * 3;
         byte[] d = new byte[size];
-        src.get(0,0,d);
+        src.get(0, 0, d);
 
-        for (int i=0; i < size; i+=3) {
+        for (int i = 0; i < size; i += 3) {
 
             // the "& 0xff" operations are needed to convert the signed byte to double
 
             // avoid unneeded work
-            if ( (double) (d[i] & 0xff) == 255 ) {
+            if ((double) (d[i] & 0xff) == 255) {
                 continue;
             }
 
@@ -419,10 +419,10 @@ public class ImageProcessor extends Handler {
                 d[i] = d[i + 1] = d[i + 2] = 0;
             }
         }
-        src.put(0,0,d);
+        src.put(0, 0, d);
     }
 
-    private Mat fourPointTransform( Mat src , Point[] pts ) {
+    private Mat fourPointTransform(Mat src, Point[] pts) {
 
         double ratio = src.size().height / 500;
         int height = Double.valueOf(src.size().height / ratio).intValue();
@@ -436,14 +436,14 @@ public class ImageProcessor extends Handler {
         double widthA = Math.sqrt(Math.pow(br.x - bl.x, 2) + Math.pow(br.y - bl.y, 2));
         double widthB = Math.sqrt(Math.pow(tr.x - tl.x, 2) + Math.pow(tr.y - tl.y, 2));
 
-        double dw = Math.max(widthA, widthB)*ratio;
+        double dw = Math.max(widthA, widthB) * ratio;
         int maxWidth = Double.valueOf(dw).intValue();
 
 
         double heightA = Math.sqrt(Math.pow(tr.x - br.x, 2) + Math.pow(tr.y - br.y, 2));
         double heightB = Math.sqrt(Math.pow(tl.x - bl.x, 2) + Math.pow(tl.y - bl.y, 2));
 
-        double dh = Math.max(heightA, heightB)*ratio;
+        double dh = Math.max(heightA, heightB) * ratio;
         int maxHeight = Double.valueOf(dh).intValue();
 
         Mat doc = new Mat(maxHeight, maxWidth, CvType.CV_8UC4);
@@ -451,7 +451,7 @@ public class ImageProcessor extends Handler {
         Mat src_mat = new Mat(4, 1, CvType.CV_32FC2);
         Mat dst_mat = new Mat(4, 1, CvType.CV_32FC2);
 
-        src_mat.put(0, 0, tl.x*ratio, tl.y*ratio, tr.x*ratio, tr.y*ratio, br.x*ratio, br.y*ratio, bl.x*ratio, bl.y*ratio);
+        src_mat.put(0, 0, tl.x * ratio, tl.y * ratio, tr.x * ratio, tr.y * ratio, br.x * ratio, br.y * ratio, bl.x * ratio, bl.y * ratio);
         dst_mat.put(0, 0, 0.0, 0.0, dw, 0.0, dw, dh, 0.0, dh);
 
         Mat m = Imgproc.getPerspectiveTransform(src_mat, dst_mat);
@@ -483,8 +483,6 @@ public class ImageProcessor extends Handler {
         mMainActivity.setAttemptToFocus(false);
         mMainActivity.waitSpinnerInvisible();
     }
-
-    private QRCodeMultiReader qrCodeMultiReader = new QRCodeMultiReader();
 
     private Point[] sortPoints(Point[] src) {
 
@@ -530,7 +528,7 @@ public class ImageProcessor extends Handler {
         Mat southEast;
 
         if (mBugRotate) {
-            southEast = inputImage.submat(h-h/4 , h , 0 , w/2 - h/4 );
+            southEast = inputImage.submat(h - h / 4, h, 0, w / 2 - h / 4);
         } else {
             southEast = inputImage.submat(0, h / 4, w / 2 + h / 4, w);
         }
@@ -538,19 +536,18 @@ public class ImageProcessor extends Handler {
         Bitmap bMap = Bitmap.createBitmap(southEast.width(), southEast.height(), Bitmap.Config.ARGB_8888);
         org.opencv.android.Utils.matToBitmap(southEast, bMap);
         southEast.release();
-        int[] intArray = new int[bMap.getWidth()*bMap.getHeight()];
+        int[] intArray = new int[bMap.getWidth() * bMap.getHeight()];
         //copy pixel data from the Bitmap into the 'intArray' array
         bMap.getPixels(intArray, 0, bMap.getWidth(), 0, 0, bMap.getWidth(), bMap.getHeight());
 
-        LuminanceSource source = new RGBLuminanceSource(bMap.getWidth(), bMap.getHeight(),intArray);
+        LuminanceSource source = new RGBLuminanceSource(bMap.getWidth(), bMap.getHeight(), intArray);
 
         BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
 
         Result[] results = {};
         try {
             results = qrCodeMultiReader.decodeMultiple(bitmap);
-        }
-        catch (NotFoundException e) {
+        } catch (NotFoundException e) {
         }
 
         return results;

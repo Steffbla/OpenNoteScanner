@@ -1,8 +1,5 @@
 package com.todobom.opennotescanner;
 
-import static com.todobom.opennotescanner.helpers.Utils.addImageToGallery;
-import static com.todobom.opennotescanner.helpers.Utils.decodeSampledBitmapFromUri;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
@@ -44,10 +41,12 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
+
 import com.github.fafaldo.fabtoolbar.widget.FABToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
@@ -57,14 +56,7 @@ import com.todobom.opennotescanner.helpers.OpenNoteMessage;
 import com.todobom.opennotescanner.helpers.PreviewFrame;
 import com.todobom.opennotescanner.helpers.ScannedDocument;
 import com.todobom.opennotescanner.views.HUDCanvasView;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
@@ -76,12 +68,24 @@ import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+import static com.todobom.opennotescanner.helpers.Utils.addImageToGallery;
+import static com.todobom.opennotescanner.helpers.Utils.decodeSampledBitmapFromUri;
+
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
 public class OpenNoteScannerActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener , SurfaceHolder.Callback,
+        implements NavigationView.OnNavigationItemSelectedListener, SurfaceHolder.Callback,
         Camera.PictureCallback, Camera.PreviewCallback {
 
     /**
@@ -94,9 +98,8 @@ public class OpenNoteScannerActivity extends AppCompatActivity
     private static final int MY_PERMISSIONS_REQUEST_WRITE = 3;
 
     private static final int RESUME_PERMISSIONS_REQUEST_CAMERA = 11;
-
+    private static final String TAG = "OpenNoteScannerActivity";
     private final Handler mHideHandler = new Handler();
-
     private final Runnable mHidePart2Runnable = new Runnable() {
         @SuppressLint("InlinedApi")
         @Override
@@ -116,7 +119,6 @@ public class OpenNoteScannerActivity extends AppCompatActivity
                             | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
         }
     };
-
     private View mControlsView;
     private final Runnable mShowPart2Runnable = new Runnable() {
         @Override
@@ -136,8 +138,6 @@ public class OpenNoteScannerActivity extends AppCompatActivity
             hide();
         }
     };
-
-    private static final String TAG = "OpenNoteScannerActivity";
     private MediaPlayer _shootMP = null;
 
     private boolean safeToTakePicture;
@@ -155,6 +155,26 @@ public class OpenNoteScannerActivity extends AppCompatActivity
 
     private SharedPreferences mSharedPref;
     private SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
+    private boolean imageProcessorBusy = true;
+    private boolean attemptToFocus = false;
+    private SurfaceView mSurfaceView;
+    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
+        @Override
+        public void onManagerConnected(int status) {
+            if (status == LoaderCallbackInterface.SUCCESS) {
+                checkResumePermissions();
+            } else {
+                Log.d(TAG, "opencvstatus: " + status);
+                super.onManagerConnected(status);
+            }
+        }
+    };
+    private boolean scanClicked = false;
+    private boolean colorMode = false;
+    private boolean filterMode = true;
+    private boolean autoMode = false;
+    private boolean mFlashMode = false;
+    private ResetShutterColor resetShutterColor = new ResetShutterColor();
 
     public HUDCanvasView getHUD() {
         return mHud;
@@ -168,145 +188,6 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         this.attemptToFocus = attemptToFocus;
     }
 
-    private boolean imageProcessorBusy=true;
-    private boolean attemptToFocus = false;
-
-    class AnimationRunnable implements Runnable {
-
-        public int height;
-
-        public int width;
-
-        String fileName = null;
-
-        Size previewSize = null;
-
-        private Bitmap bitmap;
-
-        private Size imageSize;
-
-        private Point[] previewPoints = null;
-
-        AnimationRunnable(String filename, ScannedDocument document) {
-            this.fileName = filename;
-            this.imageSize = document.processed.size();
-
-            if (document.quadrilateral != null) {
-                this.previewPoints = document.previewPoints;
-                this.previewSize = document.previewSize;
-            }
-        }
-
-        @Override
-        public void run() {
-            final ImageView imageView = findViewById(R.id.scannedAnimation);
-
-            Display display = getWindowManager().getDefaultDisplay();
-            android.graphics.Point size = new android.graphics.Point();
-            display.getRealSize(size);
-
-            int width = Math.min(size.x, size.y);
-            int height = Math.max(size.x, size.y);
-
-            // ATENTION: captured images are always in landscape, values should be swapped
-            double imageWidth = imageSize.height;
-            double imageHeight = imageSize.width;
-
-            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) imageView.getLayoutParams();
-
-            if (previewPoints != null) {
-                double documentLeftHeight = hipotenuse(previewPoints[0], previewPoints[1]);
-                double documentBottomWidth = hipotenuse(previewPoints[1], previewPoints[2]);
-                double documentRightHeight = hipotenuse(previewPoints[2], previewPoints[3]);
-                double documentTopWidth = hipotenuse(previewPoints[3], previewPoints[0]);
-
-                double documentWidth = Math.max(documentTopWidth, documentBottomWidth);
-                double documentHeight = Math.max(documentLeftHeight, documentRightHeight);
-
-                Log.d(TAG, "device: " + width + "x" + height + " image: " + imageWidth + "x" + imageHeight
-                        + " document: " + documentWidth + "x" + documentHeight);
-
-                Log.d(TAG, "previewPoints[0] x=" + previewPoints[0].x + " y=" + previewPoints[0].y);
-                Log.d(TAG, "previewPoints[1] x=" + previewPoints[1].x + " y=" + previewPoints[1].y);
-                Log.d(TAG, "previewPoints[2] x=" + previewPoints[2].x + " y=" + previewPoints[2].y);
-                Log.d(TAG, "previewPoints[3] x=" + previewPoints[3].x + " y=" + previewPoints[3].y);
-
-                // ATENTION: again, swap width and height
-                double xRatio = width / previewSize.height;
-                double yRatio = height / previewSize.width;
-
-                params.topMargin = (int) (previewPoints[3].x * yRatio);
-                params.leftMargin = (int) ((previewSize.height - previewPoints[3].y) * xRatio);
-                params.width = (int) (documentWidth * xRatio);
-                params.height = (int) (documentHeight * yRatio);
-            } else {
-                params.topMargin = height / 4;
-                params.leftMargin = width / 4;
-                params.width = width / 2;
-                params.height = height / 2;
-            }
-
-            bitmap = decodeSampledBitmapFromUri(fileName, params.width, params.height);
-
-            imageView.setImageBitmap(bitmap);
-
-            imageView.setVisibility(View.VISIBLE);
-
-            TranslateAnimation translateAnimation = new TranslateAnimation(
-                    Animation.ABSOLUTE, 0, Animation.ABSOLUTE, -params.leftMargin,
-                    Animation.ABSOLUTE, 0, Animation.ABSOLUTE, height - params.topMargin
-            );
-
-            ScaleAnimation scaleAnimation = new ScaleAnimation(1, 0, 1, 0);
-
-            AnimationSet animationSet = new AnimationSet(true);
-
-            animationSet.addAnimation(scaleAnimation);
-            animationSet.addAnimation(translateAnimation);
-
-            animationSet.setDuration(600);
-            animationSet.setInterpolator(new AccelerateInterpolator());
-
-            animationSet.setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationEnd(Animation animation) {
-                    imageView.setVisibility(View.INVISIBLE);
-                    imageView.setImageBitmap(null);
-                    AnimationRunnable.this.bitmap.recycle();
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation animation) {
-
-                }
-
-                @Override
-                public void onAnimationStart(Animation animation) {
-
-                }
-            });
-
-            imageView.startAnimation(animationSet);
-
-        }
-
-        double hipotenuse(Point a, Point b) {
-            return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
-        }
-    }
-
-    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
-        @Override
-        public void onManagerConnected(int status) {
-            if (status == LoaderCallbackInterface.SUCCESS) {
-                checkResumePermissions();
-            } else {
-                Log.d(TAG, "opencvstatus: " + status);
-                super.onManagerConnected(status);
-            }
-        }
-    };
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -315,7 +196,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
 
         mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
-        if (mSharedPref.getBoolean("isFirstRun",true) && !mSharedPref.getBoolean("usage_stats",false)) {
+        if (mSharedPref.getBoolean("isFirstRun", true) && !mSharedPref.getBoolean("usage_stats", false)) {
             statsOptInDialog();
         }
 
@@ -387,11 +268,11 @@ public class OpenNoteScannerActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 colorMode = !colorMode;
-                ((ImageView)v).setColorFilter(colorMode ? 0xFFFFFFFF : 0xFFA0F0A0);
+                ((ImageView) v).setColorFilter(colorMode ? 0xFFFFFFFF : 0xFFA0F0A0);
 
-                sendImageProcessorMessage("colorMode" , colorMode );
+                sendImageProcessorMessage("colorMode", colorMode);
 
-                Toast.makeText(getApplicationContext(), colorMode?R.string.colorMode:R.string.bwMode, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), colorMode ? R.string.colorMode : R.string.bwMode, Toast.LENGTH_SHORT).show();
 
             }
         });
@@ -403,11 +284,11 @@ public class OpenNoteScannerActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 filterMode = !filterMode;
-                ((ImageView)v).setColorFilter(filterMode ? 0xFFFFFFFF : 0xFFA0F0A0);
+                ((ImageView) v).setColorFilter(filterMode ? 0xFFFFFFFF : 0xFFA0F0A0);
 
-                sendImageProcessorMessage("filterMode" , filterMode );
+                sendImageProcessorMessage("filterMode", filterMode);
 
-                Toast.makeText(getApplicationContext(), filterMode?R.string.filterModeOn:R.string.filterModeOff, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), filterMode ? R.string.filterModeOn : R.string.filterModeOff, Toast.LENGTH_SHORT).show();
 
             }
         });
@@ -419,7 +300,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 mFlashMode = setFlash(!mFlashMode);
-                ((ImageView)v).setColorFilter(mFlashMode ? 0xFFFFFFFF : 0xFFA0F0A0);
+                ((ImageView) v).setColorFilter(mFlashMode ? 0xFFFFFFFF : 0xFFA0F0A0);
 
             }
         });
@@ -431,8 +312,8 @@ public class OpenNoteScannerActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 autoMode = !autoMode;
-                ((ImageView)v).setColorFilter(autoMode ? 0xFFFFFFFF : 0xFFA0F0A0);
-                Toast.makeText(getApplicationContext(), autoMode?R.string.autoMode:R.string.manualMode, Toast.LENGTH_SHORT).show();
+                ((ImageView) v).setColorFilter(autoMode ? 0xFFFFFFFF : 0xFFA0F0A0);
+                Toast.makeText(getApplicationContext(), autoMode ? R.string.autoMode : R.string.manualMode, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -441,7 +322,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         settingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(v.getContext() , SettingsActivity.class);
+                Intent intent = new Intent(v.getContext(), SettingsActivity.class);
                 startActivity(intent);
             }
         });
@@ -452,7 +333,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
 
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(v.getContext() , GalleryGridActivity.class);
+                Intent intent = new Intent(v.getContext(), GalleryGridActivity.class);
                 startActivity(intent);
             }
         });
@@ -478,7 +359,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-            String[] permissions, int[] grantResults) {
+                                           String[] permissions, int[] grantResults) {
         switch (requestCode) {
             case CREATE_PERMISSIONS_REQUEST_CAMERA: {
                 // If request is cancelled, the result arrays are empty.
@@ -623,7 +504,6 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         }
         return false;
     }
-
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -792,9 +672,6 @@ public class OpenNoteScannerActivity extends AppCompatActivity
 
     }
 
-
-
-
     @Override
     public void onResume() {
         super.onResume();
@@ -810,15 +687,15 @@ public class OpenNoteScannerActivity extends AppCompatActivity
 
         Log.d(TAG, "resuming");
 
-        for ( String build: Build.SUPPORTED_ABIS) {
-            Log.d(TAG,"myBuild "+ build);
+        for (String build : Build.SUPPORTED_ABIS) {
+            Log.d(TAG, "myBuild " + build);
         }
 
         checkCreatePermissions();
 
         CustomOpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_1_0, this, mLoaderCallback);
 
-        if (mImageThread == null ) {
+        if (mImageThread == null) {
             mImageThread = new HandlerThread("Worker Thread");
             mImageThread.start();
         }
@@ -848,17 +725,6 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         });
     }
 
-    private SurfaceView mSurfaceView;
-
-    private boolean scanClicked = false;
-
-    private boolean colorMode = false;
-    private boolean filterMode = true;
-
-    private boolean autoMode = false;
-    private boolean mFlashMode = false;
-
-
     @Override
     public void onPause() {
         super.onPause();
@@ -874,16 +740,16 @@ public class OpenNoteScannerActivity extends AppCompatActivity
     }
 
     public Camera.Size getMaxPreviewResolution() {
-        int maxWidth=0;
-        Camera.Size curRes=null;
+        int maxWidth = 0;
+        Camera.Size curRes = null;
 
         mCamera.lock();
 
-        for ( Camera.Size r: getResolutionList() ) {
-            if (r.width>maxWidth) {
-                Log.d(TAG,"supported preview resolution: "+r.width+"x"+r.height);
-                maxWidth=r.width;
-                curRes=r;
+        for (Camera.Size r : getResolutionList()) {
+            if (r.width > maxWidth) {
+                Log.d(TAG, "supported preview resolution: " + r.width + "x" + r.height);
+                maxWidth = r.width;
+                curRes = r;
             }
         }
 
@@ -896,32 +762,32 @@ public class OpenNoteScannerActivity extends AppCompatActivity
     }
 
     public Camera.Size getMaxPictureResolution(float previewRatio) {
-        int maxPixels=0;
-        int ratioMaxPixels=0;
-        Camera.Size currentMaxRes=null;
-        Camera.Size ratioCurrentMaxRes=null;
-        for ( Camera.Size r: getPictureResolutionList() ) {
+        int maxPixels = 0;
+        int ratioMaxPixels = 0;
+        Camera.Size currentMaxRes = null;
+        Camera.Size ratioCurrentMaxRes = null;
+        for (Camera.Size r : getPictureResolutionList()) {
             float pictureRatio = (float) r.width / r.height;
-            Log.d(TAG,"supported picture resolution: "+r.width+"x"+r.height+" ratio: "+pictureRatio);
+            Log.d(TAG, "supported picture resolution: " + r.width + "x" + r.height + " ratio: " + pictureRatio);
             int resolutionPixels = r.width * r.height;
 
-            if (resolutionPixels>ratioMaxPixels && pictureRatio == previewRatio) {
-                ratioMaxPixels=resolutionPixels;
-                ratioCurrentMaxRes=r;
+            if (resolutionPixels > ratioMaxPixels && pictureRatio == previewRatio) {
+                ratioMaxPixels = resolutionPixels;
+                ratioCurrentMaxRes = r;
             }
 
-            if (resolutionPixels>maxPixels) {
-                maxPixels=resolutionPixels;
-                currentMaxRes=r;
+            if (resolutionPixels > maxPixels) {
+                maxPixels = resolutionPixels;
+                currentMaxRes = r;
             }
         }
 
         boolean matchAspect = mSharedPref.getBoolean("match_aspect", true);
 
-        if (ratioCurrentMaxRes!=null && matchAspect) {
+        if (ratioCurrentMaxRes != null && matchAspect) {
 
-            Log.d(TAG,"Max supported picture resolution with preview aspect ratio: "
-                    + ratioCurrentMaxRes.width+"x"+ratioCurrentMaxRes.height);
+            Log.d(TAG, "Max supported picture resolution with preview aspect ratio: "
+                    + ratioCurrentMaxRes.width + "x" + ratioCurrentMaxRes.height);
             return ratioCurrentMaxRes;
 
         }
@@ -967,9 +833,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
     private void refreshCamera() {
         try {
             mCamera.stopPreview();
-        }
-
-        catch (Exception e) {
+        } catch (Exception e) {
         }
 
         try {
@@ -977,8 +841,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
 
             mCamera.startPreview();
             mCamera.setPreviewCallback(this);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
         }
     }
 
@@ -998,9 +861,9 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         android.hardware.Camera.Size pictureSize = camera.getParameters().getPreviewSize();
 
         Log.d(TAG, "onPreviewFrame - received image " + pictureSize.width + "x" + pictureSize.height
-                + " focused: "+ mFocused +" imageprocessor: "+(imageProcessorBusy?"busy":"available"));
+                + " focused: " + mFocused + " imageprocessor: " + (imageProcessorBusy ? "busy" : "available"));
 
-        if ( mFocused && ! imageProcessorBusy ) {
+        if (mFocused && !imageProcessorBusy) {
             setImageProcessorBusy(true);
             Mat yuv = new Mat(new Size(pictureSize.width, pictureSize.height * 1.5), CvType.CV_8UC1);
             yuv.put(0, 0, data);
@@ -1010,7 +873,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
 
             yuv.release();
 
-            sendImageProcessorMessage("previewFrame", new PreviewFrame( mat, autoMode, !(autoMode || scanClicked) ));
+            sendImageProcessorMessage("previewFrame", new PreviewFrame(mat, autoMode, !(autoMode || scanClicked)));
         }
 
     }
@@ -1023,15 +886,6 @@ public class OpenNoteScannerActivity extends AppCompatActivity
             }
         });
     }
-
-    private class ResetShutterColor implements Runnable {
-        @Override
-        public void run() {
-            scanDocButton.setBackgroundTintList(null);
-        }
-    }
-
-    private ResetShutterColor resetShutterColor = new ResetShutterColor();
 
     public boolean requestPicture() {
         if (safeToTakePicture) {
@@ -1046,7 +900,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
                         attemptToFocus = true;
                     }
 
-                    camera.takePicture(null,null,mThis);
+                    camera.takePicture(null, null, mThis);
                 }
             });
             return true;
@@ -1075,10 +929,10 @@ public class OpenNoteScannerActivity extends AppCompatActivity
 
     }
 
-    public void sendImageProcessorMessage(String messageText , Object obj ) {
-        Log.d(TAG,"sending message to ImageProcessor: "+messageText+" - "+obj.toString());
+    public void sendImageProcessorMessage(String messageText, Object obj) {
+        Log.d(TAG, "sending message to ImageProcessor: " + messageText + " - " + obj.toString());
         Message msg = mImageProcessor.obtainMessage();
-        msg.obj = new OpenNoteMessage(messageText, obj );
+        msg.obj = new OpenNoteMessage(messageText, obj);
         mImageProcessor.sendMessage(msg);
     }
 
@@ -1112,18 +966,16 @@ public class OpenNoteScannerActivity extends AppCompatActivity
 
     private void animateDocument(String filename, ScannedDocument quadrilateral) {
 
-        AnimationRunnable runnable = new AnimationRunnable(filename,quadrilateral);
+        AnimationRunnable runnable = new AnimationRunnable(filename, quadrilateral);
         runOnUiThread(runnable);
 
     }
 
-    private void shootSound()
-    {
+    private void shootSound() {
         AudioManager meng = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         int volume = meng.getStreamVolume(AudioManager.STREAM_NOTIFICATION);
 
-        if (volume != 0)
-        {
+        if (volume != 0) {
             if (_shootMP == null) {
                 _shootMP = MediaPlayer.create(this, Uri.parse("file:///system/media/audio/ui/camera_click.ogg"));
             }
@@ -1170,6 +1022,137 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         });
 
         statsOptInDialog.create().show();
+    }
+
+    class AnimationRunnable implements Runnable {
+
+        public int height;
+
+        public int width;
+
+        String fileName = null;
+
+        Size previewSize = null;
+
+        private Bitmap bitmap;
+
+        private Size imageSize;
+
+        private Point[] previewPoints = null;
+
+        AnimationRunnable(String filename, ScannedDocument document) {
+            this.fileName = filename;
+            this.imageSize = document.processed.size();
+
+            if (document.quadrilateral != null) {
+                this.previewPoints = document.previewPoints;
+                this.previewSize = document.previewSize;
+            }
+        }
+
+        @Override
+        public void run() {
+            final ImageView imageView = findViewById(R.id.scannedAnimation);
+
+            Display display = getWindowManager().getDefaultDisplay();
+            android.graphics.Point size = new android.graphics.Point();
+            display.getRealSize(size);
+
+            int width = Math.min(size.x, size.y);
+            int height = Math.max(size.x, size.y);
+
+            // ATENTION: captured images are always in landscape, values should be swapped
+            double imageWidth = imageSize.height;
+            double imageHeight = imageSize.width;
+
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) imageView.getLayoutParams();
+
+            if (previewPoints != null) {
+                double documentLeftHeight = hipotenuse(previewPoints[0], previewPoints[1]);
+                double documentBottomWidth = hipotenuse(previewPoints[1], previewPoints[2]);
+                double documentRightHeight = hipotenuse(previewPoints[2], previewPoints[3]);
+                double documentTopWidth = hipotenuse(previewPoints[3], previewPoints[0]);
+
+                double documentWidth = Math.max(documentTopWidth, documentBottomWidth);
+                double documentHeight = Math.max(documentLeftHeight, documentRightHeight);
+
+                Log.d(TAG, "device: " + width + "x" + height + " image: " + imageWidth + "x" + imageHeight
+                        + " document: " + documentWidth + "x" + documentHeight);
+
+                Log.d(TAG, "previewPoints[0] x=" + previewPoints[0].x + " y=" + previewPoints[0].y);
+                Log.d(TAG, "previewPoints[1] x=" + previewPoints[1].x + " y=" + previewPoints[1].y);
+                Log.d(TAG, "previewPoints[2] x=" + previewPoints[2].x + " y=" + previewPoints[2].y);
+                Log.d(TAG, "previewPoints[3] x=" + previewPoints[3].x + " y=" + previewPoints[3].y);
+
+                // ATENTION: again, swap width and height
+                double xRatio = width / previewSize.height;
+                double yRatio = height / previewSize.width;
+
+                params.topMargin = (int) (previewPoints[3].x * yRatio);
+                params.leftMargin = (int) ((previewSize.height - previewPoints[3].y) * xRatio);
+                params.width = (int) (documentWidth * xRatio);
+                params.height = (int) (documentHeight * yRatio);
+            } else {
+                params.topMargin = height / 4;
+                params.leftMargin = width / 4;
+                params.width = width / 2;
+                params.height = height / 2;
+            }
+
+            bitmap = decodeSampledBitmapFromUri(fileName, params.width, params.height);
+
+            imageView.setImageBitmap(bitmap);
+
+            imageView.setVisibility(View.VISIBLE);
+
+            TranslateAnimation translateAnimation = new TranslateAnimation(
+                    Animation.ABSOLUTE, 0, Animation.ABSOLUTE, -params.leftMargin,
+                    Animation.ABSOLUTE, 0, Animation.ABSOLUTE, height - params.topMargin
+            );
+
+            ScaleAnimation scaleAnimation = new ScaleAnimation(1, 0, 1, 0);
+
+            AnimationSet animationSet = new AnimationSet(true);
+
+            animationSet.addAnimation(scaleAnimation);
+            animationSet.addAnimation(translateAnimation);
+
+            animationSet.setDuration(600);
+            animationSet.setInterpolator(new AccelerateInterpolator());
+
+            animationSet.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    imageView.setVisibility(View.INVISIBLE);
+                    imageView.setImageBitmap(null);
+                    AnimationRunnable.this.bitmap.recycle();
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+
+                @Override
+                public void onAnimationStart(Animation animation) {
+
+                }
+            });
+
+            imageView.startAnimation(animationSet);
+
+        }
+
+        double hipotenuse(Point a, Point b) {
+            return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
+        }
+    }
+
+    private class ResetShutterColor implements Runnable {
+        @Override
+        public void run() {
+            scanDocButton.setBackgroundTintList(null);
+        }
     }
 
 }

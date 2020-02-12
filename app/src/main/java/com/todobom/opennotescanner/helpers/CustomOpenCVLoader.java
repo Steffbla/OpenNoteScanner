@@ -18,10 +18,13 @@ import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
+
 import com.todobom.opennotescanner.R;
-import java.io.File;
+
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+
+import java.io.File;
 
 /**
  * Created by allgood on 22/02/16.
@@ -43,99 +46,12 @@ public class CustomOpenCVLoader extends OpenCVLoader {
     private static long myDownloadReference;
 
     private static AlertDialog mAskInstallDialog;
-
-    private static class MyBroadcastReceiver extends BroadcastReceiver {
-
-        private static final String TAG = "CustomOpenCVLoader";
-
-        private Context AppContext;
-
-        public MyBroadcastReceiver(Context appContext) {
-            AppContext = appContext;
-        }
-
-        public void onReceive(Context ctxt, Intent intent) {
-
-            long id = intent.getExtras().getLong(DownloadManager.EXTRA_DOWNLOAD_ID);
-
-            if (id == myDownloadReference) {
-                DownloadManager dm = (DownloadManager) AppContext
-                        .getSystemService(Context.DOWNLOAD_SERVICE);
-
-                DownloadManager.Query query = new DownloadManager.Query();
-                query.setFilterById(id);
-                Cursor cursor = dm.query(query);
-
-                if (cursor.moveToFirst()) {
-                    // get the status of the download
-                    int columnIndex = cursor.getColumnIndex(DownloadManager
-                            .COLUMN_STATUS);
-                    int status = cursor.getInt(columnIndex);
-
-                    switch (status) {
-                        case DownloadManager.STATUS_SUCCESSFUL:
-
-                            String downloadFileLocalUri = cursor
-                                    .getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
-                            File apkFile;
-
-                            apkFile = new File(Uri.parse(downloadFileLocalUri).getPath());
-
-                            waitOpenCVDialog.dismiss();
-                            AppContext.unregisterReceiver(onComplete);
-
-                            Uri uri;
-
-                            Intent installIntent;
-
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                                installIntent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
-                                uri = androidx.core.content.FileProvider.getUriForFile(ctxt,
-                                        ctxt.getApplicationContext().getPackageName() + ".fileprovider", apkFile);
-                            } else {
-                                installIntent = new Intent(Intent.ACTION_VIEW);
-                                uri = Uri.fromFile(apkFile);
-                            }
-
-                            installIntent.setFlags(
-                                    Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK
-                                            | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                            installIntent.setDataAndType(uri, "application/vnd.android.package-archive");
-
-                            AppContext.startActivity(installIntent);
-                            break;
-                        case DownloadManager.STATUS_FAILED:
-                            // get the reason - more detail on the status
-                            int columnReason = cursor.getColumnIndex(DownloadManager
-                                    .COLUMN_REASON);
-                            int reason = cursor.getInt(columnReason);
-
-                            Toast.makeText(AppContext,
-                                    "FAILED: " + reason,
-                                    Toast.LENGTH_LONG).show();
-                            AppContext.unregisterReceiver(onComplete);
-                            break;
-                        default:
-                            Log.d("CustomOpenCVLoader", "Received download manager status: " + status);
-                    }
-                } else {
-                    Log.d("CustomOpenCVLoader", "missing download");
-                    AppContext.unregisterReceiver(onComplete);
-                }
-                cursor.close();
-
-            }
-        }
-    }
-
     private static MyBroadcastReceiver onComplete;
-
     private static AlertDialog.Builder waitInstallOpenCV;
-
     private static Dialog waitOpenCVDialog;
 
     public static boolean initAsync(String version, final Context AppContext,
-            LoaderCallbackInterface callback) {
+                                    LoaderCallbackInterface callback) {
 
         // if dialog is showing, remove
         if (mAskInstallDialog != null) {
@@ -296,6 +212,90 @@ public class CustomOpenCVLoader extends OpenCVLoader {
                 .bindService(intent, dummyServiceConnection, Context.BIND_AUTO_CREATE);
         AppContext.unbindService(dummyServiceConnection);
         return result;
+    }
+
+    private static class MyBroadcastReceiver extends BroadcastReceiver {
+
+        private static final String TAG = "CustomOpenCVLoader";
+
+        private Context AppContext;
+
+        public MyBroadcastReceiver(Context appContext) {
+            AppContext = appContext;
+        }
+
+        public void onReceive(Context ctxt, Intent intent) {
+
+            long id = intent.getExtras().getLong(DownloadManager.EXTRA_DOWNLOAD_ID);
+
+            if (id == myDownloadReference) {
+                DownloadManager dm = (DownloadManager) AppContext
+                        .getSystemService(Context.DOWNLOAD_SERVICE);
+
+                DownloadManager.Query query = new DownloadManager.Query();
+                query.setFilterById(id);
+                Cursor cursor = dm.query(query);
+
+                if (cursor.moveToFirst()) {
+                    // get the status of the download
+                    int columnIndex = cursor.getColumnIndex(DownloadManager
+                            .COLUMN_STATUS);
+                    int status = cursor.getInt(columnIndex);
+
+                    switch (status) {
+                        case DownloadManager.STATUS_SUCCESSFUL:
+
+                            String downloadFileLocalUri = cursor
+                                    .getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
+                            File apkFile;
+
+                            apkFile = new File(Uri.parse(downloadFileLocalUri).getPath());
+
+                            waitOpenCVDialog.dismiss();
+                            AppContext.unregisterReceiver(onComplete);
+
+                            Uri uri;
+
+                            Intent installIntent;
+
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                                installIntent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
+                                uri = androidx.core.content.FileProvider.getUriForFile(ctxt,
+                                        ctxt.getApplicationContext().getPackageName() + ".fileprovider", apkFile);
+                            } else {
+                                installIntent = new Intent(Intent.ACTION_VIEW);
+                                uri = Uri.fromFile(apkFile);
+                            }
+
+                            installIntent.setFlags(
+                                    Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK
+                                            | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            installIntent.setDataAndType(uri, "application/vnd.android.package-archive");
+
+                            AppContext.startActivity(installIntent);
+                            break;
+                        case DownloadManager.STATUS_FAILED:
+                            // get the reason - more detail on the status
+                            int columnReason = cursor.getColumnIndex(DownloadManager
+                                    .COLUMN_REASON);
+                            int reason = cursor.getInt(columnReason);
+
+                            Toast.makeText(AppContext,
+                                    "FAILED: " + reason,
+                                    Toast.LENGTH_LONG).show();
+                            AppContext.unregisterReceiver(onComplete);
+                            break;
+                        default:
+                            Log.d("CustomOpenCVLoader", "Received download manager status: " + status);
+                    }
+                } else {
+                    Log.d("CustomOpenCVLoader", "missing download");
+                    AppContext.unregisterReceiver(onComplete);
+                }
+                cursor.close();
+
+            }
+        }
     }
 
 }

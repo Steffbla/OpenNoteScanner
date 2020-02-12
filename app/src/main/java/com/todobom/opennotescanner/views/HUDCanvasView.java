@@ -6,6 +6,7 @@ import android.graphics.Paint;
 import android.graphics.drawable.shapes.Shape;
 import android.util.AttributeSet;
 import android.view.View;
+
 import java.util.ArrayList;
 
 /**
@@ -29,6 +30,49 @@ public class HUDCanvasView extends View {
         super(context, attrs, defStyle);
     }
 
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+
+        // TODO: consider storing these as member variables to reduce
+        // allocations per draw cycle.
+        int paddingLeft = getPaddingLeft();
+        int paddingTop = getPaddingTop();
+        int paddingRight = getPaddingRight();
+        int paddingBottom = getPaddingBottom();
+
+        int contentWidth = getWidth() - paddingLeft - paddingRight;
+        int contentHeight = getHeight() - paddingTop - paddingBottom;
+
+        for (HUDShape s : shapes) {
+            s.getShape().resize(contentWidth, contentHeight);
+            s.draw(canvas);
+        }
+
+    }
+
+    public HUDShape addShape(Shape shape, Paint paint) {
+        HUDShape hudShape = new HUDShape(shape, paint);
+        shapes.add(hudShape);
+        return hudShape;
+    }
+
+    public void addShape(Shape shape, Paint paint, Paint border) {
+        HUDShape hudShape = new HUDShape(shape, paint, border);
+        shapes.add(hudShape);
+    }
+
+    public void removeShape(HUDShape shape) {
+        shapes.remove(shape);
+    }
+
+    public void removeShape(int index) {
+        shapes.remove(index);
+    }
+
+    public void clear() {
+        shapes.clear();
+    }
 
     public class HUDShape {
         private final Shape mShape;
@@ -49,60 +93,16 @@ public class HUDCanvasView extends View {
         }
 
         void draw(Canvas canvas) {
-            mShape.draw(canvas,mPaint);
+            mShape.draw(canvas, mPaint);
 
             if (mBorder != null) {
-                mShape.draw(canvas,mBorder);
+                mShape.draw(canvas, mBorder);
             }
         }
 
         Shape getShape() {
             return mShape;
         }
-    }
-
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-
-        // TODO: consider storing these as member variables to reduce
-        // allocations per draw cycle.
-        int paddingLeft = getPaddingLeft();
-        int paddingTop = getPaddingTop();
-        int paddingRight = getPaddingRight();
-        int paddingBottom = getPaddingBottom();
-
-        int contentWidth = getWidth() - paddingLeft - paddingRight;
-        int contentHeight = getHeight() - paddingTop - paddingBottom;
-
-        for ( HUDShape s: shapes ) {
-            s.getShape().resize(contentWidth, contentHeight);
-            s.draw(canvas);
-        }
-
-    }
-
-    public HUDShape addShape(Shape shape , Paint paint ) {
-        HUDShape hudShape = new HUDShape(shape, paint);
-        shapes.add( hudShape );
-        return hudShape;
-    }
-
-    public void addShape(Shape shape, Paint paint, Paint border) {
-        HUDShape hudShape = new HUDShape(shape, paint , border );
-        shapes.add(hudShape);
-    }
-
-    public void removeShape(HUDShape shape) {
-        shapes.remove(shape);
-    }
-
-    public void removeShape(int index) {
-        shapes.remove(index);
-    }
-
-    public void clear() {
-        shapes.clear();
     }
 
 }

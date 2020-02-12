@@ -2,6 +2,7 @@ package com.todobom.opennotescanner;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+
 import org.piwik.sdk.PiwikApplication;
 import org.piwik.sdk.Tracker;
 
@@ -14,19 +15,19 @@ public class OpenNoteScannerApplication extends PiwikApplication {
 
     SharedPreferences.OnSharedPreferenceChangeListener mPreferenceChangeListener =
             new SharedPreferences.OnSharedPreferenceChangeListener() {
-        @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            if (key.equals("usage_stats")) {
-                mOptOut = !sharedPreferences.getBoolean("usage_stats", false);
-                getPiwik().setOptOut(mOptOut);
+                @Override
+                public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                    if (key.equals("usage_stats")) {
+                        mOptOut = !sharedPreferences.getBoolean("usage_stats", false);
+                        getPiwik().setOptOut(mOptOut);
 
-                // when user opt-in, register the download
-                if (!mOptOut) {
-                    getTracker().trackAppDownload(OpenNoteScannerApplication.this, Tracker.ExtraIdentifier.APK_CHECKSUM);
+                        // when user opt-in, register the download
+                        if (!mOptOut) {
+                            getTracker().trackAppDownload(OpenNoteScannerApplication.this, Tracker.ExtraIdentifier.APK_CHECKSUM);
+                        }
+                    }
                 }
-            }
-        }
-    };
+            };
 
     @Override
     public String getTrackerUrl() {

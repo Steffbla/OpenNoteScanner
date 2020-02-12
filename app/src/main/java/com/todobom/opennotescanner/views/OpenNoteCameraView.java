@@ -6,9 +6,11 @@ import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.Size;
 import android.util.AttributeSet;
 import android.util.Log;
+
+import org.opencv.android.JavaCameraView;
+
 import java.io.FileOutputStream;
 import java.util.List;
-import org.opencv.android.JavaCameraView;
 
 public class OpenNoteCameraView extends JavaCameraView implements PictureCallback {
 
@@ -29,8 +31,8 @@ public class OpenNoteCameraView extends JavaCameraView implements PictureCallbac
 
     public boolean isEffectSupported(String effect) {
         List<String> effectList = getEffectList();
-        for(String str: effectList) {
-            if(str.trim().contains(effect))
+        for (String str : effectList) {
+            if (str.trim().contains(effect))
                 return true;
         }
         return false;
@@ -55,17 +57,17 @@ public class OpenNoteCameraView extends JavaCameraView implements PictureCallbac
     }
 
     public void setMaxPictureResolution() {
-        int maxWidth=0;
-        Size curRes=null;
-        for ( Size r: getPictureResolutionList() ) {
-            Log.d(TAG,"supported picture resolution: "+r.width+"x"+r.height);
-            if (r.width>maxWidth) {
-                maxWidth=r.width;
-                curRes=r;
+        int maxWidth = 0;
+        Size curRes = null;
+        for (Size r : getPictureResolutionList()) {
+            Log.d(TAG, "supported picture resolution: " + r.width + "x" + r.height);
+            if (r.width > maxWidth) {
+                maxWidth = r.width;
+                curRes = r;
             }
         }
 
-        if (curRes!=null) {
+        if (curRes != null) {
             Camera.Parameters parameters = mCamera.getParameters();
             parameters.setPictureSize(curRes.width, curRes.height);
             mCamera.setParameters(parameters);
@@ -74,22 +76,21 @@ public class OpenNoteCameraView extends JavaCameraView implements PictureCallbac
     }
 
 
-
     public void setMaxPreviewResolution() {
-        int maxWidth=0;
-        Size curRes=null;
+        int maxWidth = 0;
+        Size curRes = null;
 
         mCamera.lock();
 
-        for ( Size r: getResolutionList() ) {
-            if (r.width>maxWidth) {
-                Log.d(TAG,"supported preview resolution: "+r.width+"x"+r.height);
-                maxWidth=r.width;
-                curRes=r;
+        for (Size r : getResolutionList()) {
+            if (r.width > maxWidth) {
+                Log.d(TAG, "supported preview resolution: " + r.width + "x" + r.height);
+                maxWidth = r.width;
+                curRes = r;
             }
         }
 
-        if (curRes!=null) {
+        if (curRes != null) {
             setResolution(curRes);
             Log.d(TAG, "selected preview resolution: " + curRes.width + "x" + curRes.height);
         }
@@ -97,25 +98,24 @@ public class OpenNoteCameraView extends JavaCameraView implements PictureCallbac
         return;
     }
 
+    public Size getResolution() {
+        return mCamera.getParameters().getPreviewSize();
+    }
+
     public void setResolution(Size resolution) {
         disconnectCamera();
         mMaxHeight = resolution.height;
         mMaxWidth = resolution.width;
         connectCamera(getWidth(), getHeight());
-        Log.d(TAG,"resolution: "+resolution.width+" x "+resolution.height);
+        Log.d(TAG, "resolution: " + resolution.width + " x " + resolution.height);
     }
-
-    public Size getResolution() {
-        return mCamera.getParameters().getPreviewSize();
-    }
-
 
     public void setFlash(boolean stateFlash) {
         /* */
         Camera.Parameters par = mCamera.getParameters();
         par.setFlashMode(stateFlash ? Camera.Parameters.FLASH_MODE_TORCH : Camera.Parameters.FLASH_MODE_OFF);
         mCamera.setParameters(par);
-        Log.d(TAG,"flash: " + (stateFlash?"on":"off"));
+        Log.d(TAG, "flash: " + (stateFlash ? "on" : "off"));
         // */
     }
 

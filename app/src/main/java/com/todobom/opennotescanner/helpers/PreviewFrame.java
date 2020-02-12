@@ -11,7 +11,7 @@ public class PreviewFrame {
     private Mat frame;
     private boolean autoMode;
 
-    public PreviewFrame( Mat frame , boolean autoMode , boolean previewOnly ) {
+    public PreviewFrame(Mat frame, boolean autoMode, boolean previewOnly) {
         this.frame = frame;
         this.autoMode = autoMode;
         this.previewOnly = previewOnly;
@@ -29,11 +29,11 @@ public class PreviewFrame {
         return autoMode;
     }
 
-    public boolean isPreviewOnly() {
-        return previewOnly;
-    }
-
     public void setAutoMode(boolean autoMode) {
         this.autoMode = autoMode;
+    }
+
+    public boolean isPreviewOnly() {
+        return previewOnly;
     }
 }
