@@ -51,6 +51,7 @@ import com.github.fafaldo.fabtoolbar.widget.FABToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.todobom.opennotescanner.helpers.AboutFragment;
+import com.todobom.opennotescanner.helpers.CreatePdfAsyncTask;
 import com.todobom.opennotescanner.helpers.CustomOpenCVLoader;
 import com.todobom.opennotescanner.helpers.OpenNoteMessage;
 import com.todobom.opennotescanner.helpers.PreviewFrame;
@@ -400,6 +401,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         String fileName;
         boolean isIntent = false;
         Uri fileUri = null;
+        String folderName = "";
 
         String imgSuffix = ".jpg";
         if (mSharedPref.getBoolean("save_png", false)) {
@@ -417,7 +419,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
             }
             isIntent = true;
         } else {
-            String folderName = mSharedPref.getString("storage_folder", "OpenNoteScanner");
+            folderName = mSharedPref.getString("storage_folder", "OpenNoteScanner");
             File folder = new File(Environment.getExternalStorageDirectory().toString()
                     + "/" + folderName);
             if (!folder.exists()) {
@@ -436,6 +438,8 @@ public class OpenNoteScannerActivity extends AppCompatActivity
 
         Imgcodecs.imwrite(fileName, endDoc);
         endDoc.release();
+        // TODO: 12.02.20 save as pdf here
+        new CreatePdfAsyncTask(folderName, fileName).execute();
 
         try {
             ExifInterface exif = new ExifInterface(fileName);
