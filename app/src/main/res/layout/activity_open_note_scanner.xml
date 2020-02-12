@@ -14,13 +14,7 @@
         android:id="@+id/surfaceView"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:layout_alignParentStart="false"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:visibility="gone" />
 
     <!-- This FrameLayout insets its children based on system windows using
          android:fitsSystemWindows. -->
@@ -53,17 +47,16 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="left|center_vertical"
+        android:layout_gravity="start|center_vertical"
         >
 
         <ImageView
             android:layout_width="0px"
             android:layout_height="0px"
-            android:layout_marginLeft="0px"
+            android:layout_marginStart="0px"
             android:layout_marginBottom="0px"
             android:id="@+id/scannedAnimation"
             android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:background="#00000000"
             android:visibility="invisible" />
@@ -74,7 +67,8 @@
             android:layout_height="fill_parent"
             android:background="#00000000"
             android:paddingBottom="0dp"
-            android:paddingLeft="0dp"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
             />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -85,10 +79,10 @@
             app:borderWidth="0dp"
             app:fabSize="mini"
             app:elevation="0sp"
-            android:layout_marginRight="30dp"
+            android:layout_marginEnd="30dp"
             android:layout_marginTop="80dp"
             android:layout_alignParentTop="true"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:backgroundTint="#A060FF60"
             android:tint="#ffffff"/>
 -
@@ -148,7 +142,7 @@
                     app:borderWidth="0dp"
                     app:elevation="0sp"
                     android:src="@drawable/abc_ic_menu_overflow_material"
-                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
                     android:backgroundTint="#A060FF60"
                     android:tint="#ffffff"
                     android:rotation="90"/>
@@ -270,14 +264,5 @@
         android:gravity="center"
         android:enabled="true"
         />
-
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="40dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right">
-
-
-    </LinearLayout>
 
 </FrameLayout>
