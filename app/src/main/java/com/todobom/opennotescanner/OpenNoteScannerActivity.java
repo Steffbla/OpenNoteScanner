@@ -55,6 +55,12 @@ import com.todobom.opennotescanner.helpers.CustomOpenCVLoader;
 import com.todobom.opennotescanner.helpers.OpenNoteMessage;
 import com.todobom.opennotescanner.helpers.PreviewFrame;
 import com.todobom.opennotescanner.helpers.ScannedDocument;
+import com.todobom.opennotescanner.network.DracoonService;
+import com.todobom.opennotescanner.network.NetworkConstants;
+import com.todobom.opennotescanner.network.models.dracoon.ChunkUploadResponse;
+import com.todobom.opennotescanner.network.models.dracoon.CreateShareUploadChannelRequest;
+import com.todobom.opennotescanner.network.models.dracoon.CreateShareUploadChannelResponse;
+import com.todobom.opennotescanner.network.models.dracoon.PublicUploadedFileData;
 import com.todobom.opennotescanner.views.HUDCanvasView;
 
 import org.opencv.android.BaseLoaderCallback;
@@ -77,20 +83,28 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 import static com.todobom.opennotescanner.helpers.Utils.addImageToGallery;
 import static com.todobom.opennotescanner.helpers.Utils.decodeSampledBitmapFromUri;
 
 /**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
+ * An example full-screen activity that shows and hides the system UI (i.e. status bar and
+ * navigation/system bar) with user interaction.
  */
 public class OpenNoteScannerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, SurfaceHolder.Callback,
         Camera.PictureCallback, Camera.PreviewCallback {
 
     /**
-     * Some older devices needs a small delay between UI widget updates
-     * and a change of the status and navigation bar.
+     * Some older devices needs a small delay between UI widget updates and a change of the
+     * status and
+     * navigation bar.
      */
     private static final int UI_ANIMATION_DELAY = 300;
 
@@ -196,7 +210,8 @@ public class OpenNoteScannerActivity extends AppCompatActivity
 
         mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
-        if (mSharedPref.getBoolean("isFirstRun", true) && !mSharedPref.getBoolean("usage_stats", false)) {
+        if (mSharedPref.getBoolean("isFirstRun", true) && !mSharedPref
+                .getBoolean("usage_stats", false)) {
             statsOptInDialog();
         }
 
@@ -210,7 +225,6 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         final View contentView = findViewById(R.id.surfaceView);
         mHud = findViewById(R.id.hud);
         mWaitSpinner = findViewById(R.id.wait_spinner);
-
 
         // Set up the user interaction to manually show or hide the system UI.
         contentView.setOnClickListener(new View.OnClickListener() {
@@ -238,7 +252,8 @@ public class OpenNoteScannerActivity extends AppCompatActivity
                     waitSpinnerVisible();
                 } else {
                     scanClicked = true;
-                    Toast.makeText(getApplicationContext(), R.string.scanningToast, Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), R.string.scanningToast,
+                            Toast.LENGTH_LONG).show();
                     v.setBackgroundTintList(ColorStateList.valueOf(0x7F60FF60));
                 }
             }
@@ -272,7 +287,9 @@ public class OpenNoteScannerActivity extends AppCompatActivity
 
                 sendImageProcessorMessage("colorMode", colorMode);
 
-                Toast.makeText(getApplicationContext(), colorMode ? R.string.colorMode : R.string.bwMode, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), colorMode ? R.string.colorMode :
+                                R.string.bwMode,
+                        Toast.LENGTH_SHORT).show();
 
             }
         });
@@ -288,7 +305,9 @@ public class OpenNoteScannerActivity extends AppCompatActivity
 
                 sendImageProcessorMessage("filterMode", filterMode);
 
-                Toast.makeText(getApplicationContext(), filterMode ? R.string.filterModeOn : R.string.filterModeOff, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(),
+                        filterMode ? R.string.filterModeOn : R.string.filterModeOff,
+                        Toast.LENGTH_SHORT).show();
 
             }
         });
@@ -313,7 +332,9 @@ public class OpenNoteScannerActivity extends AppCompatActivity
             public void onClick(View v) {
                 autoMode = !autoMode;
                 ((ImageView) v).setColorFilter(autoMode ? 0xFFFFFFFF : 0xFFA0F0A0);
-                Toast.makeText(getApplicationContext(), autoMode ? R.string.autoMode : R.string.manualMode, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), autoMode ? R.string.autoMode :
+                                R.string.manualMode,
+                        Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -394,7 +415,9 @@ public class OpenNoteScannerActivity extends AppCompatActivity
 
     public void saveDocument(ScannedDocument scannedDocument) {
 
-        Mat doc = (scannedDocument.processed != null) ? scannedDocument.processed : scannedDocument.original;
+        Mat doc =
+                (scannedDocument.processed != null) ? scannedDocument.processed :
+                        scannedDocument.original;
 
         Intent intent = getIntent();
         String fileName;
@@ -436,6 +459,79 @@ public class OpenNoteScannerActivity extends AppCompatActivity
 
         Imgcodecs.imwrite(fileName, endDoc);
         endDoc.release();
+        // TODO: 13.02.2020 insert cloud save here
+        DracoonService dracoonService =
+                NetworkConstants.getDracoonService(NetworkConstants.getRetrofit());
+
+        String accessKey = "BDgQx9gw1jGh7MxBE255CzSVPhkIXYWo";
+        File file = new File(fileName);
+//        fileUri = Uri.fromFile(file);
+
+        Call<CreateShareUploadChannelResponse> uploadChannel = dracoonService.createUploadChannel(
+                accessKey, new CreateShareUploadChannelRequest("test.jpg",
+                        5000, null, false));
+
+        final String[] uploadId = new String[1];
+        uploadChannel.enqueue(new Callback<CreateShareUploadChannelResponse>() {
+            //            https://stackoverflow
+            //            .com/questions/36491096/retrofit-multipart-request-required
+            //            -multipartfile-parameter-file-is-not-pre/
+            @Override
+            public void onResponse(Call<CreateShareUploadChannelResponse> call,
+                                   Response<CreateShareUploadChannelResponse> response) {
+                Log.d(TAG, "onResponse: test");
+                CreateShareUploadChannelResponse res = response.body();
+                if (res != null) {
+                    RequestBody requestFile =
+                            RequestBody.create(MediaType.parse("multipart/form-data"), file);
+                    MultipartBody.Part body = MultipartBody.Part.createFormData("file",
+                            file.getName(), requestFile);
+                    uploadId[0] = res.getUploadId();
+                    RequestBody description = RequestBody.create(MediaType.parse("multipart/form" +
+                            "-data"), "hjbklö");
+
+                    Call<ChunkUploadResponse> upload = dracoonService.uploadFile(accessKey,
+                            uploadId[0], body, description);
+//
+                    upload.enqueue(new Callback<ChunkUploadResponse>() {
+                        @Override
+                        public void onResponse(Call<ChunkUploadResponse> call,
+                                               Response<ChunkUploadResponse> response) {
+                            Log.d(TAG, "onResponse: test");
+//                            ChunkUploadResponse res = response.body();
+//                            if (res != null) {
+                            Call<PublicUploadedFileData> completeUpload =
+                                    dracoonService.completeFileUpload(accessKey, uploadId[0]);
+
+                            completeUpload.enqueue(new Callback<PublicUploadedFileData>() {
+                                @Override
+                                public void onResponse(Call<PublicUploadedFileData> call,
+                                                       Response<PublicUploadedFileData> response) {
+                                    Log.d(TAG, "onResponse: fucking success");
+                                }
+
+                                @Override
+                                public void onFailure(Call<PublicUploadedFileData> call,
+                                                      Throwable t) {
+                                    Log.d(TAG, "onFailure: no way");
+                                }
+                            });
+                        }
+//                        }
+
+                        @Override
+                        public void onFailure(Call<ChunkUploadResponse> call, Throwable t) {
+
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CreateShareUploadChannelResponse> call, Throwable t) {
+
+            }
+        });
 
         try {
             ExifInterface exif = new ExifInterface(fileName);
@@ -443,7 +539,8 @@ public class OpenNoteScannerActivity extends AppCompatActivity
             String nowFormatted = mDateFormat.format(new Date().getTime());
             exif.setAttribute(ExifInterface.TAG_DATETIME, nowFormatted);
             exif.setAttribute(ExifInterface.TAG_DATETIME_DIGITIZED, nowFormatted);
-            exif.setAttribute("Software", "OpenNoteScanner " + BuildConfig.VERSION_NAME + " https://goo.gl/2JwEPq");
+            exif.setAttribute("Software",
+                    "OpenNoteScanner " + BuildConfig.VERSION_NAME + " https://goo.gl/2JwEPq");
             exif.saveAttributes();
         } catch (IOException e) {
             e.printStackTrace();
@@ -497,7 +594,9 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         PackageManager pm = getPackageManager();
         if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
             Camera.Parameters par = mCamera.getParameters();
-            par.setFlashMode(stateFlash ? Camera.Parameters.FLASH_MODE_TORCH : Camera.Parameters.FLASH_MODE_OFF);
+            par.setFlashMode(
+                    stateFlash ? Camera.Parameters.FLASH_MODE_TORCH :
+                            Camera.Parameters.FLASH_MODE_OFF);
             mCamera.setParameters(par);
             Log.d(TAG, "flash: " + (stateFlash ? "on" : "off"));
             return stateFlash;
@@ -547,8 +646,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
     }
 
     /**
-     * Schedules a call to hide() in [delay] milliseconds, canceling any
-     * previously scheduled calls.
+     * Schedules a call to hide() in [delay] milliseconds, canceling any previously scheduled calls.
      */
     private void delayedHide(int delayMillis) {
         mHideHandler.removeCallbacks(mHideRunnable);
@@ -597,25 +695,29 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         int hotAreaHeight = previewHeight / 2 - hotAreaWidth;
 
         ImageView angleNorthWest = findViewById(R.id.nw_angle);
-        RelativeLayout.LayoutParams paramsNW = (RelativeLayout.LayoutParams) angleNorthWest.getLayoutParams();
+        RelativeLayout.LayoutParams paramsNW = (RelativeLayout.LayoutParams) angleNorthWest
+                .getLayoutParams();
         paramsNW.leftMargin = hotAreaWidth - paramsNW.width;
         paramsNW.topMargin = hotAreaHeight - paramsNW.height;
         angleNorthWest.setLayoutParams(paramsNW);
 
         ImageView angleNorthEast = findViewById(R.id.ne_angle);
-        RelativeLayout.LayoutParams paramsNE = (RelativeLayout.LayoutParams) angleNorthEast.getLayoutParams();
+        RelativeLayout.LayoutParams paramsNE = (RelativeLayout.LayoutParams) angleNorthEast
+                .getLayoutParams();
         paramsNE.leftMargin = displayWidth - hotAreaWidth;
         paramsNE.topMargin = hotAreaHeight - paramsNE.height;
         angleNorthEast.setLayoutParams(paramsNE);
 
         ImageView angleSouthEast = findViewById(R.id.se_angle);
-        RelativeLayout.LayoutParams paramsSE = (RelativeLayout.LayoutParams) angleSouthEast.getLayoutParams();
+        RelativeLayout.LayoutParams paramsSE = (RelativeLayout.LayoutParams) angleSouthEast
+                .getLayoutParams();
         paramsSE.leftMargin = displayWidth - hotAreaWidth;
         paramsSE.topMargin = previewHeight - hotAreaHeight;
         angleSouthEast.setLayoutParams(paramsSE);
 
         ImageView angleSouthWest = findViewById(R.id.sw_angle);
-        RelativeLayout.LayoutParams paramsSW = (RelativeLayout.LayoutParams) angleSouthWest.getLayoutParams();
+        RelativeLayout.LayoutParams paramsSW = (RelativeLayout.LayoutParams) angleSouthWest
+                .getLayoutParams();
         paramsSW.leftMargin = hotAreaWidth - paramsSW.width;
         paramsSW.topMargin = previewHeight - hotAreaHeight;
         angleSouthWest.setLayoutParams(paramsSW);
@@ -635,7 +737,9 @@ public class OpenNoteScannerActivity extends AppCompatActivity
             Log.d(TAG, "autofocus not available");
         }
         if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
-            param.setFlashMode(mFlashMode ? Camera.Parameters.FLASH_MODE_TORCH : Camera.Parameters.FLASH_MODE_OFF);
+            param.setFlashMode(
+                    mFlashMode ? Camera.Parameters.FLASH_MODE_TORCH :
+                            Camera.Parameters.FLASH_MODE_OFF);
         }
 
         mCamera.setParameters(param);
@@ -768,7 +872,8 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         Camera.Size ratioCurrentMaxRes = null;
         for (Camera.Size r : getPictureResolutionList()) {
             float pictureRatio = (float) r.width / r.height;
-            Log.d(TAG, "supported picture resolution: " + r.width + "x" + r.height + " ratio: " + pictureRatio);
+            Log.d(TAG,
+                    "supported picture resolution: " + r.width + "x" + r.height + " ratio: " + pictureRatio);
             int resolutionPixels = r.width * r.height;
 
             if (resolutionPixels > ratioMaxPixels && pictureRatio == previewRatio) {
@@ -861,11 +966,13 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         android.hardware.Camera.Size pictureSize = camera.getParameters().getPreviewSize();
 
         Log.d(TAG, "onPreviewFrame - received image " + pictureSize.width + "x" + pictureSize.height
-                + " focused: " + mFocused + " imageprocessor: " + (imageProcessorBusy ? "busy" : "available"));
+                + " focused: " + mFocused + " imageprocessor: " + (imageProcessorBusy ? "busy"
+                : "available"));
 
         if (mFocused && !imageProcessorBusy) {
             setImageProcessorBusy(true);
-            Mat yuv = new Mat(new Size(pictureSize.width, pictureSize.height * 1.5), CvType.CV_8UC1);
+            Mat yuv = new Mat(new Size(pictureSize.width, pictureSize.height * 1.5),
+                    CvType.CV_8UC1);
             yuv.put(0, 0, data);
 
             Mat mat = new Mat(new Size(pictureSize.width, pictureSize.height), CvType.CV_8UC4);
@@ -873,7 +980,8 @@ public class OpenNoteScannerActivity extends AppCompatActivity
 
             yuv.release();
 
-            sendImageProcessorMessage("previewFrame", new PreviewFrame(mat, autoMode, !(autoMode || scanClicked)));
+            sendImageProcessorMessage("previewFrame",
+                    new PreviewFrame(mat, autoMode, !(autoMode || scanClicked)));
         }
 
     }
@@ -915,7 +1023,8 @@ public class OpenNoteScannerActivity extends AppCompatActivity
 
         android.hardware.Camera.Size pictureSize = camera.getParameters().getPictureSize();
 
-        Log.d(TAG, "onPictureTaken - received image " + pictureSize.width + "x" + pictureSize.height);
+        Log.d(TAG,
+                "onPictureTaken - received image " + pictureSize.width + "x" + pictureSize.height);
 
         Mat mat = new Mat(new Size(pictureSize.width, pictureSize.height), CvType.CV_8U);
         mat.put(0, 0, data);
@@ -977,7 +1086,8 @@ public class OpenNoteScannerActivity extends AppCompatActivity
 
         if (volume != 0) {
             if (_shootMP == null) {
-                _shootMP = MediaPlayer.create(this, Uri.parse("file:///system/media/audio/ui/camera_click.ogg"));
+                _shootMP = MediaPlayer
+                        .create(this, Uri.parse("file:///system/media/audio/ui/camera_click.ogg"));
             }
             if (_shootMP != null) {
                 _shootMP.start();
@@ -996,30 +1106,33 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         statsOptInDialog.setTitle(getString(R.string.stats_optin_title));
         statsOptInDialog.setMessage(getString(R.string.stats_optin_text));
 
-        statsOptInDialog.setPositiveButton(R.string.answer_yes, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                mSharedPref.edit().putBoolean("usage_stats", true).apply();
-                mSharedPref.edit().putBoolean("isFirstRun", false).apply();
-                dialog.dismiss();
-            }
-        });
+        statsOptInDialog.setPositiveButton(R.string.answer_yes,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mSharedPref.edit().putBoolean("usage_stats", true).apply();
+                        mSharedPref.edit().putBoolean("isFirstRun", false).apply();
+                        dialog.dismiss();
+                    }
+                });
 
-        statsOptInDialog.setNegativeButton(R.string.answer_no, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                mSharedPref.edit().putBoolean("usage_stats", false).apply();
-                mSharedPref.edit().putBoolean("isFirstRun", false).apply();
-                dialog.dismiss();
-            }
-        });
+        statsOptInDialog.setNegativeButton(R.string.answer_no,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mSharedPref.edit().putBoolean("usage_stats", false).apply();
+                        mSharedPref.edit().putBoolean("isFirstRun", false).apply();
+                        dialog.dismiss();
+                    }
+                });
 
-        statsOptInDialog.setNeutralButton(R.string.answer_later, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
+        statsOptInDialog.setNeutralButton(R.string.answer_later,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
 
         statsOptInDialog.create().show();
     }
@@ -1065,7 +1178,8 @@ public class OpenNoteScannerActivity extends AppCompatActivity
             double imageWidth = imageSize.height;
             double imageHeight = imageSize.width;
 
-            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) imageView.getLayoutParams();
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) imageView
+                    .getLayoutParams();
 
             if (previewPoints != null) {
                 double documentLeftHeight = hypotenuse(previewPoints[0], previewPoints[1]);
@@ -1076,8 +1190,9 @@ public class OpenNoteScannerActivity extends AppCompatActivity
                 double documentWidth = Math.max(documentTopWidth, documentBottomWidth);
                 double documentHeight = Math.max(documentLeftHeight, documentRightHeight);
 
-                Log.d(TAG, "device: " + width + "x" + height + " image: " + imageWidth + "x" + imageHeight
-                        + " document: " + documentWidth + "x" + documentHeight);
+                Log.d(TAG,
+                        "device: " + width + "x" + height + " image: " + imageWidth + "x" + imageHeight
+                                + " document: " + documentWidth + "x" + documentHeight);
 
                 Log.d(TAG, "previewPoints[0] x=" + previewPoints[0].x + " y=" + previewPoints[0].y);
                 Log.d(TAG, "previewPoints[1] x=" + previewPoints[1].x + " y=" + previewPoints[1].y);
@@ -1148,6 +1263,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
     }
 
     private class ResetShutterColor implements Runnable {
+
         @Override
         public void run() {
             scanDocButton.setBackgroundTintList(null);
