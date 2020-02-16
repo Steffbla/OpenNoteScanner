@@ -24,6 +24,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat">
         <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings_new"></activity>
+        <activity
             android:name=".OpenNoteScannerActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_open_note_scanner"
@@ -53,10 +56,6 @@
         <activity
             android:name=".FullScreenViewActivity"
             android:theme="@style/FullscreenTheme" />
-        <activity
-            android:name=".SettingsActivity"
-            android:label="@string/settings"
-            android:theme="@style/AppTheme" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

@@ -28,8 +28,6 @@
     <string name="share_app_using">Share link through</string>
     <string name="share_app_body">"Take a look at this great app that scans notes, drawings and documents through your camera: "</string>
     <string name="share_app_subject">Great app to scan notes and documents</string>
-    <string name="settings">Settings</string>
-    <string name="basic_settings">Basic Settings</string>
     <string name="automatic_tagging">Automatic Tagging</string>
     <string name="automatic_tagging_summary">Define automatic tags to be applied on marked scans using the special page template</string>
     <string name="match_aspect">Match preview aspect ratio</string>
@@ -48,8 +46,6 @@
     <string name="githubdownload">Direct Download</string>
     <string name="activateunknown">Go to Settings</string>
     <string name="messageactivateunknown">Google Play isn\'t available and Install from Unknown Sources is disabled, please go to Settings and activate it.</string>
-    <string name="github_project">Project on GitHub</string>
-    <string name="github_project_summary">This application is open source, you can help to improve it with feedback, issue reports, code and translations through the GitHub project\'s page</string>
     <string name="donate">Buy me a coffee</string>
     <string name="donate_summary">If you like this application and think it is useful, you may consider making a donation</string>
     <string name="telegram">Telegram Group</string>
@@ -63,10 +59,24 @@
     <string name="action_tag">Tag</string>
     <string name="storage_folder">Storage Folder</string>
     <string name="storage_folder_summary">Sets where the scanned files should be stored</string>
-    <string name="save_png">Save to PNG Format</string>
-    <string name="save_png_summary">Save final images to PNG format. Notice that metadata isn\'t supported yet on PNG, so some features will not be available.</string>
     <string name="format_not_supported">Format not supported</string>
     <string name="format_not_supported_message">Image format doesn\'t support tagging</string>
     <string name="standard_tags">Standard Tags:</string>
     <string name="done">Done</string>
+    <string name="title_activity_settings_new">Settings</string>
+
+
+    <!-- Preferences Category Title-->
+    <string name="settings">Settings</string>
+    <string name="basic_settings">Basic Settings</string>
+    <string name="about_category">About</string>
+
+
+    <!-- Preferences -->
+    <string name="save_format">Save to Format</string>
+    <string name="save_format_summary">Save final images to selected format. Notice that metadata
+        isn\'t supported yet on PNG, so some features will not be available.</string>
+    <string name="github_project">Project on GitHub</string>
+    <string name="github_project_summary">This application is open source, you can help to improve it with feedback, issue reports, code and translations through the GitHub project\'s page</string>
+
 </resources>

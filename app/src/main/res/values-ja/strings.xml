@@ -63,8 +63,8 @@
     <string name="action_tag">タグ</string>
     <string name="storage_folder">ストレージ フォルダー</string>
     <string name="storage_folder_summary">スキャンしたファイルを保存する場所を設定します</string>
-    <string name="save_png">PNG 形式で保存</string>
-    <string name="save_png_summary">最終的に画像を PNG 形式で保存します。 PNG 上のメタデータはまだサポートしていないため、一部の機能が利用できないことがあります。</string>
+    <string name="save_format">PNG 形式で保存</string>
+    <string name="save_format_summary">最終的に画像を PNG 形式で保存します。 PNG 上のメタデータはまだサポートしていないため、一部の機能が利用できないことがあります。</string>
     <string name="format_not_supported">形式がサポートされていません</string>
     <string name="format_not_supported_message">画像形式でタグ付けがサポートされていません</string>
 </resources>

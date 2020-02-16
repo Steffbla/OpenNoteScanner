@@ -1,0 +1,80 @@
+<!--
+  ~ Copyright 2018 The app Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="@string/basic_settings">
+        <PreferenceScreen
+            app:summary="@string/automatic_tagging_summary"
+            app:title="@string/automatic_tagging">
+
+            <EditTextPreference
+                app:defaultValue="rocket"
+                app:key="tag_rocket"
+                app:title="Rocket" />
+            <EditTextPreference
+                app:defaultValue="gift"
+                app:key="tag_gift"
+                app:title="Gift" />
+            <EditTextPreference
+                app:defaultValue="tv"
+                app:key="tag_tv"
+                app:title="TV" />
+            <EditTextPreference
+                app:defaultValue="bell"
+                app:key="tag_bell"
+                app:title="Bell" />
+            <EditTextPreference
+                app:defaultValue="game"
+                app:key="tag_game"
+                app:title="Game" />
+            <EditTextPreference
+                app:defaultValue="star"
+                app:key="tag_star"
+                app:title="Star" />
+            <EditTextPreference
+                app:defaultValue="magnet"
+                app:key="tag_magnet"
+                app:title="Magnet" />-
+        </PreferenceScreen>
+        <ListPreference
+            android:key="file_format"
+            app:defaultValue="pdf"
+            app:entries="@array/file_formats_entries"
+            app:entryValues="@array/file_formats_values"
+            app:summary="@string/save_format_summary"
+            app:title="@string/save_format"
+            app:useSimpleSummaryProvider="true" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="bug_rotate"
+            android:summary="@string/bug_rotate_summary"
+            android:title="@string/bug_rotate" />
+
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/about_category">
+        <Preference
+            android:persistent="false"
+            android:summary="@string/github_project_summary"
+            android:title="@string/github_project">
+            <intent
+
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/stefan-te/OpenNoteScanner" />
+        </Preference>
+    </PreferenceCategory>
+</PreferenceScreen>

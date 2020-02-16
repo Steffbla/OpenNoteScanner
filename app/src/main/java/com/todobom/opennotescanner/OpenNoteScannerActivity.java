@@ -425,7 +425,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         Uri fileUri = null;
 
         String imgSuffix = ".jpg";
-        if (mSharedPref.getBoolean("save_png", false)) {
+        if (mSharedPref.getString("file_format", "jpg").equals(getResources().getStringArray(R.array.file_formats_values)[2])) {
             imgSuffix = ".png";
         }
 
@@ -460,6 +460,9 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         Imgcodecs.imwrite(fileName, endDoc);
         endDoc.release();
         // TODO: 13.02.2020 insert cloud save here
+        if (mSharedPref.getString("file_format", "pdf").equals(getResources().getStringArray(R.array.file_formats_values)[0])) {
+            // TODO: 16.02.20 convert in pdf
+        }
         DracoonService dracoonService =
                 NetworkConstants.getDracoonService(NetworkConstants.getRetrofit());
 
