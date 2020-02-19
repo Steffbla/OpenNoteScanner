@@ -28,6 +28,8 @@
     <string name="share_app_using">Share link through</string>
     <string name="share_app_body">"Take a look at this great app that scans notes, drawings and documents through your camera: "</string>
     <string name="share_app_subject">Great app to scan notes and documents</string>
+    <string name="settings">Settings</string>
+    <string name="basic_settings">Basic Settings</string>
     <string name="automatic_tagging">Automatic Tagging</string>
     <string name="automatic_tagging_summary">Define automatic tags to be applied on marked scans using the special page template</string>
     <string name="match_aspect">Match preview aspect ratio</string>
@@ -59,24 +61,30 @@
     <string name="action_tag">Tag</string>
     <string name="storage_folder">Storage Folder</string>
     <string name="storage_folder_summary">Sets where the scanned files should be stored</string>
+    <string name="save_png">Save to PNG Format</string>
+    <string name="save_png_summary">Save final images to PNG format. Notice that metadata isn\'t supported yet on PNG, so some features will not be available.</string>
     <string name="format_not_supported">Format not supported</string>
     <string name="format_not_supported_message">Image format doesn\'t support tagging</string>
     <string name="standard_tags">Standard Tags:</string>
     <string name="done">Done</string>
-    <string name="title_activity_settings_new">Settings</string>
-
-
-    <!-- Preferences Category Title-->
-    <string name="settings">Settings</string>
-    <string name="basic_settings">Basic Settings</string>
-    <string name="about_category">About</string>
 
 
     <!-- Preferences -->
-    <string name="save_format">Save to Format</string>
-    <string name="save_format_summary">Save final images to selected format. Notice that metadata
-        isn\'t supported yet on PNG, so some features will not be available.</string>
+    <string name="title_activity_settings_new">Settings</string>
+    <string name="save_format_summary">Save scans to selected format.</string>
+    <string name="save_format">Select file format</string>
+
     <string name="github_project">Project on GitHub</string>
     <string name="github_project_summary">This application is open source, you can help to improve it with feedback, issue reports, code and translations through the GitHub project\'s page</string>
+    <string name="github_link" translatable="false">https://github.com/stefan-te/OpenNoteScanner</string>
+    <string name="about_category">About</string>
+
+    <string name="upload_title">Upload settings</string>
+    <string name="upload_summary">Set your upload destination</string>
+    <string name="upload_option_title">Set your destination for your upload</string>
+    <string name="dracoon_title">DRACOON-link</string>
+    <string name="nextcloud_title">Nextcloud-link</string>
+    <string name="email_title">E-Mail address</string>
+    <string name="ftp_title">FTP-Server address</string>
 
 </resources>

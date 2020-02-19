@@ -10,4 +10,18 @@
         <item>jpg</item>
         <item>png</item>
     </string-array>
+    <string-array name="upload_entries">
+        <item>DRACOON</item>
+        <item>Nextcloud</item>
+        <item>E-Mail</item>
+        <item>FTP-Server</item>
+        <item>Local Device (not recommended)</item>
+    </string-array>
+    <string-array name="upload_values">
+        <item>dracoon</item>
+        <item>nextcloud</item>
+        <item>email</item>
+        <item>ftp_server</item>
+        <item>local</item>
+    </string-array>
 </resources>
