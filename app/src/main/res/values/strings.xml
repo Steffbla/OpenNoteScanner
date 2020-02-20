@@ -68,6 +68,9 @@
     <string name="standard_tags">Standard Tags:</string>
     <string name="done">Done</string>
 
+    <string name="upload_fail_message">Upload failed</string>
+    <string name="upload_success_message">Upload successful</string>
+
 
     <!-- Preferences -->
     <string name="save_format_summary">Save scans to selected format.</string>

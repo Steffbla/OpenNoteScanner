@@ -13,7 +13,6 @@ import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
 import android.media.AudioManager;
-import android.media.ExifInterface;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
@@ -45,6 +44,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.exifinterface.media.ExifInterface;
 import androidx.fragment.app.FragmentManager;
 
 import com.github.fafaldo.fabtoolbar.widget.FABToolbarLayout;
@@ -55,12 +55,7 @@ import com.todobom.opennotescanner.helpers.CustomOpenCVLoader;
 import com.todobom.opennotescanner.helpers.OpenNoteMessage;
 import com.todobom.opennotescanner.helpers.PreviewFrame;
 import com.todobom.opennotescanner.helpers.ScannedDocument;
-import com.todobom.opennotescanner.network.DracoonService;
-import com.todobom.opennotescanner.network.NetworkConstants;
-import com.todobom.opennotescanner.network.models.dracoon.ChunkUploadResponse;
-import com.todobom.opennotescanner.network.models.dracoon.CreateShareUploadChannelRequest;
-import com.todobom.opennotescanner.network.models.dracoon.CreateShareUploadChannelResponse;
-import com.todobom.opennotescanner.network.models.dracoon.PublicUploadedFileData;
+import com.todobom.opennotescanner.network.Upload;
 import com.todobom.opennotescanner.views.HUDCanvasView;
 
 import org.opencv.android.BaseLoaderCallback;
@@ -82,13 +77,6 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 import static com.todobom.opennotescanner.helpers.Utils.addImageToGallery;
 import static com.todobom.opennotescanner.helpers.Utils.decodeSampledBitmapFromUri;
@@ -414,130 +402,71 @@ public class OpenNoteScannerActivity extends AppCompatActivity
     }
 
     public void saveDocument(ScannedDocument scannedDocument) {
-
-        Mat doc =
-                (scannedDocument.processed != null) ? scannedDocument.processed :
-                        scannedDocument.original;
+        Mat doc = (scannedDocument.processed != null) ? scannedDocument.processed : scannedDocument.original;
 
         Intent intent = getIntent();
-        String fileName;
+        String filePath;
         boolean isIntent = false;
         Uri fileUri = null;
+        String fileFormat = mSharedPref.getString("file_format", "pdf");
+        String uploadOption = mSharedPref.getString("upload_option", "local");
+        String uploadAddress = mSharedPref.getString("upload_address", "OpenNoteScanner");
+
 
         String imgSuffix = ".jpg";
-        if (mSharedPref.getString("file_format", "jpg").equals(getResources().getStringArray(R.array.file_formats_values)[2])) {
+        if (mSharedPref.getString("file_format", "jpg").equals("png")) {
             imgSuffix = ".png";
         }
 
-        if (intent.getAction().equals("android.media.action.IMAGE_CAPTURE")) {
+        if (intent.getAction() != null && intent.getAction().equals("android.media.action.IMAGE_CAPTURE")) {
             fileUri = intent.getParcelableExtra(MediaStore.EXTRA_OUTPUT);
             Log.d(TAG, "intent uri: " + fileUri.toString());
             try {
-                fileName = File.createTempFile("onsFile", imgSuffix, this.getCacheDir()).getPath();
+                filePath = File.createTempFile("onsFile", imgSuffix, this.getCacheDir()).getPath();
             } catch (IOException e) {
                 e.printStackTrace();
                 return;
             }
             isIntent = true;
         } else {
-            String folderName = mSharedPref.getString("storage_folder", "OpenNoteScanner");
-            File folder = new File(Environment.getExternalStorageDirectory().toString()
-                    + "/" + folderName);
-            if (!folder.exists()) {
-                folder.mkdirs();
-                Log.d(TAG, "wrote: created folder " + folder.getPath());
+            if (!uploadOption.equals("local")) {
+                try {
+                    filePath = File.createTempFile("onsFile", imgSuffix, this.getCacheDir()).getPath();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return;
+                }
+            } else {
+                String folderName = mSharedPref.getString("upload_address", "OpenNoteScanner");
+                File folder = new File(Environment.getExternalStorageDirectory().toString()
+                        + "/" + folderName);
+                if (!folder.exists()) {
+                    folder.mkdirs();
+                    Log.d(TAG, "wrote: created folder " + folder.getPath());
+                }
+                filePath = Environment.getExternalStorageDirectory().toString()
+                        + "/" + folderName + "/DOC-"
+                        + new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date())
+                        + imgSuffix;
             }
-            fileName = Environment.getExternalStorageDirectory().toString()
-                    + "/" + folderName + "/DOC-"
-                    + new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date())
-                    + imgSuffix;
         }
         Mat endDoc = new Mat(Double.valueOf(doc.size().width).intValue(),
                 Double.valueOf(doc.size().height).intValue(), CvType.CV_8UC4);
 
         Core.flip(doc.t(), endDoc, 1);
 
-        Imgcodecs.imwrite(fileName, endDoc);
+        Imgcodecs.imwrite(filePath, endDoc);
         endDoc.release();
+
         // TODO: 13.02.2020 insert cloud save here
         if (mSharedPref.getString("file_format", "pdf").equals(getResources().getStringArray(R.array.file_formats_values)[0])) {
             // TODO: 16.02.20 convert in pdf
         }
-        DracoonService dracoonService =
-                NetworkConstants.getDracoonService(NetworkConstants.getRetrofit());
-
-        String accessKey = "BDgQx9gw1jGh7MxBE255CzSVPhkIXYWo";
-        File file = new File(fileName);
-//        fileUri = Uri.fromFile(file);
-
-        Call<CreateShareUploadChannelResponse> uploadChannel = dracoonService.createUploadChannel(
-                accessKey, new CreateShareUploadChannelRequest("test.jpg",
-                        5000, null, false));
-
-        final String[] uploadId = new String[1];
-        uploadChannel.enqueue(new Callback<CreateShareUploadChannelResponse>() {
-            //            https://stackoverflow
-            //            .com/questions/36491096/retrofit-multipart-request-required
-            //            -multipartfile-parameter-file-is-not-pre/
-            @Override
-            public void onResponse(Call<CreateShareUploadChannelResponse> call,
-                                   Response<CreateShareUploadChannelResponse> response) {
-                Log.d(TAG, "onResponse: test");
-                CreateShareUploadChannelResponse res = response.body();
-                if (res != null) {
-                    RequestBody requestFile =
-                            RequestBody.create(MediaType.parse("multipart/form-data"), file);
-                    MultipartBody.Part body = MultipartBody.Part.createFormData("file",
-                            file.getName(), requestFile);
-                    uploadId[0] = res.getUploadId();
-                    RequestBody description = RequestBody.create(MediaType.parse("multipart/form" +
-                            "-data"), "hjbklö");
-
-                    Call<ChunkUploadResponse> upload = dracoonService.uploadFile(accessKey,
-                            uploadId[0], body, description);
-//
-                    upload.enqueue(new Callback<ChunkUploadResponse>() {
-                        @Override
-                        public void onResponse(Call<ChunkUploadResponse> call,
-                                               Response<ChunkUploadResponse> response) {
-                            Log.d(TAG, "onResponse: test");
-//                            ChunkUploadResponse res = response.body();
-//                            if (res != null) {
-                            Call<PublicUploadedFileData> completeUpload =
-                                    dracoonService.completeFileUpload(accessKey, uploadId[0]);
-
-                            completeUpload.enqueue(new Callback<PublicUploadedFileData>() {
-                                @Override
-                                public void onResponse(Call<PublicUploadedFileData> call,
-                                                       Response<PublicUploadedFileData> response) {
-                                    Log.d(TAG, "onResponse: fucking success");
-                                }
-
-                                @Override
-                                public void onFailure(Call<PublicUploadedFileData> call,
-                                                      Throwable t) {
-                                    Log.d(TAG, "onFailure: no way");
-                                }
-                            });
-                        }
-//                        }
-
-                        @Override
-                        public void onFailure(Call<ChunkUploadResponse> call, Throwable t) {
-
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onFailure(Call<CreateShareUploadChannelResponse> call, Throwable t) {
-
-            }
-        });
+        Upload upload = new Upload(this, uploadOption, uploadAddress);
+        upload.uploadFile(filePath);
 
         try {
-            ExifInterface exif = new ExifInterface(fileName);
+            ExifInterface exif = new ExifInterface(filePath);
             exif.setAttribute("UserComment", "Generated using Open Note Scanner");
             String nowFormatted = mDateFormat.format(new Date().getTime());
             exif.setAttribute(ExifInterface.TAG_DATETIME, nowFormatted);
@@ -553,7 +482,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
             InputStream inputStream = null;
             OutputStream realOutputStream = null;
             try {
-                inputStream = new FileInputStream(fileName);
+                inputStream = new FileInputStream(filePath);
                 realOutputStream = this.getContentResolver().openOutputStream(fileUri);
                 // Transfer bytes from in to out
                 byte[] buffer = new byte[1024];
@@ -572,25 +501,20 @@ public class OpenNoteScannerActivity extends AppCompatActivity
                     e.printStackTrace();
                 }
             }
-
         }
 
-        Log.d(TAG, "wrote: " + fileName);
+        Log.d(TAG, "wrote: " + filePath);
 
         if (isIntent) {
-            new File(fileName).delete();
+            new File(filePath).delete();
             setResult(RESULT_OK, intent);
             finish();
         } else {
-            animateDocument(fileName, scannedDocument);
-            addImageToGallery(fileName, this);
+            animateDocument(filePath, scannedDocument);
+            addImageToGallery(filePath, this);
         }
 
-        // Record goal "PictureTaken"
-        ((OpenNoteScannerApplication) getApplication()).getTracker().trackGoal(1);
-
         refreshCamera();
-
     }
 
     public boolean setFlash(boolean stateFlash) {
