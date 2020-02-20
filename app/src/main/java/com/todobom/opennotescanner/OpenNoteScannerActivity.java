@@ -50,6 +50,12 @@ import androidx.fragment.app.FragmentManager;
 import com.github.fafaldo.fabtoolbar.widget.FABToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.PdfWriter;
 import com.todobom.opennotescanner.helpers.AboutFragment;
 import com.todobom.opennotescanner.helpers.CustomOpenCVLoader;
 import com.todobom.opennotescanner.helpers.OpenNoteMessage;
@@ -71,6 +77,7 @@ import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -78,7 +85,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import static com.todobom.opennotescanner.helpers.Utils.addImageToGallery;
 import static com.todobom.opennotescanner.helpers.Utils.decodeSampledBitmapFromUri;
 
 /**
@@ -411,7 +417,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         String fileFormat = mSharedPref.getString("file_format", "pdf");
         String uploadOption = mSharedPref.getString("upload_option", "local");
         String uploadAddress = mSharedPref.getString("upload_address", "OpenNoteScanner");
-
+        File folder = null;
 
         String imgSuffix = ".jpg";
         if (mSharedPref.getString("file_format", "jpg").equals("png")) {
@@ -430,6 +436,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
             isIntent = true;
         } else {
             if (!uploadOption.equals("local")) {
+                folder = this.getCacheDir();
                 try {
                     filePath = File.createTempFile("onsFile", imgSuffix, this.getCacheDir()).getPath();
                 } catch (IOException e) {
@@ -438,7 +445,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
                 }
             } else {
                 String folderName = mSharedPref.getString("upload_address", "OpenNoteScanner");
-                File folder = new File(Environment.getExternalStorageDirectory().toString() + "/" + folderName);
+                folder = new File(Environment.getExternalStorageDirectory().toString() + "/" + folderName);
                 if (!folder.exists()) {
                     folder.mkdirs();
                     Log.d(TAG, "wrote: created folder " + folder.getPath());
@@ -457,8 +464,40 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         Imgcodecs.imwrite(filePath, endDoc);
         endDoc.release();
 
-        if (mSharedPref.getString("file_format", "pdf").equals(getResources().getStringArray(R.array.file_formats_values)[0])) {
-            // TODO: 16.02.20 convert in pdf
+        // https://github.com/Swati4star/Images-to-PDF/blob/master/app/src/main/java/swati4star/createpdf/util
+        // /CreatePdf.java
+        if (!isIntent && mSharedPref.getString("file_format", "pdf").equals("pdf")) {
+            Rectangle pageSize = PageSize.A4;
+            Document document = new Document(pageSize);
+
+            Rectangle docRect = document.getPageSize();
+            String outputFile = folder.getAbsolutePath() + "/DOC-" + System.currentTimeMillis() + ".pdf";
+
+            try {
+                PdfWriter pdfWriter = PdfWriter.getInstance(document, new FileOutputStream(outputFile));
+
+                document.open();
+
+                Image image = Image.getInstance(filePath);
+                image.setBorder(Rectangle.BOX);
+
+                float pageWidth = document.getPageSize().getWidth();
+                float pageHeight = document.getPageSize().getHeight();
+                image.scaleToFit(pageWidth, pageHeight);
+
+                image.setAbsolutePosition(
+                        (docRect.getWidth() - image.getScaledWidth()) / 2,
+                        (docRect.getHeight() - image.getScaledHeight()) / 2);
+
+                document.add(image);
+                document.close();
+
+                new File(filePath).delete();
+                filePath = outputFile;
+
+            } catch (DocumentException | IOException e) {
+                e.printStackTrace();
+            }
         }
         Upload upload = new Upload(this, uploadOption, uploadAddress);
         upload.uploadFile(filePath);
@@ -508,8 +547,8 @@ public class OpenNoteScannerActivity extends AppCompatActivity
             setResult(RESULT_OK, intent);
             finish();
         } else {
-            animateDocument(filePath, scannedDocument);
-            addImageToGallery(filePath, this);
+//            animateDocument(filePath, scannedDocument);
+//            addImageToGallery(filePath, this);
         }
 
         refreshCamera();

@@ -82,7 +82,7 @@ public class Upload {
         // create file upload channel
         // TODO: 20.02.2020 correct filename
         Call<CreateShareUploadChannelResponse> uploadChannel = dracoonService.createUploadChannel(accessKey,
-                new CreateShareUploadChannelRequest("test.jpg", file.length(), null, false));
+                new CreateShareUploadChannelRequest("test.pdf", file.length(), null, false));
 
         final String[] uploadId = new String[1];
         uploadChannel.enqueue(new Callback<CreateShareUploadChannelResponse>() {
