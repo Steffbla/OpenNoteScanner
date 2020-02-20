@@ -438,8 +438,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
                 }
             } else {
                 String folderName = mSharedPref.getString("upload_address", "OpenNoteScanner");
-                File folder = new File(Environment.getExternalStorageDirectory().toString()
-                        + "/" + folderName);
+                File folder = new File(Environment.getExternalStorageDirectory().toString() + "/" + folderName);
                 if (!folder.exists()) {
                     folder.mkdirs();
                     Log.d(TAG, "wrote: created folder " + folder.getPath());
@@ -458,7 +457,6 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         Imgcodecs.imwrite(filePath, endDoc);
         endDoc.release();
 
-        // TODO: 13.02.2020 insert cloud save here
         if (mSharedPref.getString("file_format", "pdf").equals(getResources().getStringArray(R.array.file_formats_values)[0])) {
             // TODO: 16.02.20 convert in pdf
         }

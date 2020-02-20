@@ -43,14 +43,30 @@ public class Upload {
                 uploadFileViaDracoon(fileUri);
                 break;
             case "nextcloud":
+                uploadFileViaNextcloud(fileUri);
                 break;
             case "email":
+                uploadFileViaEmail(fileUri);
                 break;
             case "ftp_server":
+                uploadFileViaFtpServer(fileUri);
                 break;
             case "local":
+                // todo necessary?
                 break;
         }
+    }
+
+    private void uploadFileViaFtpServer(String fileUri) {
+
+    }
+
+    private void uploadFileViaEmail(String fileUri) {
+
+    }
+
+    private void uploadFileViaNextcloud(String fileUri) {
+        // dummy method
     }
 
     // API documentation: dracoon.team/api/
@@ -77,7 +93,7 @@ public class Upload {
                                    Response<CreateShareUploadChannelResponse> response) {
                 Log.d(TAG, "onCreateUploadChannel: " + response.code());
                 if (response.code() != 201) {
-                    showToast(false);
+                    showToast(false, file);
                 }
                 CreateShareUploadChannelResponse res = response.body();
                 if (res != null) {
@@ -93,8 +109,9 @@ public class Upload {
                                                Response<ChunkUploadResponse> response) {
                             Log.d(TAG, "onUploadFile:" + response.code());
                             if (response.code() != 201) {
-                                showToast(false);
+                                showToast(false, file);
                             }
+
                             // complete file upload
                             Call<PublicUploadedFileData> completeUpload = dracoonService.completeFileUpload(accessKey
                                     , uploadId[0]);
@@ -104,16 +121,16 @@ public class Upload {
                                                        Response<PublicUploadedFileData> response) {
                                     Log.d(TAG, "onCompleteFileUpload: " + response.code());
                                     if (response.code() != 201) {
-                                        showToast(false);
+                                        showToast(false, file);
                                     } else {
-                                        showToast(true);
+                                        showToast(true, file);
                                     }
                                 }
 
                                 @Override
                                 public void onFailure(Call<PublicUploadedFileData> call, Throwable t) {
                                     Log.e(TAG, "onCompleteFileUpload: " + t.getMessage());
-                                    showToast(false);
+                                    showToast(false, file);
                                 }
                             });
                         }
@@ -121,7 +138,7 @@ public class Upload {
                         @Override
                         public void onFailure(Call<ChunkUploadResponse> call, Throwable t) {
                             Log.e(TAG, "onUploadFile: " + t.getMessage());
-                            showToast(false);
+                            showToast(false, file);
                         }
                     });
                 }
@@ -130,17 +147,21 @@ public class Upload {
             @Override
             public void onFailure(Call<CreateShareUploadChannelResponse> call, Throwable t) {
                 Log.e(TAG, "onCreateUploadChannel: " + t.getMessage());
-                showToast(false);
+                showToast(false, file);
             }
         });
+
     }
 
-    private void showToast(boolean isSuccess) {
+    private void showToast(boolean isSuccess, File file) {
         Log.e(TAG, "showToast: " + ((isSuccess) ? "success" : "fail"));
         if (isSuccess) {
             Toast.makeText(context, R.string.upload_success_message, Toast.LENGTH_LONG).show();
         } else {
             Toast.makeText(context, R.string.upload_fail_message, Toast.LENGTH_LONG).show();
+        }
+        if (file.delete()) {
+            Log.d(TAG, "showToast: file deleted");
         }
     }
 }
