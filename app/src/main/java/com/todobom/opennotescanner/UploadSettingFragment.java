@@ -16,14 +16,19 @@ public class UploadSettingFragment extends PreferenceFragmentCompat implements P
 
     private ListPreference listPreference;
     private EditTextPreference addressPreference;
+    private boolean isAddressEmpty;
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+        setPreferencesFromResource(R.xml.upload_preferences, rootKey);
 
         listPreference = findPreference("upload_option");
         addressPreference = findPreference("upload_address");
 
+        if (addressPreference != null) {
+            setAddressEmpty();
+            addressPreference.setOnPreferenceChangeListener(this);
+        }
         if (listPreference != null) {
             setAddressTitle(listPreference.getValue(),
                     getResources().getStringArray(R.array.upload_values));
@@ -32,26 +37,23 @@ public class UploadSettingFragment extends PreferenceFragmentCompat implements P
     }
 
     @Override
-    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        setPreferencesFromResource(R.xml.upload_preferences, rootKey);
-    }
-
-    @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         Log.d(TAG, "onPreferenceChange: " + newValue);
         String[] uploadValues = getResources().getStringArray(R.array.upload_values);
         if (preference == listPreference) {
-            if (!newValue.equals(uploadValues[4])) {
-                addressPreference.setVisible(true);
-                addressPreference.setText("");
-                setAddressTitle((String) newValue, uploadValues);
-            } else {
-                addressPreference.setVisible(false);
-            }
+            addressPreference.setVisible(true);
+            addressPreference.setText("");
+
+            setAddressTitle((String) newValue, uploadValues);
+            setAddressEmpty();
+            return true;
+        } else if (preference == addressPreference) {
+            isAddressEmpty = newValue.equals("");
             return true;
         }
         return false;
     }
+
 
     private void setAddressTitle(String value, String[] uploadValues) {
         if (value.equals(uploadValues[0])) {
@@ -66,6 +68,22 @@ public class UploadSettingFragment extends PreferenceFragmentCompat implements P
         } else if (value.equals(uploadValues[3])) {
             addressPreference.setTitle(R.string.ftp_title);
             addressPreference.setDialogTitle(R.string.ftp_title);
+        } else if (value.equals(uploadValues[4])) {
+            addressPreference.setTitle(R.string.local_title);
+            addressPreference.setDialogTitle(R.string.local_title);
+            addressPreference.setText("OpenNoteScanner");
+        } else {
+            Log.e(TAG, "setAddressTitle: unknown value");
         }
+        setAddressEmpty();
+    }
+
+    public boolean isAddressEmpty() {
+        return isAddressEmpty;
+    }
+
+    private void setAddressEmpty() {
+        isAddressEmpty = addressPreference.getText().equals("");
+        Log.d(TAG, "setAddressEmpty: " + isAddressEmpty);
     }
 }

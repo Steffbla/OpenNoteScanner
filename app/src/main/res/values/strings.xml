@@ -70,7 +70,6 @@
 
 
     <!-- Preferences -->
-    <string name="title_activity_settings_new">Settings</string>
     <string name="save_format_summary">Save scans to selected format.</string>
     <string name="save_format">Select file format</string>
 
@@ -79,6 +78,7 @@
     <string name="github_link" translatable="false">https://github.com/stefan-te/OpenNoteScanner</string>
     <string name="about_category">About</string>
 
+    <string name="title_activity_settings_new">Settings</string>
     <string name="upload_title">Upload settings</string>
     <string name="upload_summary">Set your upload destination</string>
     <string name="upload_option_title">Set your destination for your upload</string>
@@ -86,5 +86,9 @@
     <string name="nextcloud_title">Nextcloud-link</string>
     <string name="email_title">E-Mail address</string>
     <string name="ftp_title">FTP-Server address</string>
+    <string name="local_title">Local folder</string>
+    <string name="address_warn_dialog_title">Warning</string>
+
+    <string name="address_warn_dialog_message">You must set a address for your upload</string>
 
 </resources>
