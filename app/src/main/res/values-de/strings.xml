@@ -65,4 +65,18 @@
     <string name="save_format_summary">Dokumente werden als PNG-Bilder gespeichert. Das PNG-Grafikformat unterstützt keine Metadaten.</string>
     <string name="format_not_supported">Grafikformat nicht unterstützt</string>
     <string name="format_not_supported_message">Das Grafikformat hat keine Unterstützung für Tags</string>
+    <string name="about_category">Über OpenNoteScanner</string>
+    <string name="address_warn_dialog_message">Sie müssen eine Upload-Addresse angeben</string>
+    <string name="address_warn_dialog_title">Warnung</string>
+    <string name="dracoon_title">DRACOON-Link</string>
+    <string name="email_title">E-Mail Addresse</string>
+    <string name="ftp_title">FTP_Server Addresse</string>
+    <string name="local_title">Lokaler Ordner</string>
+    <string name="nextcloud_title">Nextcloud-Link</string>
+    <string name="title_activity_settings_new">Einstellungen</string>
+    <string name="upload_fail_message">Upload fehlgeschlagen</string>
+    <string name="upload_option_title">Setzen Sie ein Ziel für Ihren Upload</string>
+    <string name="upload_success_message">Upload erfolgreich</string>
+    <string name="upload_title">Upload-Einstellungen</string>
+    <string name="upload_summary">Speicherort auswählen</string>
 </resources>

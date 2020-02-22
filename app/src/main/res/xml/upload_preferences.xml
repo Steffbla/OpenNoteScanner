@@ -12,5 +12,4 @@
     <EditTextPreference
         app:key="upload_address"
         app:useSimpleSummaryProvider="true" />
-
 </PreferenceScreen>

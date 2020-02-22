@@ -1,0 +1,27 @@
+<resources>
+    <!-- File Format reference-->
+    <string-array name="file_formats_entries">
+        <item>PDF</item>
+        <item>JPG</item>
+        <item>PNG</item>
+    </string-array>
+    <string-array name="file_formats_values">
+        <item>pdf</item>
+        <item>jpg</item>
+        <item>png</item>
+    </string-array>
+    <string-array name="upload_entries">
+        <item>DRACOON</item>
+        <item>Nextcloud</item>
+        <item>E-Mail</item>
+        <item>FTP-Server</item>
+        <item>Lokales Gerät (nicht empfohlen)</item>
+    </string-array>
+    <string-array name="upload_values">
+        <item>dracoon</item>
+        <item>nextcloud</item>
+        <item>email</item>
+        <item>ftp_server</item>
+        <item>local</item>
+    </string-array>
+</resources>

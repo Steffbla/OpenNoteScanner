@@ -79,7 +79,7 @@
     <string name="github_project">Project on GitHub</string>
     <string name="github_project_summary">This application is open source, you can help to improve it with feedback, issue reports, code and translations through the GitHub project\'s page</string>
     <string name="github_link" translatable="false">https://github.com/stefan-te/OpenNoteScanner</string>
-    <string name="about_category">About</string>
+    <string name="about_category">About OpenNoteScanner</string>
 
     <string name="title_activity_settings_new">Settings</string>
     <string name="upload_title">Upload settings</string>

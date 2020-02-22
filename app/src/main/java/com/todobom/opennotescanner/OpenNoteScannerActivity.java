@@ -466,7 +466,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
 
         // https://github.com/Swati4star/Images-to-PDF/blob/master/app/src/main/java/swati4star/createpdf/util
         // /CreatePdf.java
-        if (!isIntent && mSharedPref.getString("file_format", "pdf").equals("pdf")) {
+        if (!isIntent && fileFormat.equals("pdf")) {
             Rectangle pageSize = PageSize.A4;
             Document document = new Document(pageSize);
 
