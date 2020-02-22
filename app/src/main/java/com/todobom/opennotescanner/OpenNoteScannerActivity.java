@@ -446,8 +446,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
             } else {
                 String folderName = mSharedPref.getString("upload_address", "OpenNoteScanner");
                 folder = new File(Environment.getExternalStorageDirectory().toString() + "/" + folderName);
-                if (!folder.exists()) {
-                    folder.mkdirs();
+                if (folder.mkdirs()) {
                     Log.d(TAG, "wrote: created folder " + folder.getPath());
                 }
                 filePath = Environment.getExternalStorageDirectory().toString()
@@ -464,9 +463,8 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         Imgcodecs.imwrite(filePath, endDoc);
         endDoc.release();
 
-        // https://github.com/Swati4star/Images-to-PDF/blob/master/app/src/main/java/swati4star/createpdf/util
-        // /CreatePdf.java
         if (!isIntent && fileFormat.equals("pdf")) {
+            // https://github.com/Swati4star/Images-to-PDF/
             Rectangle pageSize = PageSize.A4;
             Document document = new Document(pageSize);
 
@@ -492,6 +490,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
                 document.add(image);
                 document.close();
 
+                // delete temporary image
                 new File(filePath).delete();
                 filePath = outputFile;
 

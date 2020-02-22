@@ -59,14 +59,13 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
     @Override
     public boolean onPreferenceStartFragment(PreferenceFragmentCompat caller, Preference pref) {
         // https://developer.android.com/guide/topics/ui/settings/organize-your-settings
-        // Instantiate the new Fragment
+        // instantiate the new fragment
         final Bundle args = pref.getExtras();
-        final Fragment fragment = getSupportFragmentManager().getFragmentFactory().instantiate(
-                getClassLoader(),
+        final Fragment fragment = getSupportFragmentManager().getFragmentFactory().instantiate(getClassLoader(),
                 pref.getFragment());
         fragment.setArguments(args);
         fragment.setTargetFragment(caller, 0);
-        // Replace the existing Fragment with the new Fragment
+        // replace the existing fragment with the new fragment
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.settings, fragment, FRAGMENT_TAG_UPLOAD)
                 .addToBackStack(null)

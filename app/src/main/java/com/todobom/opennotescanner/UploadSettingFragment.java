@@ -38,6 +38,7 @@ public class UploadSettingFragment extends PreferenceFragmentCompat implements P
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         Log.d(TAG, "onPreferenceChange: " + newValue);
         if (preference == listPreference) {
+            // deletes the address if a new upload option is chosen
             if (!listPreference.getValue().equals(newValue)) {
                 addressPreference.setText("");
             }
@@ -54,6 +55,7 @@ public class UploadSettingFragment extends PreferenceFragmentCompat implements P
 
 
     private void setAddressTitle(String value) {
+        // updates titles for current upload option
         String[] uploadValues = getResources().getStringArray(R.array.upload_values);
         if (value.equals(uploadValues[0])) {
             addressPreference.setTitle(R.string.dracoon_title);
@@ -83,6 +85,5 @@ public class UploadSettingFragment extends PreferenceFragmentCompat implements P
 
     private void setAddressEmpty() {
         isAddressEmpty = addressPreference.getText().equals("");
-        Log.d(TAG, "setAddressEmpty: " + isAddressEmpty);
     }
 }
