@@ -4,7 +4,6 @@ package com.todobom.opennotescanner;
 import android.os.Bundle;
 import android.util.Log;
 
-import androidx.annotation.Nullable;
 import androidx.preference.EditTextPreference;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
@@ -30,8 +29,7 @@ public class UploadSettingFragment extends PreferenceFragmentCompat implements P
             addressPreference.setOnPreferenceChangeListener(this);
         }
         if (listPreference != null) {
-            setAddressTitle(listPreference.getValue(),
-                    getResources().getStringArray(R.array.upload_values));
+            setAddressTitle(listPreference.getValue());
             listPreference.setOnPreferenceChangeListener(this);
         }
     }
@@ -39,12 +37,12 @@ public class UploadSettingFragment extends PreferenceFragmentCompat implements P
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         Log.d(TAG, "onPreferenceChange: " + newValue);
-        String[] uploadValues = getResources().getStringArray(R.array.upload_values);
         if (preference == listPreference) {
-            addressPreference.setVisible(true);
-            addressPreference.setText("");
+            if (!listPreference.getValue().equals(newValue)) {
+                addressPreference.setText("");
+            }
 
-            setAddressTitle((String) newValue, uploadValues);
+            setAddressTitle((String) newValue);
             setAddressEmpty();
             return true;
         } else if (preference == addressPreference) {
@@ -55,7 +53,8 @@ public class UploadSettingFragment extends PreferenceFragmentCompat implements P
     }
 
 
-    private void setAddressTitle(String value, String[] uploadValues) {
+    private void setAddressTitle(String value) {
+        String[] uploadValues = getResources().getStringArray(R.array.upload_values);
         if (value.equals(uploadValues[0])) {
             addressPreference.setTitle(R.string.dracoon_title);
             addressPreference.setDialogTitle(R.string.dracoon_title);
