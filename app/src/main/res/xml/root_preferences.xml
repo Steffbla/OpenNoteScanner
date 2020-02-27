@@ -31,6 +31,14 @@
             app:summary="@string/save_format_summary"
             app:title="@string/save_format"
             app:useSimpleSummaryProvider="true" />
+        <ListPreference
+            app:defaultValue="A4"
+            app:entries="@array/file_size_entries"
+            app:entryValues="@array/file_size_values"
+            app:key="page_size"
+            app:summary="@string/save_format_summary"
+            app:title="@string/file_size"
+            app:useSimpleSummaryProvider="true" />
         <SwitchPreference
             app:defaultValue="false"
             app:key="bug_rotate"

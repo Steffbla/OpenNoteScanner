@@ -465,7 +465,12 @@ public class OpenNoteScannerActivity extends AppCompatActivity
 
         if (!isIntent && fileFormat.equals("pdf")) {
             // https://github.com/Swati4star/Images-to-PDF/
-            Rectangle pageSize = PageSize.A4;
+            String pageSizePreference = mSharedPref.getString("page_size", "A4");
+            Rectangle pageSize = PageSize.getRectangle(pageSizePreference);
+            // https://stackoverflow.com/questions/17274618/itext-landscape-orientation-and-positioning
+            if (pageSizePreference.contains("landscape")) {
+                pageSize = pageSize.rotate();
+            }
             Document document = new Document(pageSize);
 
             Rectangle docRect = document.getPageSize();
@@ -473,11 +478,14 @@ public class OpenNoteScannerActivity extends AppCompatActivity
 
             try {
                 PdfWriter pdfWriter = PdfWriter.getInstance(document, new FileOutputStream(outputFile));
-
                 document.open();
 
                 Image image = Image.getInstance(filePath);
                 image.setBorder(Rectangle.BOX);
+
+                if (pageSizePreference.contains("landscape")) {
+                    image.setRotationDegrees(90);
+                }
 
                 float pageWidth = document.getPageSize().getWidth();
                 float pageHeight = document.getPageSize().getHeight();
@@ -495,24 +503,28 @@ public class OpenNoteScannerActivity extends AppCompatActivity
                 filePath = outputFile;
 
             } catch (DocumentException | IOException e) {
+                Log.e(TAG, "saveDocument: ", e);
                 e.printStackTrace();
             }
         }
+
+        if (fileFormat.equals("jpg")) {
+            try {
+                ExifInterface exif = new ExifInterface(filePath);
+                exif.setAttribute("UserComment", "Generated using Open Note Scanner");
+                String nowFormatted = mDateFormat.format(new Date().getTime());
+                exif.setAttribute(ExifInterface.TAG_DATETIME, nowFormatted);
+                exif.setAttribute(ExifInterface.TAG_DATETIME_DIGITIZED, nowFormatted);
+                exif.setAttribute("Software",
+                        "OpenNoteScanner " + BuildConfig.VERSION_NAME + " https://goo.gl/2JwEPq");
+                exif.saveAttributes();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         Upload upload = new Upload(this, uploadOption, uploadAddress);
         upload.uploadFile(filePath);
-
-        try {
-            ExifInterface exif = new ExifInterface(filePath);
-            exif.setAttribute("UserComment", "Generated using Open Note Scanner");
-            String nowFormatted = mDateFormat.format(new Date().getTime());
-            exif.setAttribute(ExifInterface.TAG_DATETIME, nowFormatted);
-            exif.setAttribute(ExifInterface.TAG_DATETIME_DIGITIZED, nowFormatted);
-            exif.setAttribute("Software",
-                    "OpenNoteScanner " + BuildConfig.VERSION_NAME + " https://goo.gl/2JwEPq");
-            exif.saveAttributes();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         if (isIntent) {
             InputStream inputStream = null;

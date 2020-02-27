@@ -93,5 +93,6 @@
     <string name="address_warn_dialog_title">Warning</string>
 
     <string name="address_warn_dialog_message">You must set a address for your upload</string>
+    <string name="file_size">Page size</string>
 
 </resources>

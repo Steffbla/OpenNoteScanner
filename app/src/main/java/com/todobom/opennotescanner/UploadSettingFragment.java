@@ -13,7 +13,7 @@ public class UploadSettingFragment extends PreferenceFragmentCompat implements P
 
     private static final String TAG = "UploadSettingFragment";
 
-    private ListPreference listPreference;
+    private ListPreference optionPreference;
     private EditTextPreference addressPreference;
     private boolean isAddressEmpty;
 
@@ -21,25 +21,25 @@ public class UploadSettingFragment extends PreferenceFragmentCompat implements P
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.upload_preferences, rootKey);
 
-        listPreference = findPreference("upload_option");
+        optionPreference = findPreference("upload_option");
         addressPreference = findPreference("upload_address");
 
         if (addressPreference != null) {
             setAddressEmpty();
             addressPreference.setOnPreferenceChangeListener(this);
         }
-        if (listPreference != null) {
-            setAddressTitle(listPreference.getValue());
-            listPreference.setOnPreferenceChangeListener(this);
+        if (optionPreference != null) {
+            setAddressTitle(optionPreference.getValue());
+            optionPreference.setOnPreferenceChangeListener(this);
         }
     }
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         Log.d(TAG, "onPreferenceChange: " + newValue);
-        if (preference == listPreference) {
+        if (preference == optionPreference) {
             // deletes the address if a new upload option is chosen
-            if (!listPreference.getValue().equals(newValue)) {
+            if (!optionPreference.getValue().equals(newValue)) {
                 addressPreference.setText("");
             }
 

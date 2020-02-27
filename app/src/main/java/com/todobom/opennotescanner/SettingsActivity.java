@@ -9,6 +9,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
@@ -74,11 +75,40 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
         return true;
     }
 
-    public static class SettingsFragment extends PreferenceFragmentCompat {
+    public static class SettingsFragment extends PreferenceFragmentCompat implements Preference.OnPreferenceChangeListener {
+
+        private ListPreference pageSizePreference;
+        private ListPreference fileFormatPreference;
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
+
+            fileFormatPreference = findPreference("file_format");
+            pageSizePreference = findPreference("page_size");
+
+            if (pageSizePreference != null) {
+                fileFormatPreference.setOnPreferenceChangeListener(this);
+                setPageSizeVisible(fileFormatPreference.getValue());
+            }
+        }
+
+        private void setPageSizeVisible(String value) {
+            if (!value.equals("pdf")) {
+                pageSizePreference.setVisible(false);
+            } else {
+                pageSizePreference.setVisible(true);
+            }
+        }
+
+        @Override
+        public boolean onPreferenceChange(Preference preference, Object newValue) {
+            Log.d(TAG, "onPreferenceChange: " + newValue);
+            if (preference == fileFormatPreference) {
+                setPageSizeVisible((String) newValue);
+                return true;
+            }
+            return false;
         }
     }
 }

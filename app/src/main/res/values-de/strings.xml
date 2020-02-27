@@ -79,4 +79,5 @@
     <string name="upload_success_message">Upload erfolgreich</string>
     <string name="upload_title">Upload-Einstellungen</string>
     <string name="upload_summary">Speicherort auswählen</string>
+    <string name="file_size">Seitengröße</string>
 </resources>

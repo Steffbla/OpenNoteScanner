@@ -24,4 +24,10 @@
         <item>ftp_server</item>
         <item>local</item>
     </string-array>
+    <string-array name="file_size_entries">
+        <item>DIN A3</item>
+        <item>DIN A4</item>
+        <item>DIN A4 Querformat</item>
+        <item>DIN A5</item>
+    </string-array>
 </resources>
