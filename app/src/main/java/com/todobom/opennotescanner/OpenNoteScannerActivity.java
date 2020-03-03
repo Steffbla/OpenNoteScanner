@@ -45,7 +45,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.exifinterface.media.ExifInterface;
-import androidx.fragment.app.FragmentManager;
 
 import com.github.fafaldo.fabtoolbar.widget.FABToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -56,7 +55,6 @@ import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfWriter;
-import com.todobom.opennotescanner.helpers.AboutFragment;
 import com.todobom.opennotescanner.helpers.CustomOpenCVLoader;
 import com.todobom.opennotescanner.helpers.OpenNoteMessage;
 import com.todobom.opennotescanner.helpers.PreviewFrame;
@@ -258,15 +256,17 @@ public class OpenNoteScannerActivity extends AppCompatActivity
 
             @Override
             public void onClick(View v) {
-                FragmentManager fm = getSupportFragmentManager();
-                AboutFragment aboutDialog = new AboutFragment();
-                aboutDialog.setRunOnDetach(new Runnable() {
-                    @Override
-                    public void run() {
-                        hide();
-                    }
-                });
-                aboutDialog.show(fm, "about_view");
+                Intent intent = new Intent(getApplicationContext(), PreviewActivity.class);
+                startActivity(intent);
+//                FragmentManager fm = getSupportFragmentManager();
+//                AboutFragment aboutDialog = new AboutFragment();
+//                aboutDialog.setRunOnDetach(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        hide();
+//                    }
+//                });
+//                aboutDialog.show(fm, "about_view");
             }
         });
 
