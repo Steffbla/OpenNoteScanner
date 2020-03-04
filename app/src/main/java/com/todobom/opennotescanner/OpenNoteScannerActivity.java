@@ -17,7 +17,6 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
@@ -45,21 +44,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.exifinterface.media.ExifInterface;
+import androidx.fragment.app.FragmentManager;
 
 import com.github.fafaldo.fabtoolbar.widget.FABToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Image;
-import com.itextpdf.text.PageSize;
-import com.itextpdf.text.Rectangle;
-import com.itextpdf.text.pdf.PdfWriter;
+import com.todobom.opennotescanner.helpers.AboutFragment;
 import com.todobom.opennotescanner.helpers.CustomOpenCVLoader;
+import com.todobom.opennotescanner.helpers.DocumentsManager;
 import com.todobom.opennotescanner.helpers.OpenNoteMessage;
 import com.todobom.opennotescanner.helpers.PreviewFrame;
 import com.todobom.opennotescanner.helpers.ScannedDocument;
-import com.todobom.opennotescanner.network.Upload;
 import com.todobom.opennotescanner.views.HUDCanvasView;
 
 import org.opencv.android.BaseLoaderCallback;
@@ -72,10 +67,10 @@ import org.opencv.core.Point;
 import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
+import org.parceler.Parcels;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -182,6 +177,9 @@ public class OpenNoteScannerActivity extends AppCompatActivity
     private boolean mFlashMode = false;
     private ResetShutterColor resetShutterColor = new ResetShutterColor();
 
+    private DocumentsManager documentsManager;
+    private Intent intent;
+
     public HUDCanvasView getHUD() {
         return mHud;
     }
@@ -205,6 +203,12 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         if (mSharedPref.getBoolean("isFirstRun", true) && !mSharedPref
                 .getBoolean("usage_stats", false)) {
             statsOptInDialog();
+        }
+
+        intent = getIntent();
+        documentsManager = Parcels.unwrap(intent.getParcelableExtra("documents"));
+        if (documentsManager == null) {
+            documentsManager = new DocumentsManager(getCacheDir());
         }
 
         ((OpenNoteScannerApplication) getApplication()).getTracker()
@@ -256,17 +260,15 @@ public class OpenNoteScannerActivity extends AppCompatActivity
 
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), PreviewActivity.class);
-                startActivity(intent);
-//                FragmentManager fm = getSupportFragmentManager();
-//                AboutFragment aboutDialog = new AboutFragment();
-//                aboutDialog.setRunOnDetach(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        hide();
-//                    }
-//                });
-//                aboutDialog.show(fm, "about_view");
+                FragmentManager fm = getSupportFragmentManager();
+                AboutFragment aboutDialog = new AboutFragment();
+                aboutDialog.setRunOnDetach(new Runnable() {
+                    @Override
+                    public void run() {
+                        hide();
+                    }
+                });
+                aboutDialog.show(fm, "about_view");
             }
         });
 
@@ -408,13 +410,13 @@ public class OpenNoteScannerActivity extends AppCompatActivity
     }
 
     public void saveDocument(ScannedDocument scannedDocument) {
-        Mat doc = (scannedDocument.processed != null) ? scannedDocument.processed : scannedDocument.original;
+        Mat doc = (scannedDocument.processed != null) ? scannedDocument.processed :
+                scannedDocument.original;
 
-        Intent intent = getIntent();
         String filePath;
         boolean isIntent = false;
         Uri fileUri = null;
-        String fileFormat = mSharedPref.getString("file_format", "pdf");
+        String fileFormat = mSharedPref.getString("file_format", ".pdf");
         String uploadOption = mSharedPref.getString("upload_option", "local");
         String uploadAddress = mSharedPref.getString("upload_address", "OpenNoteScanner");
         File folder = null;
@@ -424,7 +426,8 @@ public class OpenNoteScannerActivity extends AppCompatActivity
             imgSuffix = ".png";
         }
 
-        if (intent.getAction() != null && intent.getAction().equals("android.media.action.IMAGE_CAPTURE")) {
+        if (intent.getAction() != null && intent.getAction().equals("android.media.action" +
+                ".IMAGE_CAPTURE")) {
             fileUri = intent.getParcelableExtra(MediaStore.EXTRA_OUTPUT);
             Log.d(TAG, "intent uri: " + fileUri.toString());
             try {
@@ -435,25 +438,20 @@ public class OpenNoteScannerActivity extends AppCompatActivity
             }
             isIntent = true;
         } else {
-            if (!uploadOption.equals("local")) {
-                folder = this.getCacheDir();
-                try {
-                    filePath = File.createTempFile("onsFile", imgSuffix, this.getCacheDir()).getPath();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return;
-                }
-            } else {
-                String folderName = mSharedPref.getString("upload_address", "OpenNoteScanner");
-                folder = new File(Environment.getExternalStorageDirectory().toString() + "/" + folderName);
-                if (folder.mkdirs()) {
-                    Log.d(TAG, "wrote: created folder " + folder.getPath());
-                }
-                filePath = Environment.getExternalStorageDirectory().toString()
-                        + "/" + folderName + "/DOC-"
-                        + new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date())
-                        + imgSuffix;
-            }
+            filePath = documentsManager.createNewFile(imgSuffix);
+            // TODO: 04.03.2020 this to save local
+//                String folderName = mSharedPref.getString("upload_address", "OpenNoteScanner");
+//                folder =
+//                        new File(Environment.getExternalStorageDirectory().toString() + "/" +
+//                        folderName);
+//                if (folder.mkdirs()) {
+//                    Log.d(TAG, "wrote: created folder " + folder.getPath());
+//                }
+//                filePath = Environment.getExternalStorageDirectory().toString()
+//                        + "/" + folderName + "/DOC-"
+//                        + new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date())
+//                        + imgSuffix;
+
         }
         Mat endDoc = new Mat(Double.valueOf(doc.size().width).intValue(),
                 Double.valueOf(doc.size().height).intValue(), CvType.CV_8UC4);
@@ -462,51 +460,6 @@ public class OpenNoteScannerActivity extends AppCompatActivity
 
         Imgcodecs.imwrite(filePath, endDoc);
         endDoc.release();
-
-        if (!isIntent && fileFormat.equals("pdf")) {
-            // https://github.com/Swati4star/Images-to-PDF/
-            String pageSizePreference = mSharedPref.getString("page_size", "A4");
-            Rectangle pageSize = PageSize.getRectangle(pageSizePreference);
-            // https://stackoverflow.com/questions/17274618/itext-landscape-orientation-and-positioning
-            if (pageSizePreference.contains("landscape")) {
-                pageSize = pageSize.rotate();
-            }
-            Document document = new Document(pageSize);
-
-            Rectangle docRect = document.getPageSize();
-            String outputFile = folder.getAbsolutePath() + "/DOC-" + System.currentTimeMillis() + ".pdf";
-
-            try {
-                PdfWriter pdfWriter = PdfWriter.getInstance(document, new FileOutputStream(outputFile));
-                document.open();
-
-                Image image = Image.getInstance(filePath);
-                image.setBorder(Rectangle.BOX);
-
-                if (pageSizePreference.contains("landscape")) {
-                    image.setRotationDegrees(90);
-                }
-
-                float pageWidth = document.getPageSize().getWidth();
-                float pageHeight = document.getPageSize().getHeight();
-                image.scaleToFit(pageWidth, pageHeight);
-
-                image.setAbsolutePosition(
-                        (docRect.getWidth() - image.getScaledWidth()) / 2,
-                        (docRect.getHeight() - image.getScaledHeight()) / 2);
-
-                document.add(image);
-                document.close();
-
-                // delete temporary image
-                new File(filePath).delete();
-                filePath = outputFile;
-
-            } catch (DocumentException | IOException e) {
-                Log.e(TAG, "saveDocument: ", e);
-                e.printStackTrace();
-            }
-        }
 
         if (fileFormat.equals("jpg")) {
             try {
@@ -523,8 +476,9 @@ public class OpenNoteScannerActivity extends AppCompatActivity
             }
         }
 
-        Upload upload = new Upload(this, uploadOption, uploadAddress);
-        upload.uploadFile(filePath);
+        Intent startPreview = new Intent(this, PreviewActivity.class);
+        startPreview.putExtra("documents", Parcels.wrap(documentsManager));
+        startActivity(startPreview);
 
         if (isIntent) {
             InputStream inputStream = null;

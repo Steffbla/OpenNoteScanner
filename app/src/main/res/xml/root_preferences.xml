@@ -24,7 +24,7 @@
             app:summary="@string/upload_summary"
             app:title="@string/upload_title" />
         <ListPreference
-            app:defaultValue="pdf"
+            app:defaultValue=".pdf"
             app:entries="@array/file_formats_entries"
             app:entryValues="@array/file_formats_values"
             app:key="file_format"

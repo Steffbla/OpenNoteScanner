@@ -37,10 +37,10 @@ public class Upload {
     }
 
     // TODO: 13.02.20 boolean als return
-    public void uploadFile(String fileUri) {
+    public void uploadFile(String fileUri, String fileName) {
         switch (uploadType) {
             case "dracoon":
-                uploadFileViaDracoon(fileUri);
+                uploadFileViaDracoon(fileUri, fileName);
                 break;
             case "nextcloud":
                 uploadFileViaNextcloud(fileUri);
@@ -70,23 +70,26 @@ public class Upload {
     }
 
     // API documentation: dracoon.team/api/
-    private void uploadFileViaDracoon(String fileUri) {
+    private void uploadFileViaDracoon(String fileUri, String fileName) {
         String[] splitAddress = address.split("/");
         // schema of an upload link is always: "base.url/api/v4/public/upload-shares/access_key
         String uploadBaseUrl = "https://" + splitAddress[splitAddress.length - 4] + "/api/v4/";
-        DracoonService dracoonService = NetworkConstants.getDracoonService(NetworkConstants.getRetrofit(uploadBaseUrl));
+        DracoonService dracoonService =
+                NetworkConstants.getDracoonService(NetworkConstants.getRetrofit(uploadBaseUrl));
 
         String accessKey = splitAddress[splitAddress.length - 1];
         File file = new File(fileUri);
 
         // create file upload channel
         // TODO: 20.02.2020 correct filename
-        Call<CreateShareUploadChannelResponse> uploadChannel = dracoonService.createUploadChannel(accessKey,
-                new CreateShareUploadChannelRequest("test.pdf", file.length(), null, false));
+        Call<CreateShareUploadChannelResponse> uploadChannel =
+                dracoonService.createUploadChannel(accessKey,
+                        new CreateShareUploadChannelRequest(fileName, file.length(), null, false));
 
         final String[] uploadId = new String[1];
         uploadChannel.enqueue(new Callback<CreateShareUploadChannelResponse>() {
-            // https://stackoverflow.com/questions/36491096/retrofit-multipart-request-required-multipartfile
+            // https://stackoverflow.com/questions/36491096/retrofit-multipart-request-required
+            // -multipartfile
             // -parameter-file-is-not-pre/
             @Override
             public void onResponse(Call<CreateShareUploadChannelResponse> call,
@@ -97,12 +100,15 @@ public class Upload {
                 }
                 CreateShareUploadChannelResponse res = response.body();
                 if (res != null) {
-                    RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
-                    MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
+                    RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form" +
+                            "-data"), file);
+                    MultipartBody.Part body = MultipartBody.Part.createFormData("file",
+                            file.getName(), requestFile);
                     uploadId[0] = res.getUploadId();
 
                     // upload file
-                    Call<ChunkUploadResponse> upload = dracoonService.uploadFile(accessKey, uploadId[0], body);
+                    Call<ChunkUploadResponse> upload = dracoonService.uploadFile(accessKey,
+                            uploadId[0], body);
                     upload.enqueue(new Callback<ChunkUploadResponse>() {
                         @Override
                         public void onResponse(Call<ChunkUploadResponse> call,
@@ -113,7 +119,8 @@ public class Upload {
                             }
 
                             // complete file upload
-                            Call<PublicUploadedFileData> completeUpload = dracoonService.completeFileUpload(accessKey
+                            Call<PublicUploadedFileData> completeUpload =
+                                    dracoonService.completeFileUpload(accessKey
                                     , uploadId[0]);
                             completeUpload.enqueue(new Callback<PublicUploadedFileData>() {
                                 @Override
@@ -128,7 +135,8 @@ public class Upload {
                                 }
 
                                 @Override
-                                public void onFailure(Call<PublicUploadedFileData> call, Throwable t) {
+                                public void onFailure(Call<PublicUploadedFileData> call,
+                                                      Throwable t) {
                                     Log.e(TAG, "onCompleteFileUpload: " + t.getMessage());
                                     showToast(false, file);
                                 }

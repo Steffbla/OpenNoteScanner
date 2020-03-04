@@ -94,7 +94,7 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
         }
 
         private void setPageSizeVisible(String value) {
-            if (!value.equals("pdf")) {
+            if (!value.equals(".pdf")) {
                 pageSizePreference.setVisible(false);
             } else {
                 pageSizePreference.setVisible(true);
