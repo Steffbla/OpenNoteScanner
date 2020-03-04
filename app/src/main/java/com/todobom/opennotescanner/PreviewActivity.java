@@ -23,16 +23,18 @@ import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.todobom.opennotescanner.helpers.DocumentsManager;
+import com.todobom.opennotescanner.helpers.OnUploadCompleteListener;
 import com.todobom.opennotescanner.network.Upload;
 
 import org.parceler.Parcels;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 
 
 public class PreviewActivity extends AppCompatActivity implements View.OnClickListener,
-        DialogInterface.OnClickListener {
+        DialogInterface.OnClickListener, OnUploadCompleteListener {
 
     private static final String TAG = "PreviewActivity";
     SharedPreferences sharedPref;
@@ -74,11 +76,9 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
 
     @Override
     public void onClick(View view) {
-        Intent intent = new Intent(this, OpenNoteScannerActivity.class);
         switch (view.getId()) {
             case R.id.exit_button:
-                intent.putExtra("documents", Parcels.wrap(new DocumentsManager(getCacheDir())));
-                startActivity(intent);
+                startIntentToCameraActivity(new DocumentsManager(getCacheDir()));
                 // TODO: 04.03.2020 delete files
                 break;
             case R.id.save_button:
@@ -98,14 +98,12 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
                 break;
             case R.id.retake_button:
                 documentsManager.retakeScan();
-                intent.putExtra("documents", Parcels.wrap(documentsManager));
-                startActivity(intent);
+                startIntentToCameraActivity(documentsManager);
                 // TODO: 04.03.2020 delete file
                 break;
             case R.id.add_button:
-                // TODO: 04.03.2020  seite +1
-                intent.putExtra("documents", Parcels.wrap(documentsManager));
-                startActivity(intent);
+                // TODO: 04.03.2020 seite +1
+                startIntentToCameraActivity(documentsManager);
                 break;
         }
     }
@@ -128,7 +126,7 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         String fileName = nameEditText.getText().toString();
         String fileFormat = sharedPref.getString("file_format", ".pdf");
-
+        ArrayList<String> fileUris = documentsManager.getFileUris();
 
         if (fileFormat.equals(".pdf")) {
             // https://github.com/Swati4star/Images-to-PDF/
@@ -150,28 +148,27 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
                         new FileOutputStream(outputFile));
                 document.open();
 
-                Image image = Image.getInstance(documentsManager.getCurrentFileUri());
-                image.setBorder(Rectangle.BOX);
+                for (String uri : fileUris) {
+                    Image image = Image.getInstance(uri);
+                    image.setBorder(Rectangle.BOX);
 
-                if (pageSizePreference.contains("landscape")) {
-                    image.setRotationDegrees(90);
+                    if (pageSizePreference.contains("landscape")) {
+                        image.setRotationDegrees(90);
+                    }
+
+                    float pageWidth = document.getPageSize().getWidth();
+                    float pageHeight = document.getPageSize().getHeight();
+                    image.scaleToFit(pageWidth, pageHeight);
+
+                    image.setAbsolutePosition(
+                            (docRect.getWidth() - image.getScaledWidth()) / 2,
+                            (docRect.getHeight() - image.getScaledHeight()) / 2);
+
+                    document.add(image);
+
+                    document.newPage();
                 }
-
-                float pageWidth = document.getPageSize().getWidth();
-                float pageHeight = document.getPageSize().getHeight();
-                image.scaleToFit(pageWidth, pageHeight);
-
-                image.setAbsolutePosition(
-                        (docRect.getWidth() - image.getScaledWidth()) / 2,
-                        (docRect.getHeight() - image.getScaledHeight()) / 2);
-
-                document.add(image);
                 document.close();
-
-                // delete temporary image
-//                new File(filePath).delete();
-//                filePath = outputFile;
-
             } catch (DocumentException | IOException e) {
                 Log.e(TAG, "saveDocument: ", e);
                 e.printStackTrace();
@@ -181,7 +178,19 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
 
         String uploadOption = sharedPref.getString("upload_option", "local");
         String uploadAddress = sharedPref.getString("upload_address", "OpenNoteScanner");
-        Upload upload = new Upload(this, uploadOption, uploadAddress);
+        Upload upload = new Upload(this, this, uploadOption, uploadAddress);
         upload.uploadFile(documentsManager.getPdfFileUri(), fileName + fileFormat);
+    }
+
+    private void startIntentToCameraActivity(DocumentsManager documentsManager) {
+        Intent intent = new Intent(this, OpenNoteScannerActivity.class);
+        intent.putExtra("documents", Parcels.wrap(documentsManager));
+        startActivity(intent);
+    }
+
+    @Override
+    public void completeUpload() {
+        Log.d(TAG, "completeUpload: ");
+        startIntentToCameraActivity(documentsManager);
     }
 }

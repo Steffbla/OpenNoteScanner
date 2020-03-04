@@ -5,6 +5,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.todobom.opennotescanner.R;
+import com.todobom.opennotescanner.helpers.OnUploadCompleteListener;
 import com.todobom.opennotescanner.network.models.dracoon.ChunkUploadResponse;
 import com.todobom.opennotescanner.network.models.dracoon.CreateShareUploadChannelRequest;
 import com.todobom.opennotescanner.network.models.dracoon.CreateShareUploadChannelResponse;
@@ -26,12 +27,15 @@ public class Upload {
     private static final String TAG = "Upload";
 
     private Context context;
+    private OnUploadCompleteListener listener;
     private String uploadType;
     private String address;
 
 
-    public Upload(Context context, String uploadType, String address) {
+    public Upload(Context context, OnUploadCompleteListener listener,
+                  String uploadType, String address) {
         this.context = context;
+        this.listener = listener;
         this.uploadType = uploadType;
         this.address = address;
     }
@@ -96,7 +100,7 @@ public class Upload {
                                    Response<CreateShareUploadChannelResponse> response) {
                 Log.d(TAG, "onCreateUploadChannel: " + response.code());
                 if (response.code() != 201) {
-                    showToast(false, file);
+                    showToast(false);
                 }
                 CreateShareUploadChannelResponse res = response.body();
                 if (res != null) {
@@ -115,22 +119,22 @@ public class Upload {
                                                Response<ChunkUploadResponse> response) {
                             Log.d(TAG, "onUploadFile:" + response.code());
                             if (response.code() != 201) {
-                                showToast(false, file);
+                                showToast(false);
                             }
 
                             // complete file upload
                             Call<PublicUploadedFileData> completeUpload =
                                     dracoonService.completeFileUpload(accessKey
-                                    , uploadId[0]);
+                                            , uploadId[0]);
                             completeUpload.enqueue(new Callback<PublicUploadedFileData>() {
                                 @Override
                                 public void onResponse(Call<PublicUploadedFileData> call,
                                                        Response<PublicUploadedFileData> response) {
                                     Log.d(TAG, "onCompleteFileUpload: " + response.code());
                                     if (response.code() != 201) {
-                                        showToast(false, file);
+                                        showToast(false);
                                     } else {
-                                        showToast(true, file);
+                                        showToast(true);
                                     }
                                 }
 
@@ -138,7 +142,7 @@ public class Upload {
                                 public void onFailure(Call<PublicUploadedFileData> call,
                                                       Throwable t) {
                                     Log.e(TAG, "onCompleteFileUpload: " + t.getMessage());
-                                    showToast(false, file);
+                                    showToast(false);
                                 }
                             });
                         }
@@ -146,7 +150,7 @@ public class Upload {
                         @Override
                         public void onFailure(Call<ChunkUploadResponse> call, Throwable t) {
                             Log.e(TAG, "onUploadFile: " + t.getMessage());
-                            showToast(false, file);
+                            showToast(false);
                         }
                     });
                 }
@@ -155,21 +159,19 @@ public class Upload {
             @Override
             public void onFailure(Call<CreateShareUploadChannelResponse> call, Throwable t) {
                 Log.e(TAG, "onCreateUploadChannel: " + t.getMessage());
-                showToast(false, file);
+                showToast(false);
             }
         });
 
     }
 
-    private void showToast(boolean isSuccess, File file) {
+    private void showToast(boolean isSuccess) {
+        listener.completeUpload();
         Log.e(TAG, "showToast: " + ((isSuccess) ? "success" : "fail"));
         if (isSuccess) {
             Toast.makeText(context, R.string.upload_success_message, Toast.LENGTH_LONG).show();
         } else {
             Toast.makeText(context, R.string.upload_fail_message, Toast.LENGTH_LONG).show();
-        }
-        if (file.delete()) {
-            Log.d(TAG, "showToast: file deleted");
         }
     }
 }

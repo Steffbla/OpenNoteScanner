@@ -75,4 +75,8 @@ public class DocumentsManager {
     public String getPdfFileUri() {
         return pdfFileUri;
     }
+
+    public ArrayList<String> getFileUris() {
+        return fileUris;
+    }
 }
