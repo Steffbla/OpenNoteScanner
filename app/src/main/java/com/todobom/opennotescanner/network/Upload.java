@@ -1,8 +1,12 @@
 package com.todobom.opennotescanner.network;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
+
+import androidx.preference.PreferenceManager;
 
 import com.todobom.opennotescanner.R;
 import com.todobom.opennotescanner.helpers.OnUploadCompleteListener;
@@ -11,7 +15,10 @@ import com.todobom.opennotescanner.network.models.dracoon.CreateShareUploadChann
 import com.todobom.opennotescanner.network.models.dracoon.CreateShareUploadChannelResponse;
 import com.todobom.opennotescanner.network.models.dracoon.PublicUploadedFileData;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
+import java.io.IOException;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -47,30 +54,18 @@ public class Upload {
                 uploadFileViaDracoon(fileUri, fileName);
                 break;
             case "nextcloud":
-                uploadFileViaNextcloud(fileUri);
+                uploadFileViaNextcloud(fileUri, fileName);
                 break;
             case "email":
-                uploadFileViaEmail(fileUri);
+                uploadFileViaEmail(fileUri, fileName);
                 break;
             case "ftp_server":
-                uploadFileViaFtpServer(fileUri);
+                uploadFileViaFtpServer(fileUri, fileName);
                 break;
             case "local":
-                // todo necessary?
+                saveFileLocal(fileUri, fileName);
                 break;
         }
-    }
-
-    private void uploadFileViaFtpServer(String fileUri) {
-
-    }
-
-    private void uploadFileViaEmail(String fileUri) {
-
-    }
-
-    private void uploadFileViaNextcloud(String fileUri) {
-        // dummy method
     }
 
     // API documentation: dracoon.team/api/
@@ -165,12 +160,44 @@ public class Upload {
 
     }
 
+    private void uploadFileViaNextcloud(String fileUri, String fileName) {
+        // dummy method
+    }
+
+    private void uploadFileViaEmail(String fileUri, String fileName) {
+        // dummy method
+    }
+
+    private void uploadFileViaFtpServer(String fileUri, String fileName) {
+        // dummy method
+    }
+
+    private void saveFileLocal(String fileUri, String fileName) {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        String folderName = sharedPref.getString("upload_address", "OpenNoteScanner");
+        File folder = new File(Environment.getExternalStorageDirectory().toString() + "/" +
+                folderName);
+        if (folder.mkdirs()) {
+            Log.d(TAG, "wrote: created folder " + folder.getPath());
+        }
+        File file = new File(fileUri);
+        File dest = new File(folder + "/" + fileName);
+        try {
+            FileUtils.moveFile(file, dest);
+        } catch (IOException e) {
+            Log.e(TAG, "saveFileLocal: ", e);
+            e.printStackTrace();
+        }
+        showToast(true);
+    }
+
     private void showToast(boolean isSuccess) {
         listener.completeUpload();
-        Log.e(TAG, "showToast: " + ((isSuccess) ? "success" : "fail"));
         if (isSuccess) {
+            Log.d(TAG, "showToast: success");
             Toast.makeText(context, R.string.upload_success_message, Toast.LENGTH_LONG).show();
         } else {
+            Log.e(TAG, "showToast: fail");
             Toast.makeText(context, R.string.upload_fail_message, Toast.LENGTH_LONG).show();
         }
     }
