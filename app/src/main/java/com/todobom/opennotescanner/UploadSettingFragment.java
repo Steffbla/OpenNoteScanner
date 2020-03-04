@@ -17,6 +17,7 @@ public class UploadSettingFragment extends PreferenceFragmentCompat implements P
     private EditTextPreference addressPreference;
     private boolean isAddressEmpty;
 
+
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.upload_preferences, rootKey);
@@ -84,6 +85,9 @@ public class UploadSettingFragment extends PreferenceFragmentCompat implements P
     }
 
     private void setAddressEmpty() {
-        isAddressEmpty = addressPreference.getText().equals("");
+        // on initial app start text of addressPreference is null
+        if (addressPreference.getText() != null) {
+            isAddressEmpty = addressPreference.getText().equals("");
+        }
     }
 }
