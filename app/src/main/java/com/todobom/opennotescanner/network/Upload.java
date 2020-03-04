@@ -47,7 +47,6 @@ public class Upload {
         this.address = address;
     }
 
-    // TODO: 13.02.20 boolean als return
     public void uploadFile(String fileUri, String fileName) {
         switch (uploadType) {
             case "dracoon":

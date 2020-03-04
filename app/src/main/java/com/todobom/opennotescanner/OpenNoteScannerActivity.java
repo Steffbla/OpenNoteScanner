@@ -417,12 +417,9 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         boolean isIntent = false;
         Uri fileUri = null;
         String fileFormat = mSharedPref.getString("file_format", ".pdf");
-        String uploadOption = mSharedPref.getString("upload_option", "local");
-        String uploadAddress = mSharedPref.getString("upload_address", "OpenNoteScanner");
-        File folder = null;
 
         String imgSuffix = ".jpg";
-        if (mSharedPref.getString("file_format", "jpg").equals("png")) {
+        if (fileFormat.equals("png")) {
             imgSuffix = ".png";
         }
 
@@ -439,19 +436,6 @@ public class OpenNoteScannerActivity extends AppCompatActivity
             isIntent = true;
         } else {
             filePath = documentsManager.createNewFile(imgSuffix);
-            // TODO: 04.03.2020 this to save local
-//                String folderName = mSharedPref.getString("upload_address", "OpenNoteScanner");
-//                folder =
-//                        new File(Environment.getExternalStorageDirectory().toString() + "/" +
-//                        folderName);
-//                if (folder.mkdirs()) {
-//                    Log.d(TAG, "wrote: created folder " + folder.getPath());
-//                }
-//                filePath = Environment.getExternalStorageDirectory().toString()
-//                        + "/" + folderName + "/DOC-"
-//                        + new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date())
-//                        + imgSuffix;
-
         }
         Mat endDoc = new Mat(Double.valueOf(doc.size().width).intValue(),
                 Double.valueOf(doc.size().height).intValue(), CvType.CV_8UC4);
@@ -476,10 +460,6 @@ public class OpenNoteScannerActivity extends AppCompatActivity
             }
         }
 
-        Intent startPreview = new Intent(this, PreviewActivity.class);
-        startPreview.putExtra("documents", Parcels.wrap(documentsManager));
-        startActivity(startPreview);
-
         if (isIntent) {
             InputStream inputStream = null;
             OutputStream realOutputStream = null;
@@ -503,20 +483,17 @@ public class OpenNoteScannerActivity extends AppCompatActivity
                     e.printStackTrace();
                 }
             }
-        }
 
-        Log.d(TAG, "wrote: " + filePath);
-
-        if (isIntent) {
             new File(filePath).delete();
             setResult(RESULT_OK, intent);
             finish();
         } else {
+            Intent startPreview = new Intent(this, PreviewActivity.class);
+            startPreview.putExtra("documents", Parcels.wrap(documentsManager));
+            startActivity(startPreview);
 //            animateDocument(filePath, scannedDocument);
 //            addImageToGallery(filePath, this);
         }
-
-        refreshCamera();
     }
 
     public boolean setFlash(boolean stateFlash) {
