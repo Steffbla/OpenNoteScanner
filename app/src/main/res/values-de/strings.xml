@@ -87,4 +87,5 @@
     <string name="tv_dialog_filename_title">Datei bennenen</string>
     <string name="tv_dialog_page_size_title">Seitengröße</string>
     <string name="preview_page_number">Seite %d</string>
+    <string name="toast_confirm_back_action">Wenn Sie die App verlassen möchten, drücken Sie erneut die Zurück-Taste</string>
 </resources>

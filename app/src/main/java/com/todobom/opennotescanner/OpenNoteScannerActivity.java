@@ -180,6 +180,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
 
     private DocumentsManager documentsManager;
     private Intent intent;
+    private boolean doubleBackToExitPressedOnce = false;
 
     public HUDCanvasView getHUD() {
         return mHud;
@@ -492,6 +493,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
             Intent startPreview = new Intent(this, PreviewActivity.class);
             startPreview.putExtra("documents", Parcels.wrap(documentsManager));
             startActivity(startPreview);
+            finish();
 //            animateDocument(filePath, scannedDocument);
 //            addImageToGallery(filePath, this);
         }
@@ -519,6 +521,21 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         // created, to briefly hint to the user that UI controls
         // are available.
         delayedHide(100);
+    }
+
+    @Override
+    public void onBackPressed() {
+        // https://stackoverflow.com/questions/8430805/clicking-the-back-button-twice-to-exit-an
+        // -activity
+        if (doubleBackToExitPressedOnce) {
+            super.onBackPressed();
+            return;
+        }
+
+        this.doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, R.string.toast_confirm_back_action, Toast.LENGTH_SHORT).show();
+
+        new Handler().postDelayed(() -> doubleBackToExitPressedOnce = false, 2000);
     }
 
     private void toggle() {
