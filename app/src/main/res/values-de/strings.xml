@@ -86,4 +86,5 @@
     <string name="save_dialog_positive">Speichern</string>
     <string name="tv_dialog_filename_title">Datei bennenen</string>
     <string name="tv_dialog_page_size_title">Seitengröße</string>
+    <string name="preview_page_number">Seite %d</string>
 </resources>

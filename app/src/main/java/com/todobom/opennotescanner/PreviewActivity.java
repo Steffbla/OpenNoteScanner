@@ -50,7 +50,8 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
     private Button saveBtn;
     private Button retakeBtn;
     private Button addBtn;
-    EditText fileNameEt;
+    private EditText fileNameEt;
+    private TextView pageNumberTv;
     private ImageView previewImg;
     private DocumentsManager documentsManager;
     private String fileFormat;
@@ -76,6 +77,10 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
         retakeBtn.setOnClickListener(this);
         addBtn = findViewById(R.id.add_button);
         addBtn.setOnClickListener(this);
+        pageNumberTv = findViewById(R.id.tv_preview_page_number);
+        pageNumberTv.setText(getString(R.string.preview_page_number,
+                documentsManager.getPageNumber()));
+
 
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         fileFormat = sharedPref.getString("file_format", AppConstants.FILE_SUFFIX_PDF);
@@ -84,6 +89,7 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
 
         if (!fileFormat.equals(AppConstants.FILE_SUFFIX_PDF)) {
             addBtn.setVisibility(View.GONE);
+            pageNumberTv.setVisibility(View.GONE);
         }
     }
 
