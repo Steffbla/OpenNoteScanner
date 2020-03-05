@@ -72,7 +72,7 @@
     <string name="save_success_message">File saved</string>
 
 
-    <!-- Preferences -->
+    <!-- preferences -->
     <string name="save_page_size_summary">Save scans to selected format.</string>
     <string name="save_format">Select file format</string>
 
@@ -81,6 +81,7 @@
     <string name="github_link" translatable="false">https://github.com/stefan-te/OpenNoteScanner</string>
     <string name="about_category">About OpenNoteScanner</string>
 
+    <!-- save settings -->
     <string name="title_activity_settings_new">Settings</string>
     <string name="save_settings_title">Save settings</string>
     <string name="save_settings_summary">Set your save location</string>
@@ -92,6 +93,14 @@
     <string name="local_title">Local folder</string>
     <string name="address_warn_dialog_title">Warning</string>
 
+    <!-- preview activity-->
+    <string name="preview_page_number">Page %d</string>
+    <string name="ibt_preview_save_description">@string/save_dialog_positive</string>
+    <string name="ibt_preview_scan_description">Scan result</string>
+    <string name="ibt_preview_retake_description">Retake scan</string>
+    <string name="ibt_preview_add_description">Add another page</string>
+
+    <!-- save dialog-->
     <string name="address_warn_dialog_message">You must set a address for your saveFile</string>
     <string name="page_size">Page size</string>
     <string name="save_dialog_message">Set your filename</string>
