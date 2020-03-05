@@ -1,39 +1,20 @@
 <resources>
-    <!-- File Format reference-->
-    <string-array name="file_formats_entries">
+    <string-array name="file_formats_entries" translatable="false">
         <item>PDF</item>
         <item>JPG</item>
         <item>PNG</item>
     </string-array>
-    <string-array name="file_formats_values" translatable="false">
-        <item>.pdf</item>
-        <item>.jpg</item>
-        <item>.png</item>
-    </string-array>
-    <string-array name="upload_entries">
+    <string-array name="save_option_entries">
         <item>DRACOON</item>
         <item>Nextcloud</item>
         <item>E-Mail</item>
         <item>FTP-Server</item>
         <item>Local Device (not recommended)</item>
     </string-array>
-    <string-array name="upload_values" translatable="false">
-        <item>dracoon</item>
-        <item>nextcloud</item>
-        <item>email</item>
-        <item>ftp_server</item>
-        <item>local</item>
-    </string-array>
-    <string-array name="file_size_entries">
+    <string-array name="page_size_entries">
         <item>DIN A3</item>
         <item>DIN A4</item>
         <item>DIN A4 Landscape</item>
         <item>DIN A5</item>
-    </string-array>
-    <string-array name="file_size_values" translatable="false">
-        <item>A3</item>
-        <item>A4</item>
-        <item>A4_landscape</item>
-        <item>A5</item>
     </string-array>
 </resources>

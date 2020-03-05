@@ -9,7 +9,8 @@ import android.widget.Toast;
 import androidx.preference.PreferenceManager;
 
 import com.todobom.opennotescanner.R;
-import com.todobom.opennotescanner.helpers.OnUploadCompleteListener;
+import com.todobom.opennotescanner.helpers.AppConstants;
+import com.todobom.opennotescanner.helpers.OnSaveCompleteListener;
 import com.todobom.opennotescanner.network.models.dracoon.ChunkUploadResponse;
 import com.todobom.opennotescanner.network.models.dracoon.CreateShareUploadChannelRequest;
 import com.todobom.opennotescanner.network.models.dracoon.CreateShareUploadChannelResponse;
@@ -27,47 +28,46 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+public class SaveFile {
 
-// https://square.github.io/retrofit/
-public class Upload {
-
-    private static final String TAG = "Upload";
+    private static final String TAG = "SaveFile";
 
     private Context context;
-    private OnUploadCompleteListener listener;
-    private String uploadType;
+    private OnSaveCompleteListener listener;
+    private String saveType;
     private String address;
 
 
-    public Upload(Context context, OnUploadCompleteListener listener,
-                  String uploadType, String address) {
+    public SaveFile(Context context, OnSaveCompleteListener listener, String saveType,
+                    String address) {
         this.context = context;
         this.listener = listener;
-        this.uploadType = uploadType;
+        this.saveType = saveType;
         this.address = address;
     }
 
-    public void uploadFile(String fileUri, String fileName) {
-        switch (uploadType) {
-            case "dracoon":
+    public void saveFile(String fileUri, String fileName) {
+        switch (saveType) {
+            case AppConstants.DRACOON:
                 uploadFileViaDracoon(fileUri, fileName);
                 break;
-            case "nextcloud":
+            case AppConstants.NEXTCLOUD:
                 uploadFileViaNextcloud(fileUri, fileName);
                 break;
-            case "email":
+            case AppConstants.EMAIL:
                 uploadFileViaEmail(fileUri, fileName);
                 break;
-            case "ftp_server":
+            case AppConstants.FTP_SERVER:
                 uploadFileViaFtpServer(fileUri, fileName);
                 break;
-            case "local":
+            case AppConstants.LOCAL:
                 saveFileLocal(fileUri, fileName);
                 break;
         }
     }
 
     // API documentation: dracoon.team/api/
+    // https://square.github.io/retrofit/
     private void uploadFileViaDracoon(String fileUri, String fileName) {
         String[] splitAddress = address.split("/");
         // schema of an upload link is always: "base.url/api/v4/public/upload-shares/access_key
@@ -79,7 +79,6 @@ public class Upload {
         File file = new File(fileUri);
 
         // create file upload channel
-        // TODO: 20.02.2020 correct filename
         Call<CreateShareUploadChannelResponse> uploadChannel =
                 dracoonService.createUploadChannel(accessKey,
                         new CreateShareUploadChannelRequest(fileName, file.length(), null, false));
@@ -87,8 +86,7 @@ public class Upload {
         final String[] uploadId = new String[1];
         uploadChannel.enqueue(new Callback<CreateShareUploadChannelResponse>() {
             // https://stackoverflow.com/questions/36491096/retrofit-multipart-request-required
-            // -multipartfile
-            // -parameter-file-is-not-pre/
+            // -multipartfile-parameter-file-is-not-pre/
             @Override
             public void onResponse(Call<CreateShareUploadChannelResponse> call,
                                    Response<CreateShareUploadChannelResponse> response) {
@@ -173,7 +171,8 @@ public class Upload {
 
     private void saveFileLocal(String fileUri, String fileName) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-        String folderName = sharedPref.getString("upload_address", "OpenNoteScanner");
+        String folderName = sharedPref.getString("save_address",
+                AppConstants.DEFAULT_FOLDER_NAME);
         File folder = new File(Environment.getExternalStorageDirectory().toString() + "/" +
                 folderName);
         if (folder.mkdirs()) {
@@ -191,13 +190,13 @@ public class Upload {
     }
 
     private void showToast(boolean isSuccess) {
-        listener.completeUpload();
+        listener.saveComplete();
         if (isSuccess) {
             Log.d(TAG, "showToast: success");
-            Toast.makeText(context, R.string.upload_success_message, Toast.LENGTH_LONG).show();
+            Toast.makeText(context, R.string.save_success_message, Toast.LENGTH_LONG).show();
         } else {
             Log.e(TAG, "showToast: fail");
-            Toast.makeText(context, R.string.upload_fail_message, Toast.LENGTH_LONG).show();
+            Toast.makeText(context, R.string.save_fail_message, Toast.LENGTH_LONG).show();
         }
     }
 }

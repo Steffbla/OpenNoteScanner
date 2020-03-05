@@ -67,7 +67,8 @@ public class DocumentsManager {
 
     public String createPdfTempFile(String fileName) {
         // TODO: 04.03.2020 right file format
-        pdfFileUri = directory.getAbsolutePath() + "/" + fileName + ".pdf";
+        pdfFileUri =
+                directory.getAbsolutePath() + "/" + fileName + AppConstants.FILE_SUFFIX_PDF;
 
         return pdfFileUri;
     }

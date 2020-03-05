@@ -2,14 +2,12 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ListPreference
-        app:defaultValue="local"
-        app:entries="@array/upload_entries"
-        app:entryValues="@array/upload_values"
-        app:key="upload_option"
-        app:title="@string/upload_option_title"
+        app:entries="@array/save_option_entries"
+        app:key="save_option"
+        app:title="@string/save_option_title"
         app:useSimpleSummaryProvider="true" />
 
     <EditTextPreference
-        app:key="upload_address"
+        app:key="save_address"
         app:useSimpleSummaryProvider="true" />
 </PreferenceScreen>

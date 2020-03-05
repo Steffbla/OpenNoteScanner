@@ -64,7 +64,7 @@
     <string name="storage_folder">Biltegiratze karpeta</string>
     <string name="storage_folder_summary">Eskaneatutako fitxategiak non gorde behar diren ezartzen du</string>
     <string name="save_format">PNG formatuan gorde</string>
-    <string name="save_format_summary">Amaierako irudiak PNG formatuan gorde. Jakin ezazu metadatuak ez direla momentuz onartzen PNGan, beraz ezaugarri batzuk ez dira eskuragarri egongo.</string>
+    <string name="save_page_size_summary">Amaierako irudiak PNG formatuan gorde. Jakin ezazu metadatuak ez direla momentuz onartzen PNGan, beraz ezaugarri batzuk ez dira eskuragarri egongo.</string>
     <string name="format_not_supported">Formatu ez onartua</string>
     <string name="format_not_supported_message">Irudiaren formatuak ez du etiketatzea onartzen</string>
 </resources>

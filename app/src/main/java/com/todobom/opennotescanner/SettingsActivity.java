@@ -13,10 +13,12 @@ import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
+import com.todobom.opennotescanner.helpers.AppConstants;
+
 public class SettingsActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 
     private static final String TAG = "SettingsActivity";
-    private static final String FRAGMENT_TAG_UPLOAD = "UploadSettings";
+    private static final String FRAGMENT_TAG_SAVE = "SaveSettings";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,16 +39,18 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
         // https://stackoverflow.com/questions/34222591/navigate-back-from-settings-activity
         // Respond to the action bar's Up/Home button
         if (item.getItemId() == android.R.id.home) {
-            // https://stackoverflow.com/questions/9294603/how-do-i-get-the-currently-displayed-fragment
-            Fragment fragment = getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_UPLOAD);
+            // https://stackoverflow.com/questions/9294603/how-do-i-get-the-currently-displayed
+            // -fragment
+            Fragment fragment = getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_SAVE);
             if (fragment != null && fragment.isVisible()) {
-                UploadSettingFragment uploadSettingFragment = (UploadSettingFragment) fragment;
-                if (uploadSettingFragment.isAddressEmpty()) {
+                SaveSettingFragment saveSettingFragment = (SaveSettingFragment) fragment;
+                if (saveSettingFragment.isAddressEmpty()) {
                     Log.d(TAG, "onOptionsItemSelected: address not set");
                     new AlertDialog.Builder(this)
                             .setTitle(R.string.address_warn_dialog_title)
                             .setMessage(R.string.address_warn_dialog_message)
-                            .setNeutralButton(android.R.string.ok, (dialog, which) -> dialog.cancel())
+                            .setNeutralButton(android.R.string.ok,
+                                    (dialog, which) -> dialog.cancel())
                             .create().show();
                     return false;
                 }
@@ -62,13 +66,14 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
         // https://developer.android.com/guide/topics/ui/settings/organize-your-settings
         // instantiate the new fragment
         final Bundle args = pref.getExtras();
-        final Fragment fragment = getSupportFragmentManager().getFragmentFactory().instantiate(getClassLoader(),
-                pref.getFragment());
+        final Fragment fragment =
+                getSupportFragmentManager().getFragmentFactory().instantiate(getClassLoader(),
+                        pref.getFragment());
         fragment.setArguments(args);
         fragment.setTargetFragment(caller, 0);
         // replace the existing fragment with the new fragment
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.settings, fragment, FRAGMENT_TAG_UPLOAD)
+                .replace(R.id.settings, fragment, FRAGMENT_TAG_SAVE)
                 .addToBackStack(null)
                 .commit();
 
@@ -87,14 +92,21 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
             fileFormatPreference = findPreference("file_format");
             pageSizePreference = findPreference("page_size");
 
-            if (pageSizePreference != null) {
+            if (fileFormatPreference != null) {
+                fileFormatPreference.setEntryValues(AppConstants.FILE_FORMAT_VALUES);
+//                fileFormatPreference.setDefaultValue(AppConstants.FILE_SUFFIX_PDF);
                 fileFormatPreference.setOnPreferenceChangeListener(this);
-                setPageSizeVisible(fileFormatPreference.getValue());
+
+                if (pageSizePreference != null) {
+                    pageSizePreference.setEntryValues(AppConstants.PAGE_SIZE_VALUES);
+//                    pageSizePreference.setDefaultValue(AppConstants.DEFAULT_PAGE_SIZE);
+                    setPageSizeVisible(fileFormatPreference.getValue());
+                }
             }
         }
 
         private void setPageSizeVisible(String value) {
-            if (!value.equals(".pdf")) {
+            if (!value.equals(AppConstants.FILE_SUFFIX_PDF)) {
                 pageSizePreference.setVisible(false);
             } else {
                 pageSizePreference.setVisible(true);

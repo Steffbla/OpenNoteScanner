@@ -62,25 +62,28 @@
     <string name="storage_folder">Dokumentenordner</string>
     <string name="storage_folder_summary">Stellt den Ordner für die Speicherung der eingescannten Dokumente ein</string>
     <string name="save_format">Datei-Format auswählen</string>
-    <string name="save_format_summary">Dokumente werden als PNG-Bilder gespeichert. Das PNG-Grafikformat unterstützt keine Metadaten.</string>
+    <string name="save_page_size_summary">Dokumente werden als PNG-Bilder gespeichert. Das PNG-Grafikformat unterstützt keine Metadaten.</string>
     <string name="format_not_supported">Grafikformat nicht unterstützt</string>
     <string name="format_not_supported_message">Das Grafikformat hat keine Unterstützung für Tags</string>
     <string name="about_category">Über OpenNoteScanner</string>
-    <string name="address_warn_dialog_message">Sie müssen eine Upload-Addresse angeben</string>
+    <string name="address_warn_dialog_message">Sie müssen eine Speicher-Adresse angeben</string>
     <string name="address_warn_dialog_title">Warnung</string>
     <string name="dracoon_title">DRACOON-Link</string>
-    <string name="email_title">E-Mail Addresse</string>
-    <string name="ftp_title">FTP_Server Addresse</string>
+    <string name="email_title">E-Mail Adresse</string>
+    <string name="ftp_title">FTP_Server Adresse</string>
     <string name="local_title">Lokaler Ordner</string>
     <string name="nextcloud_title">Nextcloud-Link</string>
     <string name="title_activity_settings_new">Einstellungen</string>
-    <string name="upload_fail_message">Upload fehlgeschlagen</string>
-    <string name="upload_option_title">Setzen Sie ein Ziel für Ihren Upload</string>
-    <string name="upload_success_message">Upload erfolgreich</string>
-    <string name="upload_title">Upload-Einstellungen</string>
-    <string name="upload_summary">Speicherort auswählen</string>
-    <string name="file_size">Seitengröße</string>
-    <string name="save_dialog_message">Set your filename</string>
-    <string name="save_dialog_title">Save</string>
-    <string name="save_dialog_positive">Save</string>
+
+    <string name="save_fail_message">Speichern fehlgeschlagen</string>
+    <string name="save_success_message">Datei gespeichert</string>
+
+    <string name="save_option_title">Legen Sie einen Speicherort fest</string>
+    <string name="save_settings_title">Speichereinstellungen</string>
+    <string name="save_settings_summary">Speicherort auswählen</string>
+    <string name="page_size">Seitengröße</string>
+    <string name="save_dialog_message">Datei benennen</string>
+    <string name="save_dialog_positive">Speichern</string>
+    <string name="tv_dialog_filename_title">Datei bennenen</string>
+    <string name="tv_dialog_page_size_title">Seitengröße</string>
 </resources>

@@ -50,6 +50,7 @@ import com.github.fafaldo.fabtoolbar.widget.FABToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.todobom.opennotescanner.helpers.AboutFragment;
+import com.todobom.opennotescanner.helpers.AppConstants;
 import com.todobom.opennotescanner.helpers.CustomOpenCVLoader;
 import com.todobom.opennotescanner.helpers.DocumentsManager;
 import com.todobom.opennotescanner.helpers.OpenNoteMessage;
@@ -416,11 +417,11 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         String filePath;
         boolean isIntent = false;
         Uri fileUri = null;
-        String fileFormat = mSharedPref.getString("file_format", ".pdf");
+        String fileFormat = mSharedPref.getString("file_format", AppConstants.FILE_SUFFIX_PDF);
 
-        String imgSuffix = ".jpg";
-        if (fileFormat.equals("png")) {
-            imgSuffix = ".png";
+        String imgSuffix = AppConstants.FILE_SUFFIX_JPG;
+        if (fileFormat.equals(AppConstants.FILE_SUFFIX_PNG)) {
+            imgSuffix = AppConstants.FILE_SUFFIX_PNG;
         }
 
         if (intent.getAction() != null && intent.getAction().equals("android.media.action" +

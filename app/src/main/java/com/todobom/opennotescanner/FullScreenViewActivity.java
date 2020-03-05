@@ -19,6 +19,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageSize;
 import com.todobom.opennotescanner.helpers.AboutFragment;
+import com.todobom.opennotescanner.helpers.AppConstants;
 import com.todobom.opennotescanner.helpers.Utils;
 import com.todobom.opennotescanner.views.TagEditorFragment;
 
@@ -167,7 +168,7 @@ public class FullScreenViewActivity extends AppCompatActivity {
         int item = mViewPager.getCurrentItem();
         String filePath = mAdapter.getPath(item);
 
-        if (filePath.endsWith(".png")) {
+        if (filePath.endsWith(AppConstants.FILE_SUFFIX_PNG)) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle(R.string.format_not_supported);
             builder.setMessage(R.string.format_not_supported_message);

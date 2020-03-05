@@ -26,9 +26,10 @@ import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.todobom.opennotescanner.helpers.AppConstants;
 import com.todobom.opennotescanner.helpers.DocumentsManager;
-import com.todobom.opennotescanner.helpers.OnUploadCompleteListener;
-import com.todobom.opennotescanner.network.Upload;
+import com.todobom.opennotescanner.helpers.OnSaveCompleteListener;
+import com.todobom.opennotescanner.network.SaveFile;
 
 import org.parceler.Parcels;
 
@@ -40,7 +41,7 @@ import java.util.Date;
 
 
 public class PreviewActivity extends AppCompatActivity implements View.OnClickListener,
-        DialogInterface.OnClickListener, OnUploadCompleteListener,
+        DialogInterface.OnClickListener, OnSaveCompleteListener,
         AdapterView.OnItemSelectedListener {
 
     private static final String TAG = "PreviewActivity";
@@ -77,11 +78,11 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
         addBtn.setOnClickListener(this);
 
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        fileFormat = sharedPref.getString("file_format", ".pdf");
-        pageSizePref = sharedPref.getString("page_size", "A4");
-        pageSizeValues = getResources().getStringArray(R.array.file_size_values);
+        fileFormat = sharedPref.getString("file_format", AppConstants.FILE_SUFFIX_PDF);
+        pageSizePref = sharedPref.getString("page_size", AppConstants.DEFAULT_PAGE_SIZE);
+        pageSizeValues = AppConstants.PAGE_SIZE_VALUES;
 
-        if (!fileFormat.equals(".pdf")) {
+        if (!fileFormat.equals(AppConstants.FILE_SUFFIX_PDF)) {
             addBtn.setVisibility(View.GONE);
         }
     }
@@ -97,31 +98,31 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
         String currentDate = SimpleDateFormat.getDateTimeInstance().format(new Date());
         fileNameEt.setText(getString(R.string.file_name_default, currentDate));
         // pageSize can only be set if it is pdf
-        if (fileFormat.equals(".pdf")) {
+        if (fileFormat.equals(AppConstants.FILE_SUFFIX_PDF)) {
             Spinner pageSizeSpinner = dialogView.findViewById(R.id.sp_format_size);
             TextView pageSizeTv = dialogView.findViewById(R.id.tv_dialog_page_size_title);
             pageSizeTv.setVisibility(View.VISIBLE);
             pageSizeSpinner.setVisibility(View.VISIBLE);
             // https://developer.android.com/guide/topics/ui/controls/spinner
             ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                    R.array.file_size_entries, android.R.layout.simple_spinner_item);
+                    R.array.page_size_entries, android.R.layout.simple_spinner_item);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             pageSizeSpinner.setOnItemSelectedListener(this);
             pageSizeSpinner.setAdapter(adapter);
-            pageSizeSpinner.setSelection(getFormatSizePosition());
+            pageSizeSpinner.setSelection(getPageSizePosition());
         }
 
         dialogBuilder.setTitle(R.string.save_dialog_message);
         dialogBuilder.setPositiveButton(R.string.save_dialog_positive, this);
         dialogBuilder.setNegativeButton(android.R.string.cancel, this);
-        TextView formatSize = dialogView.findViewById(R.id.tv_dialog_file_format);
-        formatSize.setText(fileFormat);
+        TextView pageSize = dialogView.findViewById(R.id.tv_dialog_page_size);
+        pageSize.setText(fileFormat);
 
         AlertDialog b = dialogBuilder.create();
         b.show();
     }
 
-    private int getFormatSizePosition() {
+    private int getPageSizePosition() {
         for (int i = 0; i < pageSizeValues.length; i++) {
             if (pageSizePref.equals(pageSizeValues[i])) {
                 return i;
@@ -136,7 +137,7 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
         String fileName = fileNameEt.getText().toString();
         ArrayList<String> fileUris = documentsManager.getFileUris();
 
-        if (fileFormat.equals(".pdf")) {
+        if (fileFormat.equals(AppConstants.FILE_SUFFIX_PDF)) {
             // https://github.com/Swati4star/Images-to-PDF/
             Rectangle pageSize = PageSize.getRectangle(pageSizePref);
             // https://stackoverflow.com/questions/17274618/itext-landscape-orientation-and
@@ -148,8 +149,6 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
 
             Rectangle docRect = document.getPageSize();
             String outputFile = documentsManager.createPdfTempFile(fileName);
-//                    folder.getAbsolutePath() + "/DOC-" + System.currentTimeMillis() + ".pdf";
-
             try {
                 PdfWriter pdfWriter = PdfWriter.getInstance(document,
                         new FileOutputStream(outputFile));
@@ -182,10 +181,11 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
             }
         }
 
-        String uploadOption = sharedPref.getString("upload_option", "local");
-        String uploadAddress = sharedPref.getString("upload_address", "OpenNoteScanner");
-        Upload upload = new Upload(this, this, uploadOption, uploadAddress);
-        upload.uploadFile(documentsManager.getPdfFileUri(), fileName + fileFormat);
+        String uploadOption = sharedPref.getString("save_option", AppConstants.LOCAL);
+        String uploadAddress = sharedPref.getString("save_address",
+                AppConstants.DEFAULT_FOLDER_NAME);
+        SaveFile saveFile = new SaveFile(this, this, uploadOption, uploadAddress);
+        saveFile.saveFile(documentsManager.getPdfFileUri(), fileName + fileFormat);
     }
 
     private void startIntentToCameraActivity(DocumentsManager documentsManager) {
@@ -226,9 +226,9 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     @Override
-    public void completeUpload() {
+    public void saveComplete() {
         Log.d(TAG, "completeUpload: ");
-        startIntentToCameraActivity(documentsManager);
+        startIntentToCameraActivity(new DocumentsManager(getCacheDir()));
     }
 
     @Override

@@ -68,12 +68,12 @@
     <string name="standard_tags">Standard Tags:</string>
     <string name="done">Done</string>
 
-    <string name="upload_fail_message">Upload failed</string>
-    <string name="upload_success_message">Upload successful</string>
+    <string name="save_fail_message">Saving file failed</string>
+    <string name="save_success_message">File saved</string>
 
 
     <!-- Preferences -->
-    <string name="save_format_summary">Save scans to selected format.</string>
+    <string name="save_page_size_summary">Save scans to selected format.</string>
     <string name="save_format">Select file format</string>
 
     <string name="github_project">Project on GitHub</string>
@@ -82,9 +82,9 @@
     <string name="about_category">About OpenNoteScanner</string>
 
     <string name="title_activity_settings_new">Settings</string>
-    <string name="upload_title">Upload settings</string>
-    <string name="upload_summary">Set your upload destination</string>
-    <string name="upload_option_title">Set your destination for your upload</string>
+    <string name="save_settings_title">Save settings</string>
+    <string name="save_settings_summary">Set your save location</string>
+    <string name="save_option_title">Save location</string>
     <string name="dracoon_title">DRACOON-link</string>
     <string name="nextcloud_title">Nextcloud-link</string>
     <string name="email_title">E-Mail address</string>
@@ -92,11 +92,11 @@
     <string name="local_title">Local folder</string>
     <string name="address_warn_dialog_title">Warning</string>
 
-    <string name="address_warn_dialog_message">You must set a address for your upload</string>
-    <string name="file_size">Page size</string>
+    <string name="address_warn_dialog_message">You must set a address for your saveFile</string>
+    <string name="page_size">Page size</string>
     <string name="save_dialog_message">Set your filename</string>
-    <string name="save_dialog_title">Save</string>
     <string name="save_dialog_positive">Save</string>
-    <string name="file_name_default">DOC_%s</string>
-
+    <string name="file_name_default" translatable="false">DOC_%s</string>
+    <string name="tv_dialog_filename_title">Set filename</string>
+    <string name="tv_dialog_page_size_title">Set page size</string>
 </resources>

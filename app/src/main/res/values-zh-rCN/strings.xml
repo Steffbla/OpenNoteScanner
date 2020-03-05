@@ -64,7 +64,7 @@
     <string name="storage_folder">存储文件夹</string>
     <string name="storage_folder_summary">设置存储扫描文件的位置</string>
     <string name="save_format">保存为 PNG 格式</string>
-    <string name="save_format_summary">将图像保存为PNG格式。请注意，PNG尚不支持元数据，因此某些功能将不可用。</string>
+    <string name="save_page_size_summary">将图像保存为PNG格式。请注意，PNG尚不支持元数据，因此某些功能将不可用。</string>
     <string name="format_not_supported">不支持的格式</string>
     <string name="format_not_supported_message">图像格式不支持标记</string>
 </resources>

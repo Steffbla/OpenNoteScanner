@@ -64,7 +64,7 @@
     <string name="storage_folder">Folder Penyimpanan</string>
     <string name="storage_folder_summary">Tetapkan lokasi penyimpanan berkas yang dipindai</string>
     <string name="save_format">Simpan ke Format PNG</string>
-    <string name="save_format_summary">Simpan gambar final ke format PNG. Perhatikan bahwa metadata belum didukung untuk PNG, sehingga beberapa fitur tidak akan tersedia.</string>
+    <string name="save_page_size_summary">Simpan gambar final ke format PNG. Perhatikan bahwa metadata belum didukung untuk PNG, sehingga beberapa fitur tidak akan tersedia.</string>
     <string name="format_not_supported">Format tidak didukung</string>
     <string name="format_not_supported_message">Format gambar tidak mendukung tag</string>
 </resources>

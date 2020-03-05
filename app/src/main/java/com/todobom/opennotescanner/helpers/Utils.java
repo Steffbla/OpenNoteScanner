@@ -227,7 +227,7 @@ public class Utils {
         String ext = filePath.substring((filePath.lastIndexOf(".") + 1),
                 filePath.length());
 
-        return AppConstant.FILE_EXTN
+        return AppConstants.FILE_EXTN
                 .contains(ext.toLowerCase(Locale.getDefault()));
     }
 }
