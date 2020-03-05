@@ -94,5 +94,9 @@
 
     <string name="address_warn_dialog_message">You must set a address for your upload</string>
     <string name="file_size">Page size</string>
+    <string name="save_dialog_message">Set your filename</string>
+    <string name="save_dialog_title">Save</string>
+    <string name="save_dialog_positive">Save</string>
+    <string name="file_name_default">DOC_%s</string>
 
 </resources>

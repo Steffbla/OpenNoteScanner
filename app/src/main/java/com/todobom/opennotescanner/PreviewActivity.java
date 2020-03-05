@@ -8,11 +8,15 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -30,11 +34,14 @@ import org.parceler.Parcels;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 
 public class PreviewActivity extends AppCompatActivity implements View.OnClickListener,
-        DialogInterface.OnClickListener, OnUploadCompleteListener {
+        DialogInterface.OnClickListener, OnUploadCompleteListener,
+        AdapterView.OnItemSelectedListener {
 
     private static final String TAG = "PreviewActivity";
     SharedPreferences sharedPref;
@@ -42,9 +49,12 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
     private Button saveBtn;
     private Button retakeBtn;
     private Button addBtn;
-    EditText nameEditText;
+    EditText fileNameEt;
     private ImageView previewImg;
     private DocumentsManager documentsManager;
+    private String fileFormat;
+    private String pageSizePref;
+    private String[] pageSizeValues;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,74 +77,71 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
         addBtn.setOnClickListener(this);
 
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        fileFormat = sharedPref.getString("file_format", ".pdf");
+        pageSizePref = sharedPref.getString("page_size", "A4");
+        pageSizeValues = getResources().getStringArray(R.array.file_size_values);
 
-        if (!sharedPref.getString("file_format", ".pdf").equals(".pdf")) {
+        if (!fileFormat.equals(".pdf")) {
             addBtn.setVisibility(View.GONE);
         }
     }
 
+    private void createSaveDialog() {
+        // https://bhavyanshu.me/tutorials/create-custom-alert-dialog-in-android/08/20/2015/
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.save_dialog, null);
+        dialogBuilder.setView(dialogView);
 
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.exit_button:
-                startIntentToCameraActivity(new DocumentsManager(getCacheDir()));
-                // TODO: 04.03.2020 delete files
-                break;
-            case R.id.save_button:
-                AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-                dialog.setMessage("yo");
-                dialog.setTitle("yooo");
-                // TODO: 04.03.2020 context
-                Spinner sizeSpinner = new Spinner(dialog.getContext());
-                dialog.setView(sizeSpinner);
-                nameEditText = new EditText(dialog.getContext());
-                nameEditText.setPaddingRelative(5, 5, 5, 5);
-                dialog.setView(nameEditText);
-                dialog.setNegativeButton(R.string.answer_cancel, this);
-                dialog.setPositiveButton("save", this);
-                dialog.show();
-                // TODO: 04.03.2020 correct dialog
-                break;
-            case R.id.retake_button:
-                documentsManager.retakeScan();
-                startIntentToCameraActivity(documentsManager);
-                // TODO: 04.03.2020 delete file
-                break;
-            case R.id.add_button:
-                // TODO: 04.03.2020 seite +1
-                startIntentToCameraActivity(documentsManager);
-                break;
+        fileNameEt = dialogView.findViewById(R.id.et_filename);
+        String currentDate = SimpleDateFormat.getDateTimeInstance().format(new Date());
+        fileNameEt.setText(getString(R.string.file_name_default, currentDate));
+        // pageSize can only be set if it is pdf
+        if (fileFormat.equals(".pdf")) {
+            Spinner pageSizeSpinner = dialogView.findViewById(R.id.sp_format_size);
+            TextView pageSizeTv = dialogView.findViewById(R.id.tv_dialog_page_size_title);
+            pageSizeTv.setVisibility(View.VISIBLE);
+            pageSizeSpinner.setVisibility(View.VISIBLE);
+            // https://developer.android.com/guide/topics/ui/controls/spinner
+            ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                    R.array.file_size_entries, android.R.layout.simple_spinner_item);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            pageSizeSpinner.setOnItemSelectedListener(this);
+            pageSizeSpinner.setAdapter(adapter);
+            pageSizeSpinner.setSelection(getFormatSizePosition());
         }
+
+        dialogBuilder.setTitle(R.string.save_dialog_message);
+        dialogBuilder.setPositiveButton(R.string.save_dialog_positive, this);
+        dialogBuilder.setNegativeButton(android.R.string.cancel, this);
+        TextView formatSize = dialogView.findViewById(R.id.tv_dialog_file_format);
+        formatSize.setText(fileFormat);
+
+        AlertDialog b = dialogBuilder.create();
+        b.show();
     }
 
-    @Override
-    public void onClick(DialogInterface dialogInterface, int i) {
-        switch (i) {
-            case DialogInterface.BUTTON_NEGATIVE:
-                dialogInterface.cancel();
-                break;
-            case DialogInterface.BUTTON_POSITIVE:
-                saveDocument();
-                break;
+    private int getFormatSizePosition() {
+        for (int i = 0; i < pageSizeValues.length; i++) {
+            if (pageSizePref.equals(pageSizeValues[i])) {
+                return i;
+            }
         }
+        return 0;
     }
 
     private void saveDocument() {
         Log.d(TAG, "saveDocument: ");
 
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        String fileName = nameEditText.getText().toString();
-        String fileFormat = sharedPref.getString("file_format", ".pdf");
+        String fileName = fileNameEt.getText().toString();
         ArrayList<String> fileUris = documentsManager.getFileUris();
 
         if (fileFormat.equals(".pdf")) {
             // https://github.com/Swati4star/Images-to-PDF/
-            String pageSizePreference = sharedPref.getString("page_size", "A4");
-            Rectangle pageSize = PageSize.getRectangle(pageSizePreference);
+            Rectangle pageSize = PageSize.getRectangle(pageSizePref);
             // https://stackoverflow.com/questions/17274618/itext-landscape-orientation-and
             // -positioning
-            if (pageSizePreference.contains("landscape")) {
+            if (pageSizePref.contains("landscape")) {
                 pageSize = pageSize.rotate();
             }
             Document document = new Document(pageSize);
@@ -152,7 +159,7 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
                     Image image = Image.getInstance(uri);
                     image.setBorder(Rectangle.BOX);
 
-                    if (pageSizePreference.contains("landscape")) {
+                    if (pageSizePref.contains("landscape")) {
                         image.setRotationDegrees(90);
                     }
 
@@ -175,7 +182,6 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
             }
         }
 
-
         String uploadOption = sharedPref.getString("upload_option", "local");
         String uploadAddress = sharedPref.getString("upload_address", "OpenNoteScanner");
         Upload upload = new Upload(this, this, uploadOption, uploadAddress);
@@ -189,8 +195,50 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.exit_button:
+                startIntentToCameraActivity(new DocumentsManager(getCacheDir()));
+                break;
+            case R.id.save_button:
+                createSaveDialog();
+                break;
+            case R.id.retake_button:
+                documentsManager.retakeScan();
+                startIntentToCameraActivity(documentsManager);
+                break;
+            case R.id.add_button:
+                startIntentToCameraActivity(documentsManager);
+                break;
+        }
+    }
+
+    @Override
+    public void onClick(DialogInterface dialogInterface, int i) {
+        switch (i) {
+            case DialogInterface.BUTTON_NEGATIVE:
+                dialogInterface.cancel();
+                break;
+            case DialogInterface.BUTTON_POSITIVE:
+                saveDocument();
+                break;
+        }
+    }
+
+    @Override
     public void completeUpload() {
         Log.d(TAG, "completeUpload: ");
         startIntentToCameraActivity(documentsManager);
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+        Log.d(TAG, "Spinner onItemSelected: i");
+        pageSizePref = pageSizeValues[i];
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
+        Log.d(TAG, "onNothingSelected: ");
     }
 }
