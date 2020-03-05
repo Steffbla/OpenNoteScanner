@@ -2,6 +2,7 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ListPreference
+        app:defaultValue="local"
         app:entries="@array/save_option_entries"
         app:key="save_option"
         app:title="@string/save_option_title"

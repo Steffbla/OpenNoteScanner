@@ -192,6 +192,7 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
         Intent intent = new Intent(this, OpenNoteScannerActivity.class);
         intent.putExtra("documents", Parcels.wrap(documentsManager));
         startActivity(intent);
+        finish();
     }
 
     @Override
@@ -204,13 +205,18 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
                 createSaveDialog();
                 break;
             case R.id.retake_button:
-                documentsManager.retakeScan();
-                startIntentToCameraActivity(documentsManager);
+                retakeScan();
                 break;
             case R.id.add_button:
                 startIntentToCameraActivity(documentsManager);
                 break;
         }
+    }
+
+    private void retakeScan() {
+        Log.d(TAG, "retakeScan: ");
+        documentsManager.retakeScan();
+        startIntentToCameraActivity(documentsManager);
     }
 
     @Override
@@ -240,5 +246,10 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
         Log.d(TAG, "onNothingSelected: ");
+    }
+
+    @Override
+    public void onBackPressed() {
+        retakeScan();
     }
 }

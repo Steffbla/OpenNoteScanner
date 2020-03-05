@@ -33,7 +33,6 @@ public class SaveSettingFragment extends PreferenceFragmentCompat implements Pre
         }
         if (optionPreference != null) {
             optionPreference.setEntryValues(AppConstants.SAVE_OPTION_VALUES);
-            optionPreference.setValue(AppConstants.LOCAL);
             setAddressTitle(optionPreference.getValue());
             optionPreference.setOnPreferenceChangeListener(this);
         }
