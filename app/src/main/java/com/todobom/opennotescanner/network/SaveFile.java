@@ -92,6 +92,7 @@ public class SaveFile {
                                    Response<CreateShareUploadChannelResponse> response) {
                 Log.d(TAG, "onCreateUploadChannel: " + response.code());
                 if (response.code() != 201) {
+                    Log.e(TAG, "onResponse: " + response.raw());
                     showToast(false);
                 }
                 CreateShareUploadChannelResponse res = response.body();
@@ -111,19 +112,20 @@ public class SaveFile {
                                                Response<ChunkUploadResponse> response) {
                             Log.d(TAG, "onUploadFile:" + response.code());
                             if (response.code() != 201) {
+                                Log.e(TAG, "onResponse: " + response.raw());
                                 showToast(false);
                             }
 
                             // complete file upload
                             Call<PublicUploadedFileData> completeUpload =
-                                    dracoonService.completeFileUpload(accessKey
-                                            , uploadId[0]);
+                                    dracoonService.completeFileUpload(accessKey, uploadId[0]);
                             completeUpload.enqueue(new Callback<PublicUploadedFileData>() {
                                 @Override
                                 public void onResponse(Call<PublicUploadedFileData> call,
                                                        Response<PublicUploadedFileData> response) {
                                     Log.d(TAG, "onCompleteFileUpload: " + response.code());
                                     if (response.code() != 201) {
+                                        Log.e(TAG, "onResponse: " + response.raw());
                                         showToast(false);
                                     } else {
                                         showToast(true);

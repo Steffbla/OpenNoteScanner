@@ -95,7 +95,7 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
         dialogBuilder.setView(dialogView);
 
         fileNameEt = dialogView.findViewById(R.id.et_filename);
-        String currentDate = SimpleDateFormat.getDateTimeInstance().format(new Date());
+        String currentDate = SimpleDateFormat.getDateInstance().format(new Date());
         fileNameEt.setText(getString(R.string.file_name_default, currentDate));
         // pageSize can only be set if it is pdf
         if (fileFormat.equals(AppConstants.FILE_SUFFIX_PDF)) {
