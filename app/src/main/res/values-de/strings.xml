@@ -87,4 +87,7 @@
     <string name="tv_dialog_filename_title">Datei bennenen</string>
     <string name="tv_dialog_page_size_title">Seitengröße</string>
     <string name="preview_page_number">Seite %d</string>
+    <string name="ibt_preview_scan_description">Scanresultat</string>
+    <string name="ibt_preview_retake_description">Scan wiederholen</string>
+    <string name="ibt_preview_add_description">Seite hinzufügen</string>
 </resources>

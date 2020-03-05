@@ -12,8 +12,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -46,10 +46,10 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
 
     private static final String TAG = "PreviewActivity";
     SharedPreferences sharedPref;
-    private Button exitBtn;
-    private Button saveBtn;
-    private Button retakeBtn;
-    private Button addBtn;
+    private ImageButton exitBtn;
+    private ImageButton saveBtn;
+    private ImageButton retakeBtn;
+    private ImageButton addBtn;
     private EditText fileNameEt;
     private TextView pageNumberTv;
     private ImageView previewImg;
@@ -69,13 +69,13 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
         previewImg = findViewById(R.id.preview_image);
         previewImg.setImageURI(Uri.parse(documentsManager.getCurrentFileUri()));
 
-        exitBtn = findViewById(R.id.exit_button);
+        exitBtn = findViewById(R.id.ibt_preview_cancel);
         exitBtn.setOnClickListener(this);
-        saveBtn = findViewById(R.id.save_button);
+        saveBtn = findViewById(R.id.ibt_preview_save);
         saveBtn.setOnClickListener(this);
-        retakeBtn = findViewById(R.id.retake_button);
+        retakeBtn = findViewById(R.id.ibt_preview_retake);
         retakeBtn.setOnClickListener(this);
-        addBtn = findViewById(R.id.add_button);
+        addBtn = findViewById(R.id.ibt_preview_add);
         addBtn.setOnClickListener(this);
         pageNumberTv = findViewById(R.id.tv_preview_page_number);
         pageNumberTv.setText(getString(R.string.preview_page_number,
@@ -204,16 +204,16 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.exit_button:
+            case R.id.ibt_preview_cancel:
                 startIntentToCameraActivity(new DocumentsManager(getCacheDir()));
                 break;
-            case R.id.save_button:
+            case R.id.ibt_preview_save:
                 createSaveDialog();
                 break;
-            case R.id.retake_button:
+            case R.id.ibt_preview_retake:
                 retakeScan();
                 break;
-            case R.id.add_button:
+            case R.id.ibt_preview_add:
                 startIntentToCameraActivity(documentsManager);
                 break;
         }

@@ -7,20 +7,25 @@
     android:theme="@style/AppTheme.NoActionBar"
     tools:context=".PreviewActivity">
 
-
-    <Button
-        android:id="@+id/exit_button"
+    <ImageButton
+        android:id="@+id/ibt_preview_cancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="back"
+        android:layout_margin="24dp"
+        android:background="#000000"
+        android:contentDescription="@android:string/cancel"
+        android:src="@drawable/ic_exit_white"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/save_button"
+    <ImageButton
+        android:id="@+id/ibt_preview_save"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="save"
+        android:layout_margin="24dp"
+        android:background="#000000"
+        android:contentDescription="@string/ibt_preview_save_description"
+        android:src="@drawable/ic_save_white"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -28,31 +33,34 @@
         android:id="@+id/preview_image"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:contentDescription="@string/ibt_preview_scan_description"
         android:cropToPadding="false"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:paddingBottom="10dp"
-        android:src="@drawable/img_example"
-        app:layout_constraintBottom_toTopOf="@id/retake_button"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        app:layout_constraintBottom_toTopOf="@id/ibt_preview_retake"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/exit_button" />
+        app:layout_constraintTop_toBottomOf="@id/ibt_preview_cancel" />
 
-    <Button
-        android:id="@+id/retake_button"
+    <ImageButton
+        android:id="@+id/ibt_preview_retake"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="20dp"
-        android:text="@string/action_delete"
+        android:layout_margin="24dp"
+        android:background="#000000"
+        android:contentDescription="@string/ibt_preview_retake_description"
+        android:src="@drawable/ic_retake_white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent" />
 
-    <Button
-        android:id="@+id/add_button"
+    <ImageButton
+        android:id="@+id/ibt_preview_add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="20dp"
-        android:text="add"
+        android:layout_margin="24dp"
+        android:background="#000000"
+        android:contentDescription="@string/ibt_preview_add_description"
+        android:src="@drawable/ic_add_scan_white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
 
@@ -61,8 +69,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="#FFFFFF"
-        android:textSize="22sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="@id/ibt_preview_add"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/ibt_preview_add" />
 </androidx.constraintlayout.widget.ConstraintLayout>
