@@ -4,11 +4,11 @@
     <ListPreference
         app:defaultValue="local"
         app:entries="@array/save_option_entries"
-        app:key="save_option"
+        app:key="@string/pref_key_save_option"
         app:title="@string/save_option_title"
         app:useSimpleSummaryProvider="true" />
 
     <EditTextPreference
-        app:key="save_address"
+        app:key="@string/pref_key_save_address"
         app:useSimpleSummaryProvider="true" />
 </PreferenceScreen>

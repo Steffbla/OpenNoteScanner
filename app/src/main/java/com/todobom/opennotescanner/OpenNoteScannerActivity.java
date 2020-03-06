@@ -419,7 +419,8 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         String filePath;
         boolean isIntent = false;
         Uri fileUri = null;
-        String fileFormat = mSharedPref.getString("file_format", AppConstants.FILE_SUFFIX_PDF);
+        String fileFormat = mSharedPref.getString(getString(R.string.pref_key_file_format),
+                AppConstants.FILE_SUFFIX_PDF);
 
         String imgSuffix = AppConstants.FILE_SUFFIX_JPG;
         if (fileFormat.equals(AppConstants.FILE_SUFFIX_PNG)) {
@@ -669,7 +670,8 @@ public class OpenNoteScannerActivity extends AppCompatActivity
 
         mCamera.setParameters(param);
 
-        final boolean bugRotate = mSharedPref.getBoolean("bug_rotate", false);
+        final boolean bugRotate = mSharedPref.getBoolean(getString(R.string.pref_key_bug_rotate),
+                false);
 
         if (bugRotate) {
             mCamera.setDisplayOrientation(270);

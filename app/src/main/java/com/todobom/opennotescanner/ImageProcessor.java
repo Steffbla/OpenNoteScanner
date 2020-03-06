@@ -70,7 +70,8 @@ public class ImageProcessor extends Handler {
         mMainActivity = mainActivity;
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mainActivity);
-        mBugRotate = sharedPref.getBoolean("bug_rotate", false);
+        mBugRotate = sharedPref.getBoolean(mMainActivity.getString(R.string.pref_key_bug_rotate),
+                false);
     }
 
     public void handleMessage(Message msg) {
@@ -206,7 +207,8 @@ public class ImageProcessor extends Handler {
                 int x = Double.valueOf(quad.points[i].x * ratio).intValue();
                 int y = Double.valueOf(quad.points[i].y * ratio).intValue();
                 if (mBugRotate) {
-                    rescaledPoints[(i + 2) % 4] = new Point(Math.abs(x - mPreviewSize.width), Math.abs(y - mPreviewSize.height));
+                    rescaledPoints[(i + 2) % 4] = new Point(Math.abs(x - mPreviewSize.width),
+                            Math.abs(y - mPreviewSize.height));
                 } else {
                     rescaledPoints[i] = new Point(x, y);
                 }
@@ -216,7 +218,8 @@ public class ImageProcessor extends Handler {
 
             drawDocumentBox(mPreviewPoints, mPreviewSize);
 
-            Log.d(TAG, quad.points[0].toString() + " , " + quad.points[1].toString() + " , " + quad.points[2].toString() + " , " + quad.points[3].toString());
+            Log.d(TAG,
+                    quad.points[0].toString() + " , " + quad.points[1].toString() + " , " + quad.points[2].toString() + " , " + quad.points[3].toString());
 
             return true;
 
@@ -313,7 +316,8 @@ public class ImageProcessor extends Handler {
         ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>();
         Mat hierarchy = new Mat();
 
-        Imgproc.findContours(cannedImage, contours, hierarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+        Imgproc.findContours(cannedImage, contours, hierarchy, Imgproc.RETR_LIST,
+                Imgproc.CHAIN_APPROX_SIMPLE);
 
         hierarchy.release();
 
@@ -361,7 +365,8 @@ public class ImageProcessor extends Handler {
             Mat copy = new Mat(src.size(), CvType.CV_8UC3);
             src.copyTo(copy);
 
-            Imgproc.adaptiveThreshold(mask, mask, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY_INV, 15, 15);
+            Imgproc.adaptiveThreshold(mask, mask, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C,
+                    Imgproc.THRESH_BINARY_INV, 15, 15);
 
             src.setTo(new Scalar(255, 255, 255));
             copy.copyTo(src, mask);
@@ -374,7 +379,8 @@ public class ImageProcessor extends Handler {
         } else if (!colorMode) {
             Imgproc.cvtColor(src, src, Imgproc.COLOR_RGBA2GRAY);
             if (filterMode) {
-                Imgproc.adaptiveThreshold(src, src, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 15, 15);
+                Imgproc.adaptiveThreshold(src, src, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C,
+                        Imgproc.THRESH_BINARY, 15, 15);
             }
         }
     }
@@ -451,7 +457,8 @@ public class ImageProcessor extends Handler {
         Mat src_mat = new Mat(4, 1, CvType.CV_32FC2);
         Mat dst_mat = new Mat(4, 1, CvType.CV_32FC2);
 
-        src_mat.put(0, 0, tl.x * ratio, tl.y * ratio, tr.x * ratio, tr.y * ratio, br.x * ratio, br.y * ratio, bl.x * ratio, bl.y * ratio);
+        src_mat.put(0, 0, tl.x * ratio, tl.y * ratio, tr.x * ratio, tr.y * ratio, br.x * ratio,
+                br.y * ratio, bl.x * ratio, bl.y * ratio);
         dst_mat.put(0, 0, 0.0, 0.0, dw, 0.0, dw, dh, 0.0, dh);
 
         Mat m = Imgproc.getPerspectiveTransform(src_mat, dst_mat);
@@ -533,14 +540,16 @@ public class ImageProcessor extends Handler {
             southEast = inputImage.submat(0, h / 4, w / 2 + h / 4, w);
         }
 
-        Bitmap bMap = Bitmap.createBitmap(southEast.width(), southEast.height(), Bitmap.Config.ARGB_8888);
+        Bitmap bMap = Bitmap.createBitmap(southEast.width(), southEast.height(),
+                Bitmap.Config.ARGB_8888);
         org.opencv.android.Utils.matToBitmap(southEast, bMap);
         southEast.release();
         int[] intArray = new int[bMap.getWidth() * bMap.getHeight()];
         //copy pixel data from the Bitmap into the 'intArray' array
         bMap.getPixels(intArray, 0, bMap.getWidth(), 0, 0, bMap.getWidth(), bMap.getHeight());
 
-        LuminanceSource source = new RGBLuminanceSource(bMap.getWidth(), bMap.getHeight(), intArray);
+        LuminanceSource source = new RGBLuminanceSource(bMap.getWidth(), bMap.getHeight(),
+                intArray);
 
         BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
 

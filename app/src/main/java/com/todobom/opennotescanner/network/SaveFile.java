@@ -173,7 +173,7 @@ public class SaveFile {
 
     private void saveFileLocal(String fileUri, String fileName) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-        String folderName = sharedPref.getString("save_address",
+        String folderName = sharedPref.getString(context.getString(R.string.pref_key_save_address),
                 AppConstants.DEFAULT_FOLDER_NAME);
         File folder = new File(Environment.getExternalStorageDirectory().toString() + "/" +
                 folderName);

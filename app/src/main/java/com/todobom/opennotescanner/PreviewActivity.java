@@ -84,8 +84,10 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
 
 
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        fileFormat = sharedPref.getString("file_format", AppConstants.FILE_SUFFIX_PDF);
-        pageSizePref = sharedPref.getString("page_size", AppConstants.DEFAULT_PAGE_SIZE);
+        fileFormat = sharedPref.getString(getString(R.string.pref_key_file_format),
+                AppConstants.FILE_SUFFIX_PDF);
+        pageSizePref = sharedPref.getString(getString(R.string.pref_key_page_size),
+                AppConstants.DEFAULT_PAGE_SIZE);
         pageSizeValues = AppConstants.PAGE_SIZE_VALUES;
 
         if (!fileFormat.equals(AppConstants.FILE_SUFFIX_PDF)) {
@@ -188,10 +190,11 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
             }
         }
 
-        String uploadOption = sharedPref.getString("save_option", AppConstants.LOCAL);
-        String uploadAddress = sharedPref.getString("save_address",
+        String saveOption = sharedPref.getString(getString(R.string.pref_key_save_option),
+                AppConstants.LOCAL);
+        String saveAddress = sharedPref.getString(getString(R.string.pref_key_save_address),
                 AppConstants.DEFAULT_FOLDER_NAME);
-        SaveFile saveFile = new SaveFile(this, this, uploadOption, uploadAddress);
+        SaveFile saveFile = new SaveFile(this, this, saveOption, saveAddress);
         saveFile.saveFile(documentsManager.getPdfFileUri(), fileName + fileFormat);
     }
 

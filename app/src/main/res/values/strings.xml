@@ -80,6 +80,7 @@
     <string name="github_project_summary">This application is open source, you can help to improve it with feedback, issue reports, code and translations through the GitHub project\'s page</string>
     <string name="github_link" translatable="false">https://github.com/stefan-te/OpenNoteScanner</string>
     <string name="about_category">About OpenNoteScanner</string>
+    <string name="about_summary">Licence and used third party libraries</string>
 
     <!-- save settings -->
     <string name="title_activity_settings_new">Settings</string>
@@ -109,4 +110,12 @@
     <string name="tv_dialog_filename_title">Set filename</string>
     <string name="tv_dialog_page_size_title">Set page size</string>
     <string name="toast_confirm_back_action">If you want to leave the app, press the back button again</string>
+
+    <!-- preference keys-->
+    <string name="pref_key_about" translatable="false">about_app</string>
+    <string name="pref_key_file_format" translatable="false">file_format</string>
+    <string name="pref_key_page_size" translatable="false">page_size</string>
+    <string name="pref_key_bug_rotate" translatable="false">bug_rotate</string>
+    <string name="pref_key_save_option" translatable="false">save_option</string>
+    <string name="pref_key_save_address" translatable="false">save_address</string>
 </resources>

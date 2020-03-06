@@ -24,8 +24,8 @@ public class SaveSettingFragment extends PreferenceFragmentCompat implements Pre
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.save_preferences, rootKey);
 
-        optionPreference = findPreference("save_option");
-        addressPreference = findPreference("save_address");
+        optionPreference = findPreference(getString(R.string.pref_key_save_option));
+        addressPreference = findPreference(getString(R.string.pref_key_save_address));
 
         if (addressPreference != null) {
             setAddressEmpty();

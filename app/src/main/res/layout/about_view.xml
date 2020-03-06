@@ -10,17 +10,6 @@
         android:id="@+id/about_markdown"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/about_shareapp"
         android:layout_alignParentStart="false"
         android:layout_alignParentTop="true" />
-
-    <Button
-        android:id="@+id/about_shareapp"
-        style="@style/Widget.AppCompat.Button.Colored"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="false"
-        android:layout_alignParentBottom="true"
-        android:text="@string/share_app" />
-
 </RelativeLayout>

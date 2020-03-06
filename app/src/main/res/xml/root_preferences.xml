@@ -26,20 +26,20 @@
         <ListPreference
             android:defaultValue=".pdf"
             app:entries="@array/file_formats_entries"
-            app:key="file_format"
+            app:key="@string/pref_key_file_format"
             app:summary="@string/save_page_size_summary"
             app:title="@string/save_format"
             app:useSimpleSummaryProvider="true" />
         <ListPreference
             android:defaultValue="A4"
             app:entries="@array/page_size_entries"
-            app:key="page_size"
+            app:key="@string/pref_key_page_size"
             app:summary="@string/save_page_size_summary"
             app:title="@string/page_size"
             app:useSimpleSummaryProvider="true" />
         <SwitchPreference
             app:defaultValue="false"
-            app:key="bug_rotate"
+            app:key="@string/pref_key_bug_rotate"
             app:summary="@string/bug_rotate_summary"
             app:title="@string/bug_rotate" />
 
@@ -53,5 +53,9 @@
                 android:action="android.intent.action.VIEW"
                 android:data="@string/github_link" />
         </Preference>
+        <Preference
+            android:key="@string/pref_key_about"
+            app:summary="@string/about_summary"
+            app:title="@string/about_category" />
     </PreferenceCategory>
 </PreferenceScreen>

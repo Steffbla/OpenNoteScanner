@@ -9,10 +9,12 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
+import com.todobom.opennotescanner.helpers.AboutFragment;
 import com.todobom.opennotescanner.helpers.AppConstants;
 
 public class SettingsActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
@@ -80,26 +82,29 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
         return true;
     }
 
-    public static class SettingsFragment extends PreferenceFragmentCompat implements Preference.OnPreferenceChangeListener {
+    public static class SettingsFragment extends PreferenceFragmentCompat implements Preference.OnPreferenceChangeListener, Preference.OnPreferenceClickListener {
 
         private ListPreference pageSizePreference;
         private ListPreference fileFormatPreference;
+        private Preference aboutPreference;
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
 
-            fileFormatPreference = findPreference("file_format");
-            pageSizePreference = findPreference("page_size");
+            fileFormatPreference = findPreference(getString(R.string.pref_key_file_format));
+            pageSizePreference = findPreference(getString(R.string.pref_key_page_size));
 
+            aboutPreference = findPreference(getString(R.string.pref_key_about));
+            if (aboutPreference != null) {
+                aboutPreference.setOnPreferenceClickListener(this);
+            }
             if (fileFormatPreference != null) {
                 fileFormatPreference.setEntryValues(AppConstants.FILE_FORMAT_VALUES);
-//                fileFormatPreference.setDefaultValue(AppConstants.FILE_SUFFIX_PDF);
                 fileFormatPreference.setOnPreferenceChangeListener(this);
 
                 if (pageSizePreference != null) {
                     pageSizePreference.setEntryValues(AppConstants.PAGE_SIZE_VALUES);
-//                    pageSizePreference.setDefaultValue(AppConstants.DEFAULT_PAGE_SIZE);
                     setPageSizeVisible(fileFormatPreference.getValue());
                 }
             }
@@ -118,6 +123,20 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
             Log.d(TAG, "onPreferenceChange: " + newValue);
             if (preference == fileFormatPreference) {
                 setPageSizeVisible((String) newValue);
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public boolean onPreferenceClick(Preference preference) {
+            Log.d(TAG, "onPreferenceClick: ");
+            if (preference == aboutPreference) {
+                FragmentManager fm = getFragmentManager();
+                AboutFragment aboutDialog = new AboutFragment();
+                if (fm != null) {
+                    aboutDialog.show(fm, "about_view");
+                }
                 return true;
             }
             return false;
