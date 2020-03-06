@@ -74,27 +74,35 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:rotation="270"
-            android:src="@drawable/angle" />
+            android:src="@drawable/angle"
+            android:visibility="invisible"
+            tools:ignore="ContentDescription" />
 
         <ImageView
             android:id="@+id/se_angle"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:rotation="90"
-            android:src="@drawable/angle" />
+            android:src="@drawable/angle"
+            android:visibility="invisible"
+            tools:ignore="ContentDescription" />
 
         <ImageView
             android:id="@+id/sw_angle"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:rotation="180"
-            android:src="@drawable/angle" />
+            android:src="@drawable/angle"
+            android:visibility="invisible"
+            tools:ignore="ContentDescription" />
 
         <ImageView
             android:id="@+id/ne_angle"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:src="@drawable/angle" />
+            android:src="@drawable/angle"
+            android:visibility="invisible"
+            tools:ignore="ContentDescription" />
 
 
         <com.github.fafaldo.fabtoolbar.widget.FABToolbarLayout

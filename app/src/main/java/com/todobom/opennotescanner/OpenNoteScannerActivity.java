@@ -586,6 +586,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         paramsNW.leftMargin = hotAreaWidth - paramsNW.width;
         paramsNW.topMargin = hotAreaHeight - paramsNW.height;
         angleNorthWest.setLayoutParams(paramsNW);
+        angleNorthWest.setVisibility(View.VISIBLE);
 
         ImageView angleNorthEast = findViewById(R.id.ne_angle);
         RelativeLayout.LayoutParams paramsNE = (RelativeLayout.LayoutParams) angleNorthEast
@@ -593,6 +594,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         paramsNE.leftMargin = displayWidth - hotAreaWidth;
         paramsNE.topMargin = hotAreaHeight - paramsNE.height;
         angleNorthEast.setLayoutParams(paramsNE);
+        angleNorthEast.setVisibility(View.VISIBLE);
 
         ImageView angleSouthEast = findViewById(R.id.se_angle);
         RelativeLayout.LayoutParams paramsSE = (RelativeLayout.LayoutParams) angleSouthEast
@@ -600,13 +602,15 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         paramsSE.leftMargin = displayWidth - hotAreaWidth;
         paramsSE.topMargin = previewHeight - hotAreaHeight;
         angleSouthEast.setLayoutParams(paramsSE);
-
+        angleSouthEast.setVisibility(View.VISIBLE)
+        ;
         ImageView angleSouthWest = findViewById(R.id.sw_angle);
         RelativeLayout.LayoutParams paramsSW = (RelativeLayout.LayoutParams) angleSouthWest
                 .getLayoutParams();
         paramsSW.leftMargin = hotAreaWidth - paramsSW.width;
         paramsSW.topMargin = previewHeight - hotAreaHeight;
         angleSouthWest.setLayoutParams(paramsSW);
+        angleSouthWest.setVisibility(View.VISIBLE);
 
         Camera.Size maxRes = getMaxPictureResolution(previewRatio);
         if (maxRes != null) {
