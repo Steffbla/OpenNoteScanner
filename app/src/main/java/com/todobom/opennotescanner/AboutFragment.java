@@ -1,4 +1,4 @@
-package com.todobom.opennotescanner.helpers;
+package com.todobom.opennotescanner;
 
 import android.os.Bundle;
 import android.view.Display;
@@ -10,8 +10,6 @@ import android.view.Window;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
-
-import com.todobom.opennotescanner.R;
 
 import us.feras.mdv.MarkdownView;
 
