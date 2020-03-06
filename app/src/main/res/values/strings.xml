@@ -108,6 +108,5 @@
     <string name="file_name_default" translatable="false">DOC_%s</string>
     <string name="tv_dialog_filename_title">Set filename</string>
     <string name="tv_dialog_page_size_title">Set page size</string>
-    <string name="preview_page_number">Page %d</string>
     <string name="toast_confirm_back_action">If you want to leave the app, press the back button again</string>
 </resources>
