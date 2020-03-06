@@ -14,7 +14,7 @@
         android:layout_margin="24dp"
         android:background="#000000"
         android:contentDescription="@android:string/cancel"
-        android:src="@drawable/ic_exit_white"
+        android:src="@drawable/ic_exit_green"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -25,7 +25,7 @@
         android:layout_margin="24dp"
         android:background="#000000"
         android:contentDescription="@string/ibt_preview_save_description"
-        android:src="@drawable/ic_save_white"
+        android:src="@drawable/ic_save_green"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -49,7 +49,7 @@
         android:layout_margin="24dp"
         android:background="#000000"
         android:contentDescription="@string/ibt_preview_retake_description"
-        android:src="@drawable/ic_retake_white"
+        android:src="@drawable/ic_retake_green"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent" />
 
@@ -60,7 +60,7 @@
         android:layout_margin="24dp"
         android:background="#000000"
         android:contentDescription="@string/ibt_preview_add_description"
-        android:src="@drawable/ic_add_scan_white"
+        android:src="@drawable/ic_add_scan_green"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
 
