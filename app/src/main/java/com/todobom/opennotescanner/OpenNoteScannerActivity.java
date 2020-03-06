@@ -208,7 +208,8 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         }
 
         intent = getIntent();
-        documentsManager = Parcels.unwrap(intent.getParcelableExtra("documents"));
+        documentsManager =
+                Parcels.unwrap(intent.getParcelableExtra(AppConstants.DOCUMENTS_EXTRA_KEY));
         if (documentsManager == null) {
             documentsManager = new DocumentsManager(getCacheDir());
         }
@@ -491,7 +492,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
             finish();
         } else {
             Intent startPreview = new Intent(this, PreviewActivity.class);
-            startPreview.putExtra("documents", Parcels.wrap(documentsManager));
+            startPreview.putExtra(AppConstants.DOCUMENTS_EXTRA_KEY, Parcels.wrap(documentsManager));
             startActivity(startPreview);
             finish();
 //            animateDocument(filePath, scannedDocument);
