@@ -6,9 +6,10 @@ import java.util.List;
 public interface AppConstants {
 
     // supported file formats
-    static final List<String> FILE_EXTN = Arrays.asList("jpg", "jpeg",
+    List<String> FILE_EXTN = Arrays.asList("jpg", "jpeg",
             "png");
 
+    String DOCUMENTS_EXTRA_KEY = "documents";
     String FILE_SUFFIX_PDF = ".pdf";
     String FILE_SUFFIX_JPG = ".jpg";
     String FILE_SUFFIX_PNG = ".png";
@@ -22,7 +23,6 @@ public interface AppConstants {
     String EMAIL = "email";
     String FTP_SERVER = "ftp_server";
     String LOCAL = "local";
-
     String[] SAVE_OPTION_VALUES = new String[]{DRACOON, NEXTCLOUD, EMAIL, FTP_SERVER, LOCAL};
 
     String DEFAULT_FOLDER_NAME = "OpenNoteScanner";

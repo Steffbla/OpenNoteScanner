@@ -64,7 +64,8 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
         setContentView(R.layout.activity_preview);
 
         Intent intent = getIntent();
-        documentsManager = Parcels.unwrap(intent.getParcelableExtra("documents"));
+        documentsManager =
+                Parcels.unwrap(intent.getParcelableExtra(AppConstants.DOCUMENTS_EXTRA_KEY));
 
         previewImg = findViewById(R.id.preview_image);
         previewImg.setImageURI(Uri.parse(documentsManager.getCurrentFileUri()));
@@ -196,7 +197,7 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
 
     private void startIntentToCameraActivity(DocumentsManager documentsManager) {
         Intent intent = new Intent(this, OpenNoteScannerActivity.class);
-        intent.putExtra("documents", Parcels.wrap(documentsManager));
+        intent.putExtra(AppConstants.DOCUMENTS_EXTRA_KEY, Parcels.wrap(documentsManager));
         startActivity(intent);
         finish();
     }
