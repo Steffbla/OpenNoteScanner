@@ -3,9 +3,7 @@ package com.todobom.opennotescanner;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -200,20 +198,12 @@ public class OpenNoteScannerActivity extends AppCompatActivity
 
         mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
-        if (mSharedPref.getBoolean("isFirstRun", true) && !mSharedPref
-                .getBoolean("usage_stats", false)) {
-            statsOptInDialog();
-        }
-
         intent = getIntent();
         documentsManager =
                 Parcels.unwrap(intent.getParcelableExtra(AppConstants.DOCUMENTS_EXTRA_KEY));
         if (documentsManager == null) {
             documentsManager = new DocumentsManager(getCacheDir());
         }
-
-        ((OpenNoteScannerApplication) getApplication()).getTracker()
-                .trackScreenView("/OpenNoteScannerActivity", "Main Screen");
 
         setContentView(R.layout.activity_open_note_scanner);
 
@@ -995,43 +985,6 @@ public class OpenNoteScannerActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         return false;
-    }
-
-    private void statsOptInDialog() {
-        AlertDialog.Builder statsOptInDialog = new AlertDialog.Builder(this);
-
-        statsOptInDialog.setTitle(getString(R.string.stats_optin_title));
-        statsOptInDialog.setMessage(getString(R.string.stats_optin_text));
-
-        statsOptInDialog.setPositiveButton(R.string.answer_yes,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        mSharedPref.edit().putBoolean("usage_stats", true).apply();
-                        mSharedPref.edit().putBoolean("isFirstRun", false).apply();
-                        dialog.dismiss();
-                    }
-                });
-
-        statsOptInDialog.setNegativeButton(R.string.answer_no,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        mSharedPref.edit().putBoolean("usage_stats", false).apply();
-                        mSharedPref.edit().putBoolean("isFirstRun", false).apply();
-                        dialog.dismiss();
-                    }
-                });
-
-        statsOptInDialog.setNeutralButton(R.string.answer_later,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-
-        statsOptInDialog.create().show();
     }
 
     class AnimationRunnable implements Runnable {
