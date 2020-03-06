@@ -328,17 +328,6 @@ public class OpenNoteScannerActivity extends AppCompatActivity
             }
         });
 
-        final FloatingActionButton galleryButton = findViewById(R.id.galleryButton);
-
-        galleryButton.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), GalleryGridActivity.class);
-                startActivity(intent);
-            }
-        });
-
         mFabToolbar = findViewById(R.id.fabtoolbar);
 
         FloatingActionButton fabToolbarButton = findViewById(R.id.fabtoolbar_fab);

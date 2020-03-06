@@ -1,13 +1,6 @@
 package com.todobom.opennotescanner.helpers;
 
-import java.util.Arrays;
-import java.util.List;
-
 public interface AppConstants {
-
-    // supported file formats
-    List<String> FILE_EXTN = Arrays.asList("jpg", "jpeg",
-            "png");
 
     String DOCUMENTS_EXTRA_KEY = "documents";
     String FILE_SUFFIX_PDF = ".pdf";

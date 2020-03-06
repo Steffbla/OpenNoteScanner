@@ -46,19 +46,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".GalleryGridActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/title_activity_gallery"
-            android:screenOrientation="portrait"
-            android:theme="@style/FullscreenTheme">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".FullScreenViewActivity"
-            android:theme="@style/FullscreenTheme" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
