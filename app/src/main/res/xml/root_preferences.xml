@@ -55,7 +55,10 @@
         </Preference>
         <Preference
             android:key="@string/pref_key_about"
-            app:summary="@string/about_summary"
             app:title="@string/about_category" />
+        <Preference
+            android:key="@string/pref_key_licenses"
+            android:summary="@string/pref_licenses_summary"
+            app:title="@string/pref_licenses_title" />
     </PreferenceCategory>
 </PreferenceScreen>

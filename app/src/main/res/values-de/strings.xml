@@ -91,5 +91,7 @@
     <string name="ibt_preview_retake_description">Scan wiederholen</string>
     <string name="ibt_preview_add_description">Seite hinzufügen</string>
     <string name="toast_confirm_back_action">Wenn Sie die App verlassen möchten, drücken Sie erneut die Zurück-Taste</string>
-    <string name="about_summary">Lizenz und genutzte Bibliotheken von Drittanbietern</string>
+    <string name="about_summary">Mehr Informationen über OpenNoteScanner</string>
+    <string name="pref_licenses_summary">Details der Open-Source-Lizenzen</string>
+    <string name="pref_licenses_title">Open Source Lizenzen</string>
 </resources>

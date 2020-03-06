@@ -80,7 +80,7 @@
     <string name="github_project_summary">This application is open source, you can help to improve it with feedback, issue reports, code and translations through the GitHub project\'s page</string>
     <string name="github_link" translatable="false">https://github.com/stefan-te/OpenNoteScanner</string>
     <string name="about_category">About OpenNoteScanner</string>
-    <string name="about_summary">Licence and used third party libraries</string>
+    <string name="about_summary">More information about OpenNoteScanner</string>
 
     <!-- save settings -->
     <string name="title_activity_settings_new">Settings</string>
@@ -118,4 +118,7 @@
     <string name="pref_key_bug_rotate" translatable="false">bug_rotate</string>
     <string name="pref_key_save_option" translatable="false">save_option</string>
     <string name="pref_key_save_address" translatable="false">save_address</string>
+    <string name="pref_key_licenses" translatable="false">licences</string>
+    <string name="pref_licenses_summary">@string/preferences_license_summary</string>
+    <string name="pref_licenses_title">@string/oss_license_title</string>
 </resources>

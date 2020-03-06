@@ -1,5 +1,6 @@
 package com.todobom.opennotescanner;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -14,6 +15,7 @@ import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
+import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
 import com.todobom.opennotescanner.helpers.AppConstants;
 
 public class SettingsActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
@@ -86,6 +88,7 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
         private ListPreference pageSizePreference;
         private ListPreference fileFormatPreference;
         private Preference aboutPreference;
+        private Preference licensePreference;
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -98,6 +101,11 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
             if (aboutPreference != null) {
                 aboutPreference.setOnPreferenceClickListener(this);
             }
+            licensePreference = findPreference(getString(R.string.pref_key_licenses));
+            if (licensePreference != null) {
+                licensePreference.setOnPreferenceClickListener(this);
+            }
+
             if (fileFormatPreference != null) {
                 fileFormatPreference.setEntryValues(AppConstants.FILE_FORMAT_VALUES);
                 fileFormatPreference.setOnPreferenceChangeListener(this);
@@ -137,6 +145,10 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
                     aboutDialog.show(fm, "about_view");
                 }
                 return true;
+            } else if (preference == licensePreference) {
+                // https://developers.google.com/android/guides/opensource
+                OssLicensesMenuActivity.setActivityTitle(getString(R.string.pref_licenses_title));
+                startActivity(new Intent(getContext(), OssLicensesMenuActivity.class));
             }
             return false;
         }
