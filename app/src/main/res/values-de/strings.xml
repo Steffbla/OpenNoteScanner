@@ -69,9 +69,9 @@
     <string name="address_warn_dialog_message">Sie müssen eine Speicher-Adresse angeben</string>
     <string name="address_warn_dialog_title">Warnung</string>
     <string name="dracoon_title">DRACOON-Link</string>
-    <string name="email_title">E-Mail Adresse</string>
-    <string name="ftp_title">FTP_Server Adresse</string>
-    <string name="local_title">Lokaler Ordner</string>
+    <string name="email_title">E-Mail-Adresse</string>
+    <string name="ftp_title">FTP-Server-Adresse</string>
+    <string name="local_title">Ordnername</string>
     <string name="nextcloud_title">Nextcloud-Link</string>
     <string name="title_activity_settings_new">Einstellungen</string>
 
