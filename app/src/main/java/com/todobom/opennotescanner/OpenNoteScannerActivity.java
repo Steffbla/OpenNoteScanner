@@ -98,24 +98,20 @@ public class OpenNoteScannerActivity extends AppCompatActivity
     private static final int RESUME_PERMISSIONS_REQUEST_CAMERA = 11;
     private static final String TAG = "OpenNoteScannerActivity";
     private final Handler mHideHandler = new Handler();
-    private final Runnable mHidePart2Runnable = new Runnable() {
-        @SuppressLint("InlinedApi")
-        @Override
-        public void run() {
-            // Delayed removal of status and navigation bar
+    private final Runnable mHidePart2Runnable = () -> {
+        // Delayed removal of status and navigation bar
 
-            // Note that some of these constants are new as of API 16 (Jelly Bean)
-            // and API 19 (KitKat). It is safe to use them, as they are inlined
-            // at compile-time and do nothing on earlier devices.
+        // Note that some of these constants are new as of API 16 (Jelly Bean)
+        // and API 19 (KitKat). It is safe to use them, as they are inlined
+        // at compile-time and do nothing on earlier devices.
 
-            getWindow().getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-        }
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
     };
     private View mControlsView;
     private final Runnable mShowPart2Runnable = new Runnable() {
@@ -130,12 +126,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         }
     };
     private boolean mVisible;
-    private final Runnable mHideRunnable = new Runnable() {
-        @Override
-        public void run() {
-            hide();
-        }
-    };
+    private final Runnable mHideRunnable = this::hide;
     private MediaPlayer _shootMP = null;
 
     private boolean safeToTakePicture;
@@ -214,12 +205,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         mWaitSpinner = findViewById(R.id.wait_spinner);
 
         // Set up the user interaction to manually show or hide the system UI.
-        contentView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                toggle();
-            }
-        });
+        contentView.setOnClickListener(view -> toggle());
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -229,111 +215,78 @@ public class OpenNoteScannerActivity extends AppCompatActivity
 
         scanDocButton = findViewById(R.id.scanDocButton);
 
-        scanDocButton.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                if (scanClicked) {
-                    requestPicture();
-                    scanDocButton.setBackgroundTintList(null);
-                    waitSpinnerVisible();
-                } else {
-                    scanClicked = true;
-                    Toast.makeText(getApplicationContext(), R.string.scanningToast,
-                            Toast.LENGTH_LONG).show();
-                    v.setBackgroundTintList(ColorStateList.valueOf(0x7F60FF60));
-                }
+        scanDocButton.setOnClickListener(v -> {
+            if (scanClicked) {
+                requestPicture();
+                scanDocButton.setBackgroundTintList(null);
+                waitSpinnerVisible();
+            } else {
+                scanClicked = true;
+                Toast.makeText(getApplicationContext(), R.string.scanningToast,
+                        Toast.LENGTH_LONG).show();
+                v.setBackgroundTintList(ColorStateList.valueOf(0x7F60FF60));
             }
         });
 
         final ImageView colorModeButton = findViewById(R.id.colorModeButton);
 
-        colorModeButton.setOnClickListener(new View.OnClickListener() {
+        colorModeButton.setOnClickListener(v -> {
+            colorMode = !colorMode;
+            ((ImageView) v).setColorFilter(colorMode ? 0xFFFFFFFF : 0xFFA0F0A0);
 
-            @Override
-            public void onClick(View v) {
-                colorMode = !colorMode;
-                ((ImageView) v).setColorFilter(colorMode ? 0xFFFFFFFF : 0xFFA0F0A0);
+            sendImageProcessorMessage("colorMode", colorMode);
 
-                sendImageProcessorMessage("colorMode", colorMode);
+            Toast.makeText(getApplicationContext(), colorMode ? R.string.colorMode :
+                            R.string.bwMode,
+                    Toast.LENGTH_SHORT).show();
 
-                Toast.makeText(getApplicationContext(), colorMode ? R.string.colorMode :
-                                R.string.bwMode,
-                        Toast.LENGTH_SHORT).show();
-
-            }
         });
 
         final ImageView filterModeButton = findViewById(R.id.filterModeButton);
 
-        filterModeButton.setOnClickListener(new View.OnClickListener() {
+        filterModeButton.setOnClickListener(v -> {
+            filterMode = !filterMode;
+            ((ImageView) v).setColorFilter(filterMode ? 0xFFFFFFFF : 0xFFA0F0A0);
 
-            @Override
-            public void onClick(View v) {
-                filterMode = !filterMode;
-                ((ImageView) v).setColorFilter(filterMode ? 0xFFFFFFFF : 0xFFA0F0A0);
+            sendImageProcessorMessage("filterMode", filterMode);
 
-                sendImageProcessorMessage("filterMode", filterMode);
+            Toast.makeText(getApplicationContext(),
+                    filterMode ? R.string.filterModeOn : R.string.filterModeOff,
+                    Toast.LENGTH_SHORT).show();
 
-                Toast.makeText(getApplicationContext(),
-                        filterMode ? R.string.filterModeOn : R.string.filterModeOff,
-                        Toast.LENGTH_SHORT).show();
-
-            }
         });
 
         final ImageView flashModeButton = findViewById(R.id.flashModeButton);
 
-        flashModeButton.setOnClickListener(new View.OnClickListener() {
+        flashModeButton.setOnClickListener(v -> {
+            mFlashMode = setFlash(!mFlashMode);
+            ((ImageView) v).setColorFilter(mFlashMode ? 0xFFFFFFFF : 0xFFA0F0A0);
 
-            @Override
-            public void onClick(View v) {
-                mFlashMode = setFlash(!mFlashMode);
-                ((ImageView) v).setColorFilter(mFlashMode ? 0xFFFFFFFF : 0xFFA0F0A0);
-
-            }
         });
 
         final ImageView autoModeButton = findViewById(R.id.autoModeButton);
 
-        autoModeButton.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                autoMode = !autoMode;
-                ((ImageView) v).setColorFilter(autoMode ? 0xFFFFFFFF : 0xFFA0F0A0);
-                Toast.makeText(getApplicationContext(), autoMode ? R.string.autoMode :
-                                R.string.manualMode,
-                        Toast.LENGTH_SHORT).show();
-            }
+        autoModeButton.setOnClickListener(v -> {
+            autoMode = !autoMode;
+            ((ImageView) v).setColorFilter(autoMode ? 0xFFFFFFFF : 0xFFA0F0A0);
+            Toast.makeText(getApplicationContext(), autoMode ? R.string.autoMode :
+                            R.string.manualMode,
+                    Toast.LENGTH_SHORT).show();
         });
 
         final ImageView settingsButton = findViewById(R.id.settingsButton);
 
-        settingsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), SettingsActivity.class);
-                startActivity(intent);
-            }
+        settingsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(v.getContext(), SettingsActivity.class);
+            startActivity(intent);
         });
 
         mFabToolbar = findViewById(R.id.fabtoolbar);
 
         FloatingActionButton fabToolbarButton = findViewById(R.id.fabtoolbar_fab);
-        fabToolbarButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mFabToolbar.show();
-            }
-        });
+        fabToolbarButton.setOnClickListener(v -> mFabToolbar.show());
 
-        findViewById(R.id.hideToolbarButton).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mFabToolbar.hide();
-            }
-        });
+        findViewById(R.id.hideToolbarButton).setOnClickListener(v -> mFabToolbar.hide());
 
     }
 
@@ -648,12 +601,9 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         }
 
         try {
-            mCamera.setAutoFocusMoveCallback(new Camera.AutoFocusMoveCallback() {
-                @Override
-                public void onAutoFocusMoving(boolean start, Camera camera) {
-                    mFocused = !start;
-                    Log.d(TAG, "focusMoving: " + mFocused);
-                }
+            mCamera.setAutoFocusMoveCallback((start, camera) -> {
+                mFocused = !start;
+                Log.d(TAG, "focusMoving: " + mFocused);
             });
         } catch (Exception e) {
             Log.d(TAG, "failed setting AutoFocusMoveCallback");
@@ -703,21 +653,11 @@ public class OpenNoteScannerActivity extends AppCompatActivity
     }
 
     public void waitSpinnerVisible() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mWaitSpinner.setVisibility(View.VISIBLE);
-            }
-        });
+        runOnUiThread(() -> mWaitSpinner.setVisibility(View.VISIBLE));
     }
 
     public void waitSpinnerInvisible() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mWaitSpinner.setVisibility(View.GONE);
-            }
-        });
+        runOnUiThread(() -> mWaitSpinner.setVisibility(View.GONE));
     }
 
     @Override
@@ -878,29 +818,21 @@ public class OpenNoteScannerActivity extends AppCompatActivity
     }
 
     public void invalidateHUD() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mHud.invalidate();
-            }
-        });
+        runOnUiThread(() -> mHud.invalidate());
     }
 
     public boolean requestPicture() {
         if (safeToTakePicture) {
             runOnUiThread(resetShutterColor);
             safeToTakePicture = false;
-            mCamera.autoFocus(new Camera.AutoFocusCallback() {
-                @Override
-                public void onAutoFocus(boolean success, Camera camera) {
-                    if (attemptToFocus) {
-                        return;
-                    } else {
-                        attemptToFocus = true;
-                    }
-
-                    camera.takePicture(null, null, mThis);
+            mCamera.autoFocus((success, camera) -> {
+                if (attemptToFocus) {
+                    return;
+                } else {
+                    attemptToFocus = true;
                 }
+
+                camera.takePicture(null, null, mThis);
             });
             return true;
         }
