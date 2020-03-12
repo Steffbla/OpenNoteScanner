@@ -62,7 +62,6 @@
     <string name="storage_folder">Dokumentenordner</string>
     <string name="storage_folder_summary">Stellt den Ordner für die Speicherung der eingescannten Dokumente ein</string>
     <string name="save_format">Datei-Format auswählen</string>
-    <string name="save_page_size_summary">Dokumente werden als PNG-Bilder gespeichert. Das PNG-Grafikformat unterstützt keine Metadaten.</string>
     <string name="format_not_supported">Grafikformat nicht unterstützt</string>
     <string name="format_not_supported_message">Das Grafikformat hat keine Unterstützung für Tags</string>
     <string name="about_category">Über OpenNoteScanner</string>

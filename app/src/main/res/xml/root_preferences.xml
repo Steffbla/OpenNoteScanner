@@ -27,14 +27,12 @@
             android:defaultValue=".pdf"
             app:entries="@array/file_formats_entries"
             app:key="@string/pref_key_file_format"
-            app:summary="@string/save_page_size_summary"
             app:title="@string/save_format"
             app:useSimpleSummaryProvider="true" />
         <ListPreference
             android:defaultValue="A4"
             app:entries="@array/page_size_entries"
             app:key="@string/pref_key_page_size"
-            app:summary="@string/save_page_size_summary"
             app:title="@string/page_size"
             app:useSimpleSummaryProvider="true" />
         <SwitchPreference
