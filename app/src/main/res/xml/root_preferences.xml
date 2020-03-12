@@ -24,7 +24,7 @@
             app:summary="@string/save_settings_summary"
             app:title="@string/save_settings_title" />
         <ListPreference
-            android:defaultValue=".pdf"
+            android:defaultValue=".jpg"
             app:entries="@array/file_formats_entries"
             app:key="@string/pref_key_file_format"
             app:title="@string/save_format"

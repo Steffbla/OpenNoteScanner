@@ -2,6 +2,7 @@ package com.todobom.opennotescanner.network;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.CountDownTimer;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
@@ -164,7 +165,18 @@ public class SaveFile {
     }
 
     private void uploadFileViaEmail(String fileUri, String fileName) {
-        // dummy method
+        // https://stackoverflow.com/questions/15874117/how-to-set-delay-in-android
+        new CountDownTimer(1000, 500) {
+            // simulating time of process for sending email
+            @Override
+            public void onTick(long l) {
+            }
+
+            @Override
+            public void onFinish() {
+                showToast(true);
+            }
+        }.start();
     }
 
     private void uploadFileViaFtpServer(String fileUri, String fileName) {
