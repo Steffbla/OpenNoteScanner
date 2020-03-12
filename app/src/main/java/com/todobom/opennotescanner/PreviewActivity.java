@@ -17,6 +17,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -194,7 +195,7 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
                 AppConstants.LOCAL);
         String saveAddress = sharedPref.getString(getString(R.string.pref_key_save_address),
                 AppConstants.DEFAULT_FOLDER_NAME);
-        SaveFile saveFile = new SaveFile(this, this, saveOption, saveAddress);
+        SaveFile saveFile = new SaveFile(this, saveOption, saveAddress);
         saveFile.saveFile(documentsManager.getPdfFileUri(), fileName + fileFormat);
     }
 
@@ -242,8 +243,15 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     @Override
-    public void saveComplete() {
+    public void saveComplete(boolean isSuccessful) {
         Log.d(TAG, "completeUpload: ");
+        if (isSuccessful) {
+            Log.d(TAG, "showToast: success");
+            Toast.makeText(this, R.string.save_success_message, Toast.LENGTH_LONG).show();
+        } else {
+            Log.e(TAG, "showToast: fail");
+            Toast.makeText(this, R.string.save_fail_message, Toast.LENGTH_LONG).show();
+        }
         startIntentToCameraActivity(new DocumentsManager(getCacheDir()));
     }
 
