@@ -1,7 +1,5 @@
 package com.todobom.opennotescanner.network;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.CountDownTimer;
 import android.os.Environment;
 import android.util.Log;
@@ -167,7 +165,7 @@ public class SaveFile {
 
             @Override
             public void onFinish() {
-                showToast(true);
+                listener.saveComplete(true);
             }
         }.start();
     }
