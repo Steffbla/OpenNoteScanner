@@ -5,11 +5,7 @@ import android.content.SharedPreferences;
 import android.os.CountDownTimer;
 import android.os.Environment;
 import android.util.Log;
-import android.widget.Toast;
 
-import androidx.preference.PreferenceManager;
-
-import com.todobom.opennotescanner.R;
 import com.todobom.opennotescanner.helpers.AppConstants;
 import com.todobom.opennotescanner.helpers.OnSaveCompleteListener;
 import com.todobom.opennotescanner.network.models.dracoon.ChunkUploadResponse;
@@ -33,15 +29,12 @@ public class SaveFile {
 
     private static final String TAG = "SaveFile";
 
-    private Context context;
     private OnSaveCompleteListener listener;
     private String saveType;
     private String address;
 
 
-    public SaveFile(Context context, OnSaveCompleteListener listener, String saveType,
-                    String address) {
-        this.context = context;
+    public SaveFile(OnSaveCompleteListener listener, String saveType, String address) {
         this.listener = listener;
         this.saveType = saveType;
         this.address = address;
@@ -94,7 +87,7 @@ public class SaveFile {
                 Log.d(TAG, "onCreateUploadChannel: " + response.code());
                 if (response.code() != 201) {
                     Log.e(TAG, "onResponse: " + response.raw());
-                    showToast(false);
+                    listener.saveComplete(false);
                 }
                 CreateShareUploadChannelResponse res = response.body();
                 if (res != null) {
@@ -114,7 +107,7 @@ public class SaveFile {
                             Log.d(TAG, "onUploadFile:" + response.code());
                             if (response.code() != 201) {
                                 Log.e(TAG, "onResponse: " + response.raw());
-                                showToast(false);
+                                listener.saveComplete(false);
                             }
 
                             // complete file upload
@@ -127,9 +120,9 @@ public class SaveFile {
                                     Log.d(TAG, "onCompleteFileUpload: " + response.code());
                                     if (response.code() != 201) {
                                         Log.e(TAG, "onResponse: " + response.raw());
-                                        showToast(false);
+                                        listener.saveComplete(false);
                                     } else {
-                                        showToast(true);
+                                        listener.saveComplete(true);
                                     }
                                 }
 
@@ -137,7 +130,7 @@ public class SaveFile {
                                 public void onFailure(Call<PublicUploadedFileData> call,
                                                       Throwable t) {
                                     Log.e(TAG, "onCompleteFileUpload: " + t.getMessage());
-                                    showToast(false);
+                                    listener.saveComplete(false);
                                 }
                             });
                         }
@@ -145,7 +138,7 @@ public class SaveFile {
                         @Override
                         public void onFailure(Call<ChunkUploadResponse> call, Throwable t) {
                             Log.e(TAG, "onUploadFile: " + t.getMessage());
-                            showToast(false);
+                            listener.saveComplete(false);
                         }
                     });
                 }
@@ -154,7 +147,7 @@ public class SaveFile {
             @Override
             public void onFailure(Call<CreateShareUploadChannelResponse> call, Throwable t) {
                 Log.e(TAG, "onCreateUploadChannel: " + t.getMessage());
-                showToast(false);
+                listener.saveComplete(false);
             }
         });
 
@@ -184,11 +177,8 @@ public class SaveFile {
     }
 
     private void saveFileLocal(String fileUri, String fileName) {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-        String folderName = sharedPref.getString(context.getString(R.string.pref_key_save_address),
-                AppConstants.DEFAULT_FOLDER_NAME);
         File folder = new File(Environment.getExternalStorageDirectory().toString() + "/" +
-                folderName);
+                address);
         if (folder.mkdirs()) {
             Log.d(TAG, "wrote: created folder " + folder.getPath());
         }
@@ -200,17 +190,6 @@ public class SaveFile {
             Log.e(TAG, "saveFileLocal: ", e);
             e.printStackTrace();
         }
-        showToast(true);
-    }
-
-    private void showToast(boolean isSuccess) {
-        listener.saveComplete();
-        if (isSuccess) {
-            Log.d(TAG, "showToast: success");
-            Toast.makeText(context, R.string.save_success_message, Toast.LENGTH_LONG).show();
-        } else {
-            Log.e(TAG, "showToast: fail");
-            Toast.makeText(context, R.string.save_fail_message, Toast.LENGTH_LONG).show();
-        }
+        listener.saveComplete(true);
     }
 }
