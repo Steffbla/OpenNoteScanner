@@ -87,7 +87,7 @@
     <string name="address_warn_dialog_title">Warning</string>
 
     <!-- preview activity-->
-    <string name="preview_page_number">Page %d</string>
+    <string name="preview_page_number">Page %d of %d</string>
     <string name="ibt_preview_save_description">@string/save_dialog_positive</string>
     <string name="ibt_preview_scan_description">Scan result</string>
     <string name="ibt_preview_retake_description">Retake scan</string>

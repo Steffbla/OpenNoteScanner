@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -20,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -29,6 +29,8 @@ import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.todobom.opennotescanner.helpers.AppConstants;
 import com.todobom.opennotescanner.helpers.DocumentsManager;
+import com.todobom.opennotescanner.helpers.ImageSwipeAdapter;
+import com.todobom.opennotescanner.helpers.OnImageSwipeListener;
 import com.todobom.opennotescanner.helpers.OnSaveCompleteListener;
 import com.todobom.opennotescanner.network.SaveFile;
 
@@ -51,8 +53,8 @@ import static com.todobom.opennotescanner.helpers.AppConstants.NEXTCLOUD;
 
 
 public class PreviewActivity extends AppCompatActivity implements View.OnClickListener,
-        DialogInterface.OnClickListener, OnSaveCompleteListener,
-        AdapterView.OnItemSelectedListener {
+        DialogInterface.OnClickListener, OnSaveCompleteListener, AdapterView.OnItemSelectedListener,
+        OnImageSwipeListener {
 
     private static final String TAG = "PreviewActivity";
     SharedPreferences sharedPref;
@@ -63,6 +65,7 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
     private EditText fileNameEt;
     private TextView pageNumberTv;
     private ImageView previewImg;
+    private ViewPager2 viewPager2;
     private DocumentsManager documentsManager;
     private String saveOption;
     private String fileFormat;
@@ -77,8 +80,12 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
         Intent intent = getIntent();
         documentsManager = Parcels.unwrap(intent.getParcelableExtra(AppConstants.DOCUMENTS_EXTRA_KEY));
 
-        previewImg = findViewById(R.id.preview_image);
-        previewImg.setImageURI(Uri.parse(documentsManager.getCurrentFileUri()));
+//        previewImg = findViewById(R.id.preview_image);
+//        previewImg.setImageURI(Uri.parse(documentsManager.getCurrentFileUri()));
+
+        viewPager2 = findViewById(R.id.pager_preview_images);
+        ImageSwipeAdapter adapter = new ImageSwipeAdapter(this, documentsManager.getFileUris());
+        viewPager2.setAdapter(adapter);
 
         exitBtn = findViewById(R.id.ibt_preview_cancel);
         exitBtn.setOnClickListener(this);
@@ -89,7 +96,8 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
         addBtn = findViewById(R.id.ibt_preview_add);
         addBtn.setOnClickListener(this);
         pageNumberTv = findViewById(R.id.tv_preview_page_number);
-        pageNumberTv.setText(getString(R.string.preview_page_number, documentsManager.getPageNumber()));
+//        pageNumberTv.setText(getString(R.string.preview_page_number, documentsManager.getPageNumber(),
+//                documentsManager.getPageNumber()));
 
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         saveOption = sharedPref.getString(getString(R.string.pref_key_save_option), LOCAL);
@@ -305,5 +313,11 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public void onBackPressed() {
         retakeScan();
+    }
+
+    @Override
+    public void onSwipeImage(int position) {
+        Log.d(TAG, "onSwipeImage: " + position);
+        pageNumberTv.setText(getString(R.string.preview_page_number, (position), documentsManager.getPageNumber()));
     }
 }
