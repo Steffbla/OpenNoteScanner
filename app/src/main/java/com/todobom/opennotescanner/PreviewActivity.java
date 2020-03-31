@@ -40,6 +40,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import static com.todobom.opennotescanner.helpers.AppConstants.DRACOON;
+import static com.todobom.opennotescanner.helpers.AppConstants.EMAIL;
+import static com.todobom.opennotescanner.helpers.AppConstants.FTP_SERVER;
+import static com.todobom.opennotescanner.helpers.AppConstants.LOCAL;
+import static com.todobom.opennotescanner.helpers.AppConstants.NEXTCLOUD;
+
 
 public class PreviewActivity extends AppCompatActivity implements View.OnClickListener,
         DialogInterface.OnClickListener, OnSaveCompleteListener,
@@ -65,8 +71,7 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
         setContentView(R.layout.activity_preview);
 
         Intent intent = getIntent();
-        documentsManager =
-                Parcels.unwrap(intent.getParcelableExtra(AppConstants.DOCUMENTS_EXTRA_KEY));
+        documentsManager = Parcels.unwrap(intent.getParcelableExtra(AppConstants.DOCUMENTS_EXTRA_KEY));
 
         previewImg = findViewById(R.id.preview_image);
         previewImg.setImageURI(Uri.parse(documentsManager.getCurrentFileUri()));
@@ -80,8 +85,7 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
         addBtn = findViewById(R.id.ibt_preview_add);
         addBtn.setOnClickListener(this);
         pageNumberTv = findViewById(R.id.tv_preview_page_number);
-        pageNumberTv.setText(getString(R.string.preview_page_number,
-                documentsManager.getPageNumber()));
+        pageNumberTv.setText(getString(R.string.preview_page_number, documentsManager.getPageNumber()));
 
 
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -94,6 +98,19 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
         if (!fileFormat.equals(AppConstants.FILE_SUFFIX_PDF)) {
             addBtn.setVisibility(View.GONE);
             pageNumberTv.setVisibility(View.GONE);
+        }
+
+        setSaveBtn();
+    }
+
+    private void setSaveBtn() {
+        String saveOption = sharedPref.getString(getString(R.string.pref_key_save_option), LOCAL);
+        if (saveOption.equals(DRACOON) || saveOption.equals(NEXTCLOUD) || saveOption.equals(FTP_SERVER)) {
+            Log.d(TAG, "setSaveBtn: cloud icon");
+            saveBtn.setImageDrawable(getDrawable(R.drawable.ic_cloud_green));
+        } else if (saveOption.equals(EMAIL)) {
+            saveBtn.setImageDrawable(getDrawable(R.drawable.ic_email_green));
+            Log.d(TAG, "setSaveBtn: email icon");
         }
     }
 
@@ -192,7 +209,7 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
         }
 
         String saveOption = sharedPref.getString(getString(R.string.pref_key_save_option),
-                AppConstants.LOCAL);
+                LOCAL);
         String saveAddress = sharedPref.getString(getString(R.string.pref_key_save_address),
                 AppConstants.DEFAULT_FOLDER_NAME);
         SaveFile saveFile = new SaveFile(this, saveOption, saveAddress);
