@@ -42,6 +42,9 @@ import java.util.Date;
 
 import static com.todobom.opennotescanner.helpers.AppConstants.DRACOON;
 import static com.todobom.opennotescanner.helpers.AppConstants.EMAIL;
+import static com.todobom.opennotescanner.helpers.AppConstants.FILE_SUFFIX_JPG;
+import static com.todobom.opennotescanner.helpers.AppConstants.FILE_SUFFIX_PDF;
+import static com.todobom.opennotescanner.helpers.AppConstants.FILE_SUFFIX_PNG;
 import static com.todobom.opennotescanner.helpers.AppConstants.FTP_SERVER;
 import static com.todobom.opennotescanner.helpers.AppConstants.LOCAL;
 import static com.todobom.opennotescanner.helpers.AppConstants.NEXTCLOUD;
@@ -166,7 +169,7 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
     private void saveDocument() {
         Log.d(TAG, "saveDocument: ");
 
-        String fileName = fileNameEt.getText().toString();
+        String fileName = getFileName();
         ArrayList<String> fileUris = documentsManager.getFileUris();
 
         if (fileFormat.equals(AppConstants.FILE_SUFFIX_PDF)) {
@@ -212,12 +215,20 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
             }
         }
 
-        String saveOption = sharedPref.getString(getString(R.string.pref_key_save_option),
-                LOCAL);
+        String saveOption = sharedPref.getString(getString(R.string.pref_key_save_option), LOCAL);
         String saveAddress = sharedPref.getString(getString(R.string.pref_key_save_address),
                 AppConstants.DEFAULT_FOLDER_NAME);
         SaveFile saveFile = new SaveFile(this, saveOption, saveAddress);
         saveFile.saveFile(documentsManager.getPdfFileUri(), fileName + fileFormat);
+    }
+
+    private String getFileName() {
+        String fileName = fileNameEt.getText().toString().trim();
+        // remove unnecessary file suffix
+        if (fileName.endsWith(FILE_SUFFIX_PDF) || fileName.endsWith(FILE_SUFFIX_JPG) || fileName.endsWith(FILE_SUFFIX_PNG)) {
+            fileName = fileName.substring(0, fileName.length() - 4);
+        }
+        return fileName;
     }
 
     private void startIntentToCameraActivity(DocumentsManager documentsManager) {
