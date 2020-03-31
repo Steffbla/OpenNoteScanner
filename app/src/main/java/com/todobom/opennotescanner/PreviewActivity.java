@@ -61,6 +61,7 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
     private TextView pageNumberTv;
     private ImageView previewImg;
     private DocumentsManager documentsManager;
+    private String saveOption;
     private String fileFormat;
     private String pageSizePref;
     private String[] pageSizeValues;
@@ -87,8 +88,8 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
         pageNumberTv = findViewById(R.id.tv_preview_page_number);
         pageNumberTv.setText(getString(R.string.preview_page_number, documentsManager.getPageNumber()));
 
-
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        saveOption = sharedPref.getString(getString(R.string.pref_key_save_option), LOCAL);
         fileFormat = sharedPref.getString(getString(R.string.pref_key_file_format),
                 AppConstants.FILE_SUFFIX_PDF);
         pageSizePref = sharedPref.getString(getString(R.string.pref_key_page_size),
@@ -104,7 +105,6 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void setSaveBtn() {
-        String saveOption = sharedPref.getString(getString(R.string.pref_key_save_option), LOCAL);
         if (saveOption.equals(DRACOON) || saveOption.equals(NEXTCLOUD) || saveOption.equals(FTP_SERVER)) {
             Log.d(TAG, "setSaveBtn: cloud icon");
             saveBtn.setImageDrawable(getDrawable(R.drawable.ic_cloud_green));
@@ -140,13 +140,18 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
         }
 
         dialogBuilder.setTitle(R.string.save_dialog_message);
-        dialogBuilder.setPositiveButton(R.string.save_dialog_positive, this);
         dialogBuilder.setNegativeButton(android.R.string.cancel, this);
+        if (saveOption.equals(EMAIL)) {
+            dialogBuilder.setPositiveButton(R.string.save_dialog_positive_email, this);
+        } else {
+            dialogBuilder.setPositiveButton(R.string.save_dialog_positive, this);
+        }
+
         TextView pageSize = dialogView.findViewById(R.id.tv_dialog_page_size);
         pageSize.setText(fileFormat);
 
-        AlertDialog b = dialogBuilder.create();
-        b.show();
+        AlertDialog dialog = dialogBuilder.create();
+        dialog.show();
     }
 
     private int getPageSizePosition() {
@@ -177,8 +182,7 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
             Rectangle docRect = document.getPageSize();
             String outputFile = documentsManager.createPdfTempFile(fileName);
             try {
-                PdfWriter pdfWriter = PdfWriter.getInstance(document,
-                        new FileOutputStream(outputFile));
+                PdfWriter pdfWriter = PdfWriter.getInstance(document, new FileOutputStream(outputFile));
                 document.open();
 
                 for (String uri : fileUris) {
@@ -264,7 +268,11 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
         Log.d(TAG, "completeUpload: ");
         if (isSuccessful) {
             Log.d(TAG, "showToast: success");
-            Toast.makeText(this, R.string.save_success_message, Toast.LENGTH_LONG).show();
+            if (saveOption.equals(EMAIL)) {
+                Toast.makeText(this, R.string.save_success_message_email, Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this, R.string.save_success_message, Toast.LENGTH_LONG).show();
+            }
         } else {
             Log.e(TAG, "showToast: fail");
             Toast.makeText(this, R.string.save_fail_message, Toast.LENGTH_LONG).show();
