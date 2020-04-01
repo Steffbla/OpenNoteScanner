@@ -74,9 +74,9 @@
     <string name="nextcloud_title">Nextcloud-Link</string>
     <string name="title_activity_settings_new">Einstellungen</string>
 
-    <string name="save_option_title">Legen Sie einen Speicherort fest</string>
+    <string name="save_option_title">Speicher-/Sendeoption</string>
     <string name="save_settings_title">Speichereinstellungen</string>
-    <string name="save_settings_summary">Speicherort auswählen</string>
+    <string name="save_settings_summary">Sie können die gescannten Dokumente in einer Cloud hochladen, auf einem Server speichern oder sich per E-Mail zuschicken</string>
     <string name="page_size">Seitengröße</string>
     <string name="save_dialog_message">Datei benennen</string>
     <string name="save_dialog_positive">Speichern</string>

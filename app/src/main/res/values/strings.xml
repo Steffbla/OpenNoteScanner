@@ -77,8 +77,8 @@
     <!-- save settings -->
     <string name="title_activity_settings_new">Settings</string>
     <string name="save_settings_title">Save settings</string>
-    <string name="save_settings_summary">Set your save location</string>
-    <string name="save_option_title">Save location</string>
+    <string name="save_settings_summary">You can save your scanned documents in a cloud, on a server or send them to your e-mail address</string>
+    <string name="save_option_title">Save/send option</string>
     <string name="dracoon_title">DRACOON-link</string>
     <string name="nextcloud_title">Nextcloud-link</string>
     <string name="email_title">E-Mail address</string>
