@@ -61,12 +61,10 @@ public class DocumentsManager {
     }
 
     public String getCurrentFileUri() {
-        // TODO: 04.03.2020 extra variable für fileUri?
         return fileUris.get(getPageNumber() - 1);
     }
 
     public String createPdfTempFile(String fileName) {
-        // TODO: 04.03.2020 right file format
         pdfFileUri = directory.getAbsolutePath() + "/" + fileName + AppConstants.FILE_SUFFIX_PDF;
 
         return pdfFileUri;
