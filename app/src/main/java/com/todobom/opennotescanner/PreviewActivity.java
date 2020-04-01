@@ -13,7 +13,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -57,15 +56,11 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
         OnImageSwipeListener {
 
     private static final String TAG = "PreviewActivity";
+
     SharedPreferences sharedPref;
-    private ImageButton exitBtn;
     private ImageButton saveBtn;
-    private ImageButton retakeBtn;
-    private ImageButton addBtn;
     private EditText fileNameEt;
     private TextView pageNumberTv;
-    private ImageView previewImg;
-    private ViewPager2 viewPager2;
     private DocumentsManager documentsManager;
     private String saveOption;
     private String fileFormat;
@@ -80,24 +75,19 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
         Intent intent = getIntent();
         documentsManager = Parcels.unwrap(intent.getParcelableExtra(AppConstants.DOCUMENTS_EXTRA_KEY));
 
-//        previewImg = findViewById(R.id.preview_image);
-//        previewImg.setImageURI(Uri.parse(documentsManager.getCurrentFileUri()));
-
-        viewPager2 = findViewById(R.id.pager_preview_images);
+        ViewPager2 previewImageVp2 = findViewById(R.id.pager_preview_images);
         ImageSwipeAdapter adapter = new ImageSwipeAdapter(this, documentsManager.getFileUris());
-        viewPager2.setAdapter(adapter);
+        previewImageVp2.setAdapter(adapter);
 
-        exitBtn = findViewById(R.id.ibt_preview_cancel);
+        ImageButton exitBtn = findViewById(R.id.ibt_preview_cancel);
         exitBtn.setOnClickListener(this);
         saveBtn = findViewById(R.id.ibt_preview_save);
         saveBtn.setOnClickListener(this);
-        retakeBtn = findViewById(R.id.ibt_preview_retake);
+        ImageButton retakeBtn = findViewById(R.id.ibt_preview_retake);
         retakeBtn.setOnClickListener(this);
-        addBtn = findViewById(R.id.ibt_preview_add);
+        ImageButton addBtn = findViewById(R.id.ibt_preview_add);
         addBtn.setOnClickListener(this);
         pageNumberTv = findViewById(R.id.tv_preview_page_number);
-//        pageNumberTv.setText(getString(R.string.preview_page_number, documentsManager.getPageNumber(),
-//                documentsManager.getPageNumber()));
 
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         saveOption = sharedPref.getString(getString(R.string.pref_key_save_option), LOCAL);
