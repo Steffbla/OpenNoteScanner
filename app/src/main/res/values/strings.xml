@@ -66,13 +66,8 @@
     <string name="standard_tags">Standard Tags:</string>
     <string name="done">Done</string>
 
-    <string name="save_fail_message">Saving file failed</string>
-    <string name="save_success_message">File saved</string>
-
-
     <!-- preferences -->
     <string name="save_format">Select file format</string>
-
     <string name="github_project">Project on GitHub</string>
     <string name="github_project_summary">This application is open source, you can help to improve it with feedback, issue reports, code and translations through the GitHub project\'s page</string>
     <string name="github_link" translatable="false">https://github.com/stefan-te/OpenNoteScanner</string>
@@ -82,8 +77,8 @@
     <!-- save settings -->
     <string name="title_activity_settings_new">Settings</string>
     <string name="save_settings_title">Save settings</string>
-    <string name="save_settings_summary">Set your save location</string>
-    <string name="save_option_title">Save location</string>
+    <string name="save_settings_summary">You can save your scanned documents in a cloud, on a server or send them to your e-mail address</string>
+    <string name="save_option_title">Save/send option</string>
     <string name="dracoon_title">DRACOON-link</string>
     <string name="nextcloud_title">Nextcloud-link</string>
     <string name="email_title">E-Mail address</string>
@@ -92,17 +87,21 @@
     <string name="address_warn_dialog_title">Warning</string>
 
     <!-- preview activity-->
-    <string name="preview_page_number">Page %d</string>
+    <string name="preview_page_number">Page %d of %d</string>
     <string name="ibt_preview_save_description">@string/save_dialog_positive</string>
     <string name="ibt_preview_scan_description">Scan result</string>
     <string name="ibt_preview_retake_description">Retake scan</string>
     <string name="ibt_preview_add_description">Add another page</string>
+    <string name="save_fail_message">Saving file failed</string>
+    <string name="save_success_message">File saved</string>
+    <string name="save_success_message_email">File sent</string>
 
     <!-- save dialog-->
     <string name="address_warn_dialog_message">You must set a address for your saveFile</string>
     <string name="page_size">Page size</string>
     <string name="save_dialog_message">Set your filename</string>
     <string name="save_dialog_positive">Save</string>
+    <string name="save_dialog_positive_email">Send</string>
     <string name="file_name_default" translatable="false">DOC_%s</string>
     <string name="tv_dialog_filename_title">Set filename</string>
     <string name="tv_dialog_page_size_title">Set page size</string>

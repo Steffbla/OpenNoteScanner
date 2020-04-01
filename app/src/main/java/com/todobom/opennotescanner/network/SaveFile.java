@@ -152,14 +152,17 @@ public class SaveFile {
 
     private void uploadFileViaNextcloud(String fileUri, String fileName) {
         // dummy method
+        listener.saveComplete(true);
     }
 
     private void uploadFileViaEmail(String fileUri, String fileName) {
         // dummy method
+        listener.saveComplete(true);
     }
 
     private void uploadFileViaFtpServer(String fileUri, String fileName) {
         // dummy method
+        listener.saveComplete(true);
     }
 
     private void saveFileLocal(String fileUri, String fileName) {
