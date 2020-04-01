@@ -65,8 +65,7 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
         setContentView(R.layout.activity_preview);
 
         Intent intent = getIntent();
-        documentsManager =
-                Parcels.unwrap(intent.getParcelableExtra(AppConstants.DOCUMENTS_EXTRA_KEY));
+        documentsManager = Parcels.unwrap(intent.getParcelableExtra(AppConstants.DOCUMENTS_EXTRA_KEY));
 
         previewImg = findViewById(R.id.preview_image);
         previewImg.setImageURI(Uri.parse(documentsManager.getCurrentFileUri()));
@@ -80,8 +79,7 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
         addBtn = findViewById(R.id.ibt_preview_add);
         addBtn.setOnClickListener(this);
         pageNumberTv = findViewById(R.id.tv_preview_page_number);
-        pageNumberTv.setText(getString(R.string.preview_page_number,
-                documentsManager.getPageNumber()));
+        pageNumberTv.setText(getString(R.string.preview_page_number, documentsManager.getPageNumber()));
 
 
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -146,6 +144,7 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
 
         String fileName = fileNameEt.getText().toString();
         ArrayList<String> fileUris = documentsManager.getFileUris();
+        String outputFile = fileUris.get(0);
 
         if (fileFormat.equals(AppConstants.FILE_SUFFIX_PDF)) {
             // https://github.com/Swati4star/Images-to-PDF/
@@ -158,7 +157,7 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
             Document document = new Document(pageSize);
 
             Rectangle docRect = document.getPageSize();
-            String outputFile = documentsManager.createPdfTempFile(fileName);
+            outputFile = documentsManager.createPdfTempFile(fileName);
             try {
                 PdfWriter pdfWriter = PdfWriter.getInstance(document,
                         new FileOutputStream(outputFile));
@@ -196,7 +195,7 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
         String saveAddress = sharedPref.getString(getString(R.string.pref_key_save_address),
                 AppConstants.DEFAULT_FOLDER_NAME);
         SaveFile saveFile = new SaveFile(this, saveOption, saveAddress);
-        saveFile.saveFile(documentsManager.getPdfFileUri(), fileName + fileFormat);
+        saveFile.saveFile(outputFile, fileName + fileFormat);
     }
 
     private void startIntentToCameraActivity(DocumentsManager documentsManager) {
