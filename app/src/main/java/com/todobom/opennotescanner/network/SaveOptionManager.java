@@ -22,7 +22,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class SaveFile {
+public class SaveOptionManager {
 
     private static final String TAG = "SaveFile";
 
@@ -31,7 +31,7 @@ public class SaveFile {
     private String address;
 
 
-    public SaveFile(OnSaveCompleteListener listener, String saveType, String address) {
+    public SaveOptionManager(OnSaveCompleteListener listener, String saveType, String address) {
         this.listener = listener;
         this.saveType = saveType;
         this.address = address;

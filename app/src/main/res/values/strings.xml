@@ -97,7 +97,7 @@
     <string name="save_success_message_email">File sent</string>
 
     <!-- save dialog-->
-    <string name="address_warn_dialog_message">You must set a address for your saveFile</string>
+    <string name="address_warn_dialog_message">You must set a address for your save/send option</string>
     <string name="page_size">Page size</string>
     <string name="save_dialog_message">Set your filename</string>
     <string name="save_dialog_positive">Save</string>
