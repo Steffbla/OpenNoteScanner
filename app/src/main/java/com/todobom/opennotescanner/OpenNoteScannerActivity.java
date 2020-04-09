@@ -190,8 +190,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
         intent = getIntent();
-        documentsManager =
-                Parcels.unwrap(intent.getParcelableExtra(AppConstants.DOCUMENTS_EXTRA_KEY));
+        documentsManager = Parcels.unwrap(intent.getParcelableExtra(AppConstants.DOCUMENTS_EXTRA_KEY));
         if (documentsManager == null) {
             documentsManager = new DocumentsManager(getCacheDir());
         }
@@ -291,8 +290,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
             case CREATE_PERMISSIONS_REQUEST_CAMERA: {
                 // If request is cancelled, the result arrays are empty.
@@ -340,8 +338,7 @@ public class OpenNoteScannerActivity extends AppCompatActivity
             imgSuffix = AppConstants.FILE_SUFFIX_PNG;
         }
 
-        if (intent.getAction() != null && intent.getAction().equals("android.media.action" +
-                ".IMAGE_CAPTURE")) {
+        if (intent.getAction() != null && intent.getAction().equals("android.media.action" + ".IMAGE_CAPTURE")) {
             fileUri = intent.getParcelableExtra(MediaStore.EXTRA_OUTPUT);
             Log.d(TAG, "intent uri: " + fileUri.toString());
             try {
@@ -409,8 +406,6 @@ public class OpenNoteScannerActivity extends AppCompatActivity
             startPreview.putExtra(AppConstants.DOCUMENTS_EXTRA_KEY, Parcels.wrap(documentsManager));
             startActivity(startPreview);
             finish();
-//            animateDocument(filePath, scannedDocument);
-//            addImageToGallery(filePath, this);
         }
     }
 
@@ -894,13 +889,6 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         } else {
             enableCameraView();
         }
-    }
-
-    private void animateDocument(String filename, ScannedDocument quadrilateral) {
-
-        AnimationRunnable runnable = new AnimationRunnable(filename, quadrilateral);
-        runOnUiThread(runnable);
-
     }
 
     private void shootSound() {
