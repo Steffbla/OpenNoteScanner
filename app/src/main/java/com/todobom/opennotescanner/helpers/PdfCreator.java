@@ -20,8 +20,7 @@ public class PdfCreator {
     public static void makePdf(String pageSizePref, String outputFile, ArrayList<String> fileUris) {
         // https://github.com/Swati4star/Images-to-PDF/
         Rectangle pageSize = PageSize.getRectangle(pageSizePref);
-        // https://stackoverflow.com/questions/17274618/itext-landscape-orientation-and
-        // -positioning
+        // https://stackoverflow.com/questions/17274618/itext-landscape-orientation-and-positioning
         if (pageSizePref.contains("landscape")) {
             pageSize = pageSize.rotate();
         }
@@ -44,8 +43,7 @@ public class PdfCreator {
                 float pageHeight = document.getPageSize().getHeight();
                 image.scaleToFit(pageWidth, pageHeight);
 
-                image.setAbsolutePosition(
-                        (docRect.getWidth() - image.getScaledWidth()) / 2,
+                image.setAbsolutePosition((docRect.getWidth() - image.getScaledWidth()) / 2,
                         (docRect.getHeight() - image.getScaledHeight()) / 2);
 
                 document.add(image);

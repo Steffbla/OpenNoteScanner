@@ -332,7 +332,6 @@ public class OpenNoteScannerActivity extends AppCompatActivity
         Uri fileUri = null;
         String fileFormat = mSharedPref.getString(getString(R.string.pref_key_file_format),
                 AppConstants.FILE_SUFFIX_PDF);
-
         String imgSuffix = AppConstants.FILE_SUFFIX_JPG;
         if (fileFormat.equals(AppConstants.FILE_SUFFIX_PNG)) {
             imgSuffix = AppConstants.FILE_SUFFIX_PNG;
