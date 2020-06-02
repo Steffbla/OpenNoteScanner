@@ -49,8 +49,7 @@ public class DocumentsManager {
 
     public String createNewFile(String imgSuffix) {
         try {
-            String file =
-                    File.createTempFile(getPageNumber() + "_img", imgSuffix, directory).getPath();
+            String file = File.createTempFile(getPageNumber() + "_img", imgSuffix, directory).getPath();
             fileUris.add(file);
             return file;
         } catch (IOException e) {

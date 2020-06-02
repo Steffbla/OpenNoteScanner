@@ -185,7 +185,7 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
         return fileName;
     }
 
-    private void startIntentToCameraActivity(DocumentsManager documentsManager) {
+    private void startIntentToCameraActivity() {
         Intent intent = new Intent(this, OpenNoteScannerActivity.class);
         intent.putExtra(AppConstants.DOCUMENTS_EXTRA_KEY, Parcels.wrap(documentsManager));
         startActivity(intent);
@@ -196,7 +196,8 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.ibt_preview_cancel:
-                startIntentToCameraActivity(new DocumentsManager(getCacheDir()));
+                documentsManager = new DocumentsManager(getCacheDir());
+                startIntentToCameraActivity();
                 break;
             case R.id.ibt_preview_save:
                 createSaveDialog();
@@ -205,7 +206,7 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
                 retakeScan();
                 break;
             case R.id.ibt_preview_add:
-                startIntentToCameraActivity(documentsManager);
+                startIntentToCameraActivity();
                 break;
         }
     }
@@ -213,7 +214,7 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
     private void retakeScan() {
         Log.d(TAG, "retakeScan: ");
         documentsManager.retakeScan();
-        startIntentToCameraActivity(documentsManager);
+        startIntentToCameraActivity();
     }
 
     @Override
@@ -242,7 +243,8 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
             Log.e(TAG, "showToast: fail");
             Toast.makeText(this, R.string.save_fail_message, Toast.LENGTH_LONG).show();
         }
-        startIntentToCameraActivity(new DocumentsManager(getCacheDir()));
+        documentsManager = new DocumentsManager(getCacheDir());
+        startIntentToCameraActivity();
     }
 
     @Override

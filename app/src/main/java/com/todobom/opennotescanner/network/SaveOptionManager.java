@@ -61,10 +61,9 @@ public class SaveOptionManager {
     // https://square.github.io/retrofit/
     private void uploadFileViaDracoon(String fileUri, String fileName) {
         String[] splitAddress = address.split("/");
-        // schema of an upload link is always: "base.url/api/v4/public/upload-shares/access_key
+        // schema of an upload link is always: "base.url/api/v4/public/upload-shares/access_key"
         String uploadBaseUrl = "https://" + splitAddress[splitAddress.length - 4] + "/api/v4/";
-        DracoonService dracoonService =
-                NetworkConstants.getDracoonService(NetworkConstants.getRetrofit(uploadBaseUrl));
+        DracoonService dracoonService = NetworkConstants.getDracoonService(NetworkConstants.getRetrofit(uploadBaseUrl));
 
         String accessKey = splitAddress[splitAddress.length - 1];
         File file = new File(fileUri);
